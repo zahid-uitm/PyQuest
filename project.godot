@@ -11,13 +11,21 @@ config_version=5
 [application]
 
 config/name="PyQuest"
+run/main_scene="uid://cisccge6ty4dv"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+FirebaseManager="*uid://dfl602aw64co6"
+GameManager="*uid://cdponkgx3b5s0"
+SaveManager="*uid://b4cp0jolxx64b"
+SceneManager="*uid://dok38deec0u8e"
+
 [display]
 
-window/size/viewport_width=1080
-window/size/viewport_height=1920
+window/size/viewport_width=1920
+window/size/viewport_height=1080
 window/size/window_width_override=540
 window/size/window_height_override=960
 window/stretch/mode="canvas_items"

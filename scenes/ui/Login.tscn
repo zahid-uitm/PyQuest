@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://bcgqnnmveopth"]
+
+[ext_resource type="Script" uid="uid://cdubkj333dxio" path="res://scripts/ui/AuthUI.gd" id="1_ooglm"]
+
+[node name="Login" type="Control" unique_id=358322215]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 29.0
+offset_top = 98.0
+offset_right = 29.0
+offset_bottom = 98.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ooglm")
+
+[node name="Background" type="ColorRect" parent="." unique_id=627492278]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FormContainer" type="VBoxContainer" parent="." unique_id=333166106]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TitleLabel" type="Label" parent="FormContainer" unique_id=228177906]
+layout_mode = 2
+
+[node name="EmailInput" type="LineEdit" parent="FormContainer" unique_id=1642684092]
+layout_mode = 2
+
+[node name="PasswordInput" type="LineEdit" parent="FormContainer" unique_id=956022027]
+layout_mode = 2
+
+[node name="SubmitButton" type="Button" parent="FormContainer" unique_id=1456948952]
+layout_mode = 2
+
+[node name="SwitchModeButton" type="Button" parent="FormContainer" unique_id=568834609]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="FormContainer" unique_id=1577156491]
+layout_mode = 2
