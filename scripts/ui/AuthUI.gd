@@ -43,3 +43,10 @@ func _on_switch_auth_mode_pressed() -> void:
 		SceneManager.change_scene(SceneManager.LOGIN)
 	else:
 		SceneManager.change_scene(SceneManager.SIGN_UP)
+
+
+func _on_switch_mode_button_pressed() -> void:
+	if is_signup_screen:
+		SceneManager.change_scene(SceneManager.LOGIN)
+	else:
+		SceneManager.change_scene(SceneManager.SIGN_UP)

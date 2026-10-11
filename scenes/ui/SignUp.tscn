@@ -10,37 +10,72 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_j1nah")
+is_signup_screen = true
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=153433144]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Background" type="ColorRect" parent="." unique_id=153433144]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.17830312, 0.15541723, 0.4206215, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1003461904]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="FormContainer" type="VBoxContainer" parent="." unique_id=1003461904]
+custom_minimum_size = Vector2(600, 600)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -34.0
+offset_top = -107.0
+offset_right = 34.0
+offset_bottom = 107.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
 
-[node name="TitileLabel" type="Label" parent="VBoxContainer" unique_id=136541770]
+[node name="TitileLabel" type="Label" parent="FormContainer" unique_id=136541770]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Create Account"
+horizontal_alignment = 1
+
+[node name="FullNameInput" type="LineEdit" parent="FormContainer" unique_id=455127754]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "Full Name"
+
+[node name="EmailInput" type="LineEdit" parent="FormContainer" unique_id=1747667530]
+layout_mode = 2
+placeholder_text = "Email Address"
+
+[node name="PasswordInput" type="LineEdit" parent="FormContainer" unique_id=435888050]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "Password"
+secret = true
+
+[node name="ConfirmPasswordInput" type="LineEdit" parent="FormContainer" unique_id=371555381]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "Confirm Password"
+secret = true
+
+[node name="SubmitButton" type="Button" parent="FormContainer" unique_id=661916597]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+text = "Create Account"
+
+[node name="SwitchModeButton" type="Button" parent="FormContainer" unique_id=1481205674]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Already have an account? Log In"
+
+[node name="StatusLabel" type="Label" parent="FormContainer" unique_id=738996443]
 layout_mode = 2
 
-[node name="FullNameInput" type="LineEdit" parent="VBoxContainer" unique_id=455127754]
-layout_mode = 2
-
-[node name="EmailInput" type="LineEdit" parent="VBoxContainer" unique_id=1747667530]
-layout_mode = 2
-
-[node name="PasswordInput" type="LineEdit" parent="VBoxContainer" unique_id=435888050]
-layout_mode = 2
-
-[node name="ConfirmPasswordInput" type="LineEdit" parent="VBoxContainer" unique_id=371555381]
-layout_mode = 2
-
-[node name="SubmitButton" type="Button" parent="VBoxContainer" unique_id=661916597]
-layout_mode = 2
-
-[node name="SwitchModeButton" type="Button" parent="VBoxContainer" unique_id=1481205674]
-layout_mode = 2
-
-[node name="StatusLabel" type="Label" parent="VBoxContainer" unique_id=738996443]
-layout_mode = 2
+[connection signal="pressed" from="FormContainer/SubmitButton" to="." method="_on_submit_button_pressed"]
+[connection signal="pressed" from="FormContainer/SwitchModeButton" to="." method="_on_switch_mode_button_pressed"]

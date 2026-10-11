@@ -7,38 +7,66 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 29.0
-offset_top = 98.0
-offset_right = 29.0
-offset_bottom = 98.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ooglm")
 
 [node name="Background" type="ColorRect" parent="." unique_id=627492278]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+custom_minimum_size = Vector2(600, 500)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1764706, 0.15686275, 0.41960785, 1)
 
 [node name="FormContainer" type="VBoxContainer" parent="." unique_id=333166106]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+custom_minimum_size = Vector2(600, 500)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -34.0
+offset_top = -72.0
+offset_right = 34.0
+offset_bottom = 72.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
 
 [node name="TitleLabel" type="Label" parent="FormContainer" unique_id=228177906]
 layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Welcome Back!"
+horizontal_alignment = 1
 
 [node name="EmailInput" type="LineEdit" parent="FormContainer" unique_id=1642684092]
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+placeholder_text = "Email Address"
 
 [node name="PasswordInput" type="LineEdit" parent="FormContainer" unique_id=956022027]
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+placeholder_text = "Password"
+secret = true
 
 [node name="SubmitButton" type="Button" parent="FormContainer" unique_id=1456948952]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+text = "Log In"
 
 [node name="SwitchModeButton" type="Button" parent="FormContainer" unique_id=568834609]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+text = "Don't have an account? Sign Up"
 
 [node name="StatusLabel" type="Label" parent="FormContainer" unique_id=1577156491]
 layout_mode = 2
+horizontal_alignment = 1
+
+[connection signal="pressed" from="FormContainer/SubmitButton" to="." method="_on_submit_button_pressed"]
+[connection signal="pressed" from="FormContainer/SwitchModeButton" to="." method="_on_switch_mode_button_pressed"]
