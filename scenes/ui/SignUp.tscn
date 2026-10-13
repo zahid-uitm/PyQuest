@@ -76,6 +76,7 @@ text = "Already have an account? Log In"
 
 [node name="StatusLabel" type="Label" parent="FormContainer" unique_id=738996443]
 layout_mode = 2
+horizontal_alignment = 1
 
 [connection signal="pressed" from="FormContainer/SubmitButton" to="." method="_on_submit_button_pressed"]
 [connection signal="pressed" from="FormContainer/SwitchModeButton" to="." method="_on_switch_mode_button_pressed"]

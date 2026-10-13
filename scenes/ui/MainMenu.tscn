@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://c1y452nkvc4ll"]
 
+[ext_resource type="Script" uid="uid://dj5ur8oq7g71t" path="res://scripts/ui/MainMenuUI.gd" id="1_vjtqc"]
+
 [node name="MainMenu" type="Control" unique_id=1068777223]
 layout_mode = 3
 anchors_preset = 15
@@ -7,3 +9,78 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_vjtqc")
+
+[node name="Background" type="ColorRect" parent="." unique_id=2102219259]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.11764706, 0.105882354, 0.18039216, 1)
+
+[node name="Header" type="HBoxContainer" parent="." unique_id=1045436577]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 27.0
+grow_horizontal = 2
+theme_override_constants/separation = 30
+
+[node name="UserNameLabel" type="Label" parent="Header" unique_id=503816289]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Welcome back, [Player]!"
+
+[node name="LevelLabel" type="Label" parent="Header" unique_id=2016518429]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Level [1]"
+
+[node name="XPProgressBar" type="ProgressBar" parent="Header" unique_id=112068469]
+custom_minimum_size = Vector2(250, 30)
+layout_mode = 2
+
+[node name="MainContainer" type="VBoxContainer" parent="." unique_id=1850255602]
+custom_minimum_size = Vector2(500, 400)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -37.0
+offset_right = 20.0
+offset_bottom = 37.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLable" type="Label" parent="MainContainer" unique_id=1424442261]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "PyQuest"
+horizontal_alignment = 1
+
+[node name="ContinueQuestButton" type="Button" parent="MainContainer" unique_id=1619360059]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+text = "Continue Quest"
+
+[node name="LevelSelectButton" type="Button" parent="MainContainer" unique_id=1714170800]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+text = "Level Select"
+
+[node name="LogoutButton" type="Button" parent="MainContainer" unique_id=250446173]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Log Out"
+
+[connection signal="pressed" from="MainContainer/ContinueQuestButton" to="." method="_on_continue_quest_button_pressed"]
+[connection signal="pressed" from="MainContainer/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
+[connection signal="pressed" from="MainContainer/LogoutButton" to="." method="_on_logout_button_pressed"]

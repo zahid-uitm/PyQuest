@@ -6,7 +6,7 @@ signal auth_failed(error_msg: String)
 signal db_write_complete(success: bool)
 
 const API_KEY: String = "AIzaSyAefjAz8cKAfSJPRVhf-IKctdl1csVit1M"
-const DB_URL: String = "https://pyquest-fyp-default-rtdb.firebaseio.com"
+const DB_URL: String = "https://pyquest-8ad56-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 const AUTH_SIGNUP_URL = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="
 const AUTH_LOGIN_URL = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="
@@ -53,6 +53,7 @@ func login_user(email: String, password: String) -> void:
 func logout() -> void:
 	current_user_id = ""
 	id_token = ""
+	SaveManager.user_profile = {}
 
 func write_player_profile(profile_data: Dictionary) -> void:
 	if not is_authenticated():
@@ -61,20 +62,34 @@ func write_player_profile(profile_data: Dictionary) -> void:
 	
 	var url = "%s/users/%s.json?auth=%s" % [DB_URL, current_user_id, id_token]
 	var headers = ["Content-Type: application/json"]
+	http_db.set_meta("action", "write_profile")
 	http_db.request(url, headers, HTTPClient.METHOD_PUT, JSON.stringify(profile_data))
 
-func _on_auth_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	var json = JSON.new()
-	json.parse(body.get_string_from_utf8())
-	var response = json.get_data()
-	
-	if response_code == 200:
-		current_user_id = response["localId"]
-		id_token = response["idToken"]
+func fetch_player_profile() -> void:
+	if not is_authenticated():
+		push_error("Cannot read DB without authentication.")
+		return
 		
-		var action = http_auth.get_meta("action")
+	var url = "%s/users/%s.json?auth=%s" % [DB_URL, current_user_id, id_token]
+	http_db.set_meta("action", "read_profile")
+	http_db.request(url, [], HTTPClient.METHOD_GET)
+
+func _on_auth_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	var response_text = body.get_string_from_utf8()
+	var response = JSON.parse_string(response_text)
+	
+	if typeof(response) != TYPE_DICTIONARY:
+		auth_failed.emit("Server response invalid.")
+		return
+
+	if response_code == 200:
+		current_user_id = response.get("localId", "")
+		id_token = response.get("idToken", "")
+		
+		var action = http_auth.get_meta("action") if http_auth.has_meta("action") else ""
+		
 		if action == "signup":
-			var full_name = http_auth.get_meta("full_name")
+			var full_name = http_auth.get_meta("full_name") if http_auth.has_meta("full_name") else "Player"
 			var initial_profile = {
 				"full_name": full_name,
 				"player_level": 1,
@@ -84,11 +99,76 @@ func _on_auth_request_completed(_result: int, response_code: int, _headers: Pack
 			}
 			SaveManager.user_profile = initial_profile
 			write_player_profile(initial_profile)
-		
-		auth_success.emit(response)
+			auth_success.emit(response)
+		elif action == "login":
+			# Fetch profile data from RTDB after successful authentication
+			fetch_player_profile()
+			
+		# Clean up metadata
+		if http_auth.has_meta("action"): http_auth.remove_meta("action")
+		if http_auth.has_meta("full_name"): http_auth.remove_meta("full_name")
 	else:
-		var err_message = response.get("error", {}).get("message", "Authentication Failed")
-		auth_failed.emit(err_message)
+		var raw_error = response.get("error", {}).get("message", "AUTH_FAILED")
+		auth_failed.emit(_clean_error_message(raw_error))
 
-func _on_db_request_completed(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
-	db_write_complete.emit(response_code == 200)
+func _on_db_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	var db_action = http_db.get_meta("action") if http_db.has_meta("action") else ""
+	var response_text = body.get_string_from_utf8()
+	
+	if db_action == "read_profile":
+		print("DB Read Response Code: ", response_code)
+		print("DB Read Body: ", response_text)
+		
+		if response_code == 200:
+			var profile = JSON.parse_string(response_text)
+			
+			if typeof(profile) == TYPE_DICTIONARY:
+				SaveManager.user_profile = profile
+				auth_success.emit({"user_id": current_user_id})
+			elif profile == null:
+				# Profile doesn't exist in DB yet (e.g. account created during earlier failed test)
+				# Auto-generate initial profile
+				var default_profile = {
+					"full_name": "Player",
+					"player_level": 1,
+					"xp": 0,
+					"unlocked_level": 1,
+					"hint_tokens": 5
+				}
+				SaveManager.user_profile = default_profile
+				write_player_profile(default_profile)
+				auth_success.emit({"user_id": current_user_id})
+			else:
+				auth_failed.emit("Failed to load user profile from database.")
+		else:
+			auth_failed.emit("Failed to load user profile (HTTP %d)." % response_code)
+	else:
+		db_write_complete.emit(response_code == 200)
+		
+	if http_db.has_meta("action"): http_db.remove_meta("action")
+	
+	if db_action == "read_profile":
+		if response_code == 200:
+			var profile = JSON.parse_string(body.get_string_from_utf8())
+			if typeof(profile) == TYPE_DICTIONARY:
+				SaveManager.user_profile = profile
+			auth_success.emit({"user_id": current_user_id})
+		else:
+			auth_failed.emit("Failed to load user profile from database.")
+	else:
+		db_write_complete.emit(response_code == 200)
+		
+	if http_db.has_meta("action"): http_db.remove_meta("action")
+
+func _clean_error_message(raw_msg: String) -> String:
+	if "EMAIL_EXISTS" in raw_msg:
+		return "An account with this email already exists."
+	elif "INVALID_EMAIL" in raw_msg:
+		return "Please enter a valid email address."
+	elif "WEAK_PASSWORD" in raw_msg:
+		return "Password must be at least 6 characters."
+	elif "INVALID_LOGIN_CREDENTIALS" in raw_msg or "INVALID_PASSWORD" in raw_msg or "EMAIL_NOT_FOUND" in raw_msg:
+		return "Invalid email or password."
+	elif "USER_DISABLED" in raw_msg:
+		return "This account has been disabled."
+	return "Authentication Error: " + raw_msg
