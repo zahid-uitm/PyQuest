@@ -1,9 +1,9 @@
 # res://scripts/ui/MainMenuUI.gd
 extends Control
 
-@onready var user_name_label: Label = $Header/UserNameLabel
-@onready var xp_progress_bar: ProgressBar = $Header/XPProgressBar
-@onready var level_label: Label = $Header/LevelLabel
+@onready var user_name_label: Label = $HeaderPanel/HeaderContainer/UserInfo/UserNameLabel
+@onready var level_label: Label = $HeaderPanel/HeaderContainer/UserInfo/LevelLabel
+@onready var xp_progress_bar: ProgressBar = $HeaderPanel/HeaderContainer/XPContainer/XPProgressBar
 
 func _ready() -> void:
 	update_dashboard()
@@ -11,12 +11,20 @@ func _ready() -> void:
 func update_dashboard() -> void:
 	var profile: Dictionary = SaveManager.user_profile
 	
-	user_name_label.text = "Welcome back, %s!" % profile.get("full_name", "Player")
-	level_label.text = "Level %d" % int(profile.get("player_level", 1))
+	var raw_name: String = profile.get("full_name", "Player")
+	user_name_label.text = "Welcome back, %s!" % raw_name
+	
+	var current_level: int = int(profile.get("player_level", 1))
+	level_label.text = "Level %d Adventurer" % current_level
 	
 	var current_xp: int = int(profile.get("xp", 0))
-	xp_progress_bar.value = current_xp % 500
+	var xp_in_level: int = current_xp % 500
+	
 	xp_progress_bar.max_value = 500
+	
+	# Smoothly animate XP progress bar load
+	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(xp_progress_bar, "value", xp_in_level, 0.8)
 
 func _on_continue_quest_button_pressed() -> void:
 	SceneManager.change_scene(SceneManager.LEVEL_SELECT)

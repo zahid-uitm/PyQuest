@@ -1,6 +1,69 @@
 [gd_scene format=3 uid="uid://c1y452nkvc4ll"]
 
 [ext_resource type="Script" uid="uid://dj5ur8oq7g71t" path="res://scripts/ui/MainMenuUI.gd" id="1_vjtqc"]
+[ext_resource type="Texture2D" uid="uid://l4xe1oubofqo" path="res://pyquest _logo.jpg" id="2_6jbdy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iwbf0"]
+content_margin_left = 20.0
+content_margin_top = 12.0
+content_margin_right = 20.0
+content_margin_bottom = 12.0
+bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
+border_width_bottom = 2
+border_color = Color(0.18039216, 0.23921569, 0.3529412, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ysvc"]
+bg_color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xpiny"]
+bg_color = Color(0.9607843, 0.61960787, 0.043137256, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bhu4a"]
+content_margin_left = 40.0
+content_margin_top = 32.0
+content_margin_right = 40.0
+content_margin_bottom = 32.0
+bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18039216, 0.23921569, 0.3529412, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e2per"]
+bg_color = Color(0.9607843, 0.61960787, 0.043137256, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7mi0g"]
+bg_color = Color(0.11764706, 0.16078432, 0.23137255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.25490198, 0.33333334, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="MainMenu" type="Control" unique_id=1068777223]
 layout_mode = 3
@@ -18,69 +81,106 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.11764706, 0.105882354, 0.18039216, 1)
+color = Color(0.050980393, 0.08235294, 0.15294118, 1)
 
-[node name="Header" type="HBoxContainer" parent="." unique_id=1045436577]
-custom_minimum_size = Vector2(0, 30)
+[node name="HeaderPanel" type="PanelContainer" parent="." unique_id=549269393]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 27.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 93.0
 grow_horizontal = 2
-theme_override_constants/separation = 30
+theme_override_styles/panel = SubResource("StyleBoxFlat_iwbf0")
 
-[node name="UserNameLabel" type="Label" parent="Header" unique_id=503816289]
+[node name="HeaderContainer" type="HBoxContainer" parent="HeaderPanel" unique_id=1045436577]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="UserInfo" type="VBoxContainer" parent="HeaderPanel/HeaderContainer" unique_id=522120010]
+layout_mode = 2
+
+[node name="UserNameLabel" type="Label" parent="HeaderPanel/HeaderContainer/UserInfo" unique_id=503816289]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 28
-text = "Welcome back, [Player]!"
+theme_override_font_sizes/font_size = 20
+text = "Welcome back, Player!"
 
-[node name="LevelLabel" type="Label" parent="Header" unique_id=2016518429]
+[node name="LevelLabel" type="Label" parent="HeaderPanel/HeaderContainer/UserInfo" unique_id=2016518429]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Level [1]"
+theme_override_colors/font_color = Color(0.83137256, 0.6862745, 0.21568628, 1)
+theme_override_font_sizes/font_size = 14
+text = "Level 1 Explorer"
 
-[node name="XPProgressBar" type="ProgressBar" parent="Header" unique_id=112068469]
-custom_minimum_size = Vector2(250, 30)
+[node name="ControlSpacer" type="Control" parent="HeaderPanel/HeaderContainer" unique_id=67247294]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="XPContainer" type="VBoxContainer" parent="HeaderPanel/HeaderContainer" unique_id=1503921558]
 layout_mode = 2
 
-[node name="MainContainer" type="VBoxContainer" parent="." unique_id=1850255602]
-custom_minimum_size = Vector2(500, 400)
+[node name="XPLabel" type="Label" parent="HeaderPanel/HeaderContainer/XPContainer" unique_id=742913148]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5803922, 0.6392157, 0.72156864, 1)
+theme_override_font_sizes/font_size = 12
+text = "XP Progress"
+horizontal_alignment = 2
+
+[node name="XPProgressBar" type="ProgressBar" parent="HeaderPanel/HeaderContainer/XPContainer" unique_id=112068469]
+custom_minimum_size = Vector2(200, 18)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_2ysvc")
+theme_override_styles/fill = SubResource("StyleBoxFlat_xpiny")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=996533112]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -37.0
-offset_right = 20.0
-offset_bottom = 37.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
 
-[node name="TitleLable" type="Label" parent="MainContainer" unique_id=1424442261]
+[node name="CardPanel" type="PanelContainer" parent="CenterContainer" unique_id=1907354206]
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
-text = "PyQuest"
-horizontal_alignment = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_bhu4a")
 
-[node name="ContinueQuestButton" type="Button" parent="MainContainer" unique_id=1619360059]
-custom_minimum_size = Vector2(0, 60)
+[node name="MainContainer" type="VBoxContainer" parent="CenterContainer/CardPanel" unique_id=1850255602]
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
-text = "Continue Quest"
+theme_override_constants/separation = 16
 
-[node name="LevelSelectButton" type="Button" parent="MainContainer" unique_id=1714170800]
-custom_minimum_size = Vector2(0, 60)
+[node name="Logo" type="TextureRect" parent="CenterContainer/CardPanel/MainContainer" unique_id=2027007462]
+custom_minimum_size = Vector2(260, 130)
 layout_mode = 2
-text = "Level Select"
+texture = ExtResource("2_6jbdy")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="LogoutButton" type="Button" parent="MainContainer" unique_id=250446173]
+[node name="ContinueQuestButton" type="Button" parent="CenterContainer/CardPanel/MainContainer" unique_id=1619360059]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_e2per")
+text = "▶ Continue Quest"
+
+[node name="LevelSelectButton" type="Button" parent="CenterContainer/CardPanel/MainContainer" unique_id=1714170800]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8862745, 0.9098039, 0.9411765, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_7mi0g")
+text = "🗺 Select Level"
+
+[node name="LogoutButton" type="Button" parent="CenterContainer/CardPanel/MainContainer" unique_id=250446173]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9372549, 0.26666668, 0.26666668, 1)
 text = "Log Out"
+flat = true
 
-[connection signal="pressed" from="MainContainer/ContinueQuestButton" to="." method="_on_continue_quest_button_pressed"]
-[connection signal="pressed" from="MainContainer/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
-[connection signal="pressed" from="MainContainer/LogoutButton" to="." method="_on_logout_button_pressed"]
+[connection signal="pressed" from="CenterContainer/CardPanel/MainContainer/ContinueQuestButton" to="." method="_on_continue_quest_button_pressed"]
+[connection signal="pressed" from="CenterContainer/CardPanel/MainContainer/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
+[connection signal="pressed" from="CenterContainer/CardPanel/MainContainer/LogoutButton" to="." method="_on_logout_button_pressed"]

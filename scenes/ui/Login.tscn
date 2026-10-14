@@ -1,6 +1,48 @@
 [gd_scene format=3 uid="uid://bcgqnnmveopth"]
 
 [ext_resource type="Script" uid="uid://cdubkj333dxio" path="res://scripts/ui/AuthUI.gd" id="1_ooglm"]
+[ext_resource type="Texture2D" uid="uid://l4xe1oubofqo" path="res://pyquest _logo.jpg" id="2_cglj6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4yppp"]
+content_margin_left = 32.0
+content_margin_top = 32.0
+content_margin_right = 32.0
+content_margin_bottom = 32.0
+bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18039216, 0.23921569, 0.3529412, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6tyoi"]
+content_margin_left = 12.0
+content_margin_right = 12.0
+bg_color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j11lk"]
+content_margin_left = 12.0
+content_margin_right = 12.0
+bg_color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kpgcr"]
+bg_color = Color(0.9607843, 0.61960787, 0.043137256, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="Login" type="Control" unique_id=358322215]
 layout_mode = 3
@@ -19,54 +61,79 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.1764706, 0.15686275, 0.41960785, 1)
+color = Color(0.050980393, 0.08235294, 0.15294118, 1)
 
-[node name="FormContainer" type="VBoxContainer" parent="." unique_id=333166106]
-custom_minimum_size = Vector2(600, 500)
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=486845099]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -34.0
-offset_top = -72.0
-offset_right = 34.0
-offset_bottom = 72.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 16
 
-[node name="TitleLabel" type="Label" parent="FormContainer" unique_id=228177906]
+[node name="CardPanel" type="PanelContainer" parent="CenterContainer" unique_id=183371951]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_styles/panel = SubResource("StyleBoxFlat_4yppp")
+
+[node name="FormContainer" type="VBoxContainer" parent="CenterContainer/CardPanel" unique_id=333166106]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Logo" type="TextureRect" parent="CenterContainer/CardPanel/FormContainer" unique_id=1710113294]
+custom_minimum_size = Vector2(220, 110)
+layout_mode = 2
+texture = ExtResource("2_cglj6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/CardPanel/FormContainer" unique_id=228177906]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
 text = "Welcome Back!"
 horizontal_alignment = 1
 
-[node name="EmailInput" type="LineEdit" parent="FormContainer" unique_id=1642684092]
-custom_minimum_size = Vector2(0, 50)
+[node name="SubtitleLabel" type="Label" parent="CenterContainer/CardPanel/FormContainer" unique_id=1485713145]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.5803922, 0.6392157, 0.72156864, 1)
+theme_override_font_sizes/font_size = 13
+text = "Log in to continue your adventure"
+horizontal_alignment = 1
+
+[node name="Spacer1" type="Control" parent="CenterContainer/CardPanel/FormContainer" unique_id=1010283428]
+layout_mode = 2
+
+[node name="EmailInput" type="LineEdit" parent="CenterContainer/CardPanel/FormContainer" unique_id=1642684092]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_6tyoi")
 placeholder_text = "Email Address"
 
-[node name="PasswordInput" type="LineEdit" parent="FormContainer" unique_id=956022027]
+[node name="PasswordInput" type="LineEdit" parent="CenterContainer/CardPanel/FormContainer" unique_id=956022027]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_j11lk")
 placeholder_text = "Password"
 secret = true
 
-[node name="SubmitButton" type="Button" parent="FormContainer" unique_id=1456948952]
-custom_minimum_size = Vector2(0, 40)
+[node name="SubmitButton" type="Button" parent="CenterContainer/CardPanel/FormContainer" unique_id=1456948952]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_kpgcr")
 text = "Log In"
 
-[node name="SwitchModeButton" type="Button" parent="FormContainer" unique_id=568834609]
+[node name="SwitchModeButton" type="Button" parent="CenterContainer/CardPanel/FormContainer" unique_id=568834609]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.83137256, 0.6862745, 0.21568628, 1)
 text = "Don't have an account? Sign Up"
+flat = true
 
-[node name="StatusLabel" type="Label" parent="FormContainer" unique_id=1577156491]
+[node name="StatusLabel" type="Label" parent="CenterContainer/CardPanel/FormContainer" unique_id=1577156491]
 layout_mode = 2
 horizontal_alignment = 1
 
-[connection signal="pressed" from="FormContainer/SubmitButton" to="." method="_on_submit_button_pressed"]
-[connection signal="pressed" from="FormContainer/SwitchModeButton" to="." method="_on_switch_mode_button_pressed"]
+[connection signal="pressed" from="CenterContainer/CardPanel/FormContainer/SubmitButton" to="." method="_on_submit_button_pressed"]
+[connection signal="pressed" from="CenterContainer/CardPanel/FormContainer/SwitchModeButton" to="." method="_on_switch_mode_button_pressed"]

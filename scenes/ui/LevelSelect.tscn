@@ -1,5 +1,32 @@
 [gd_scene format=3 uid="uid://lkja00kuu2yj"]
 
+[ext_resource type="Script" uid="uid://dfsyfhtils70x" path="res://scripts/ui/LevelSelectUI.gd" id="1_2fnwa"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2fnwa"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
+border_width_bottom = 2
+border_color = Color(0.18039216, 0.23921569, 0.3529412, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp86k"]
+bg_color = Color(0.11764706, 0.16078432, 0.23137255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.25490198, 0.33333334, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [node name="LevelSelect" type="Control" unique_id=709427490]
 layout_mode = 3
 anchors_preset = 15
@@ -7,3 +34,76 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_2fnwa")
+
+[node name="Background" type="ColorRect" parent="." unique_id=2041103248]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+
+[node name="HeaderPanel" type="PanelContainer" parent="." unique_id=1388541213]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 116.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_2fnwa")
+
+[node name="Header" type="HBoxContainer" parent="HeaderPanel" unique_id=560015971]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="HeaderPanel/Header" unique_id=2042047491]
+custom_minimum_size = Vector2(110, 42)
+layout_mode = 2
+focus_mode = 1
+theme_override_colors/font_color = Color(0.8862745, 0.9098039, 0.9411765, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_wp86k")
+text = "← Back"
+
+[node name="TitleLabel" type="Label" parent="HeaderPanel/Header" unique_id=1288183675]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 22
+text = "Select Adventure Chapter
+"
+horizontal_alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="HeaderPanel/Header" unique_id=1763301767]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83137256, 0.6862745, 0.21568628, 1)
+theme_override_font_sizes/font_size = 15
+text = "Progress: 1 / 15"
+
+[node name="MainContainer" type="MarginContainer" parent="." unique_id=874736529]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 200
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer" unique_id=267858186]
+custom_minimum_size = Vector2(1200, 600)
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="MainContainer/ScrollContainer" unique_id=404122100]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 28
+theme_override_constants/v_separation = 28
+columns = 5
+
+[connection signal="pressed" from="HeaderPanel/Header/BackButton" to="." method="_on_back_button_pressed"]
