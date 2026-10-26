@@ -1,46 +1,31 @@
 {
   "level_id": 1,
-  "topic": "Variables & Data Types",
+  "level_title": "Python Basics & Variables",
   "questions": [
 	{
-	  "id": "q1_1",
-	  "type": "mcq",
-	  "prompt": "Assign 100 gold coins to the variable 'chest_gold' to unlock the ancient chest.",
-	  "code_snippet": "chest_gold = ____",
-	  "options": [
-		"100",
-		"\"100\"",
-		"int(100.0)",
-        "gold(100)"
-	  ],
-	  "correct_answer": "100",
-	  "action_trigger": "open_chest",
-	  "explanation": "In Python, assigning a whole number without quotes creates an integer variable[cite: 21, 58].",
-	  "hint": "Integers are raw numbers without quotes or decimal points[cite: 22, 59]."
+	  "id": 1,
+	  "type": "multiple_choice",
+	  "prompt": "Which keyword is used to display output to the screen in Python?",
+	  "options": ["echo", "print", "display", "write"],
+	  "correct_index": 1,
+	  "hint": "It starts with 'p' and prints text."
 	},
 	{
-	  "id": "q1_2",
-	  "type": "code_fill",
-	  "prompt": "Complete the code to inspect the data type of the ancient key.",
-	  "code_snippet": "key = 'Ruby Key'\nprint(____(key))",
-	  "blanks": ["type"],
-	  "action_trigger": "examine_key",
-	  "explanation": "The type() function returns '<class \"str\">' for string variables[cite: 22, 60].",
-	  "hint": "Use the built-in function that checks data types[cite: 22, 59]."
+	  "id": 2,
+	  "type": "code_completion",
+	  "prompt": "Complete the code to assign the value 10 to variable 'x':",
+	  "code_snippet": "x ___ 10",
+	  "options": ["=", "==", ":=", "is"],
+	  "correct_answer": "=",
+	  "hint": "Use the standard assignment operator."
 	},
 	{
-	  "id": "q1_3",
+	  "id": 3,
 	  "type": "syntax_ordering",
-	  "prompt": "Arrange the code blocks in order to disarm the trap and step forward.",
-	  "blocks": [
-		"trap_active = False",
-		"if not trap_active:",
-        "    alex.step_forward()"
-	  ],
+	  "prompt": "Arrange the code blocks to print 'Hello World':",
+	  "blocks": ["print(", "\"Hello World\"", ")"],
 	  "correct_sequence": [0, 1, 2],
-	  "action_trigger": "disarm_trap",
-	  "explanation": "You must deactivate the trap variable before executing conditional movement[cite: 21, 22, 58].",
-	  "hint": "Set trap_active to False first before checking the condition[cite: 22, 59]."
+	  "hint": "Function name first, followed by string literal inside parentheses."
 	}
   ]
 }

@@ -1,5 +1,11 @@
 [gd_scene format=3 uid="uid://dn6dbrm1om4fa"]
 
+[ext_resource type="Script" uid="uid://703p5hfkvv4a" path="res://scripts/ui/GameplayUI.gd" id="1_52h1o"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_52h1o"]
+bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
+border_color = Color(0.9607843, 0.61960787, 0.043137256, 1)
+
 [node name="LevelGameplay" type="Control" unique_id=829659668]
 layout_mode = 3
 anchors_preset = 15
@@ -7,3 +13,130 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_52h1o")
+
+[node name="Background" type="ColorRect" parent="." unique_id=840914239]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+
+[node name="TopBar" type="PanelContainer" parent="." unique_id=1605590768]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_52h1o")
+
+[node name="TopBarContainer" type="HBoxContainer" parent="TopBar" unique_id=1443922476]
+layout_mode = 2
+
+[node name="PauseButton" type="Button" parent="TopBar/TopBarContainer" unique_id=255704664]
+layout_mode = 2
+
+[node name="QuestionTrackerLabel" type="Label" parent="TopBar/TopBarContainer" unique_id=611790623]
+layout_mode = 2
+
+[node name="TimerLabel" type="Label" parent="TopBar/TopBarContainer" unique_id=2013756061]
+layout_mode = 2
+
+[node name="ScoreStreakLabel" type="Label" parent="TopBar/TopBarContainer" unique_id=895280398]
+layout_mode = 2
+
+[node name="HintButton" type="Button" parent="TopBar/TopBarContainer" unique_id=905220136]
+layout_mode = 2
+
+[node name="MainContainer" type="MarginContainer" parent="." unique_id=608584027]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 90
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 40
+
+[node name="QuestionCard" type="PanelContainer" parent="MainContainer" unique_id=1943124497]
+layout_mode = 2
+
+[node name="CardVBox" type="VBoxContainer" parent="MainContainer/QuestionCard" unique_id=711508035]
+layout_mode = 2
+
+[node name="QuestionTitleLabel" type="Label" parent="MainContainer/QuestionCard/CardVBox" unique_id=1470388363]
+layout_mode = 2
+
+[node name="QuestionPromptLabel" type="Label" parent="MainContainer/QuestionCard/CardVBox" unique_id=220736198]
+layout_mode = 2
+
+[node name="CodeDisplayContainer" type="PanelContainer" parent="MainContainer/QuestionCard/CardVBox" unique_id=1419757035]
+layout_mode = 2
+
+[node name="CodeLabel" type="RichTextLabel" parent="MainContainer/QuestionCard/CardVBox/CodeDisplayContainer" unique_id=1324593088]
+layout_mode = 2
+
+[node name="AnswerInteractiveArea" type="VBoxContainer" parent="MainContainer/QuestionCard/CardVBox" unique_id=305375600]
+layout_mode = 2
+
+[node name="FeedbackOverlay" type="ColorRect" parent="." unique_id=1430356637]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="FeedbackCard" type="PanelContainer" parent="FeedbackOverlay" unique_id=1559595792]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FeedbackVBox" type="VBoxContainer" parent="FeedbackOverlay/FeedbackCard" unique_id=2147203537]
+layout_mode = 2
+
+[node name="StatusTitle" type="Label" parent="FeedbackOverlay/FeedbackCard/FeedbackVBox" unique_id=427687834]
+layout_mode = 2
+
+[node name="StatusMessage" type="Label" parent="FeedbackOverlay/FeedbackCard/FeedbackVBox" unique_id=1463594414]
+layout_mode = 2
+
+[node name="NextButton" type="Button" parent="FeedbackOverlay/FeedbackCard/FeedbackVBox" unique_id=351002080]
+layout_mode = 2
+
+[node name="PauseMenuOverlay" type="ColorRect" parent="." unique_id=99276835]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="PauseCard" type="PanelContainer" parent="PauseMenuOverlay" unique_id=1692917015]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PauseVBox" type="VBoxContainer" parent="PauseMenuOverlay/PauseCard" unique_id=1523068325]
+layout_mode = 2
+
+[node name="PauseTitle" type="Label" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=1665590160]
+layout_mode = 2
+
+[node name="ResumeButton" type="Button" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=852960134]
+layout_mode = 2
+
+[node name="RestartButton" type="Button" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=658862445]
+layout_mode = 2
+
+[node name="QuitButton" type="Button" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=1483820935]
+layout_mode = 2

@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bg7armliwfv1t"]
+
+[ext_resource type="Script" uid="uid://c8wvwyiruqmsy" path="res://scripts/world/QuestNPC.gd" id="1_rxnkq"]
+
+[node name="QuestNpc" type="Area2D" unique_id=416993052]
+script = ExtResource("1_rxnkq")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=381830270]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1408817616]
+
+[node name="InteractionPrompt" type="Label" parent="." unique_id=663227170]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Tap to Start Question"

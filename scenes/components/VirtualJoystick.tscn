@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://bwt0r8ntq2xkt"]
+
+[ext_resource type="Script" uid="uid://d1ep148qeumc4" path="res://scripts/ui/VirtualJoystick.gd" id="1_bgm1i"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ew7d1"]
+bg_color = Color(0.08627451, 0.12156863, 0.2, 0.7019608)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9607843, 0.61960787, 0.043137256, 1)
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouscf"]
+bg_color = Color(0.9607843, 0.61960787, 0.043137256, 1)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+
+[node name="VirtualJoystick" type="Control" unique_id=1887336294]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_bgm1i")
+
+[node name="BaseRing" type="Panel" parent="." unique_id=483753]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ew7d1")
+
+[node name="Knob" type="Panel" parent="." unique_id=197569139]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ouscf")
