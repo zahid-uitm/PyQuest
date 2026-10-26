@@ -8,6 +8,7 @@ extends Control
 @onready var full_name_input: LineEdit = get_node_or_null("CenterContainer/CardPanel/FormContainer/FullNameInput")
 @onready var confirm_password_input: LineEdit = get_node_or_null("CenterContainer/CardPanel/FormContainer/ConfirmPasswordInput")
 @onready var submit_button: Button = $CenterContainer/CardPanel/FormContainer/SubmitButton
+@onready var guest_button: Button = get_node_or_null("CenterContainer/CardPanel/FormContainer/GuestButton")
 @onready var switch_mode_button: Button = $CenterContainer/CardPanel/FormContainer/SwitchModeButton
 @onready var status_label: Label = $CenterContainer/CardPanel/FormContainer/StatusLabel
 
@@ -20,6 +21,14 @@ func _ready() -> void:
 	FirebaseManager.auth_success.connect(_on_auth_success)
 	FirebaseManager.auth_failed.connect(_on_auth_failed)
 	status_label.text = ""
+	if guest_button:
+		guest_button.pressed.connect(_on_guest_button_pressed)
+
+func _on_guest_button_pressed() -> void:
+	if SaveManager.user_profile.is_empty() or not SaveManager.user_profile.has("full_name") or SaveManager.user_profile["full_name"] == "":
+		SaveManager.user_profile["full_name"] = "Adventurer Alex"
+	SaveManager.save_local_profile()
+	SceneManager.change_scene(SceneManager.MAIN_MENU)
 
 func _on_submit_button_pressed() -> void:
 	var email: String = email_input.text.strip_edges()

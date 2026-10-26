@@ -1,31 +1,60 @@
 {
   "level_id": 1,
-  "level_title": "Python Basics & Variables",
+  "level_title": "Level 1: Variable Valley",
+  "topic": "Variables & Basic Data Types",
   "questions": [
 	{
 	  "id": 1,
 	  "type": "multiple_choice",
-	  "prompt": "Which keyword is used to display output to the screen in Python?",
-	  "options": ["echo", "print", "display", "write"],
-	  "correct_index": 1,
-	  "hint": "It starts with 'p' and prints text."
+	  "title": "Chamber Entrance: Pedestal Lock",
+	  "prompt": "The ancient pedestal lock demands energy. Assign 50 gold coins to the variable 'gold' to activate the mechanism.",
+	  "code_snippet": "# Store 50 gold coins in the variable 'gold'\ngold = ____",
+	  "options": ["50", "\"50\"", "int(50.0)", "gold(50)"],
+	  "correct_index": 0,
+	  "correct_answer": "50",
+	  "action_trigger": "activate_pedestal",
+	  "explanation": "In Python, assigning a whole number without quotes creates an integer (int). You do not need to declare types like in C++ or Java.",
+	  "hint": "Master PyWizard: Simply assign the raw numeric value: '50'. No quotation marks or type keywords are needed!"
 	},
 	{
 	  "id": 2,
 	  "type": "code_completion",
-	  "prompt": "Complete the code to assign the value 10 to variable 'x':",
-	  "code_snippet": "x ___ 10",
-	  "options": ["=", "==", ":=", "is"],
-	  "correct_answer": "=",
-	  "hint": "Use the standard assignment operator."
+	  "title": "Altar of Transmutation: Key Type",
+	  "prompt": "To forge the key that fits the chest's keyhole, assign the string 'Gold' to the variable 'key_type'.",
+	  "code_snippet": "# Complete the assignment with string 'Gold'\nkey_type = ____",
+	  "options": ["'Gold'", "Gold", "str(Gold)", "<Gold>"],
+	  "correct_answer": "'Gold'",
+	  "action_trigger": "forge_key",
+	  "explanation": "Text values in Python are strings (str) and must be enclosed in single or double quotes, e.g. 'Gold'.",
+	  "hint": "Master PyWizard: Any text without quotes is treated as a variable name. Wrap 'Gold' in quotes!"
 	},
 	{
 	  "id": 3,
+	  "type": "multiple_choice",
+	  "title": "Rune of Identification: Gem Weight",
+	  "prompt": "Alex inspects a glowing gem on the pedestal: 'gem_weight = 3.75'. What data type is returned by type(gem_weight)?",
+	  "code_snippet": "gem_weight = 3.75\nprint(type(gem_weight))",
+	  "options": ["<class 'float'>", "<class 'int'>", "<class 'double'>", "<class 'str'>"],
+	  "correct_index": 0,
+	  "correct_answer": "<class 'float'>",
+	  "action_trigger": "inspect_gem",
+	  "explanation": "In Python, numbers with decimal places are stored as 'float' (floating-point). Python has no separate 'double' type.",
+	  "hint": "Master PyWizard: Notice the decimal in 3.75. In Python, decimal numbers belong to the 'float' type!"
+	},
+	{
+	  "id": 4,
 	  "type": "syntax_ordering",
-	  "prompt": "Arrange the code blocks to print 'Hello World':",
-	  "blocks": ["print(", "\"Hello World\"", ")"],
+	  "title": "The Vault Gate: Opening the Chest",
+	  "prompt": "Arrange the code blocks in proper order to set the chest state to True, check the condition, and command Alex to open it!",
+	  "blocks": [
+		"chest_unlocked = True",
+		"if chest_unlocked:",
+        "    alex.open_chest()"
+	  ],
 	  "correct_sequence": [0, 1, 2],
-	  "hint": "Function name first, followed by string literal inside parentheses."
+	  "action_trigger": "open_chest",
+	  "explanation": "In Python, booleans must be capitalized (True / False). We assign the boolean variable first, evaluate it with 'if', and execute the indented block.",
+	  "hint": "Master PyWizard: State the boolean variable first ('True'), then the 'if' condition, followed by the indented action!"
 	}
   ]
 }

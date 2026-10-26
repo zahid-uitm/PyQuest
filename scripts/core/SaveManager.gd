@@ -3,21 +3,36 @@ extends Node
 
 # Active player profile dictionary used globally across the game
 var user_profile: Dictionary = {
-	"full_name": "",
+	"full_name": "Adventurer Alex",
 	"player_level": 1,
 	"xp": 0,
 	"unlocked_level": 1,
-	"hint_tokens": 5
+	"hint_tokens": 5,
+	"current_level": 1,
+	"level_stars": {
+		"1": 0,
+		"2": 0,
+		"3": 0,
+		"4": 0,
+		"5": 0
+	}
 }
 
 const SAVE_PATH: String = "user://save_data.json"
+
+func _ready() -> void:
+	load_local_profile()
 
 # Saves user profile data locally on the device (for offline cache)
 func save_local_profile() -> void:
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
-		file.store_string(JSON.stringify(user_profile))
+		file.store_string(JSON.stringify(user_profile, "  "))
 		file.close()
+
+# Alias for compatibility
+func save_local_data() -> void:
+	save_local_profile()
 
 # Loads user profile data from local storage
 func load_local_profile() -> void:
@@ -29,10 +44,45 @@ func load_local_profile() -> void:
 		file.close()
 		var data = JSON.parse_string(content)
 		if typeof(data) == TYPE_DICTIONARY:
-			user_profile = data
+			# Merge with defaults to ensure all required fields exist
+			for k in data.keys():
+				user_profile[k] = data[k]
+
+# Records progress when a level is completed
+func record_level_completion(level_num: int, added_score: int, added_xp: int, stars_earned: int) -> void:
+	var current_xp = int(user_profile.get("xp", 0)) + added_xp
+	user_profile["xp"] = current_xp
+	
+	# Recalculate player level: each 500 XP = 1 player level
+	user_profile["player_level"] = max(1, int(current_xp / 500) + 1)
+	
+	# Unlock next level if currently on highest unlocked
+	var unlocked = int(user_profile.get("unlocked_level", 1))
+	if level_num >= unlocked and unlocked < 5:
+		user_profile["unlocked_level"] = level_num + 1
+		
+	# Update star rating for level
+	var stars_dict = user_profile.get("level_stars", {})
+	var prev_stars = int(stars_dict.get(str(level_num), 0))
+	stars_dict[str(level_num)] = max(prev_stars, stars_earned)
+	user_profile["level_stars"] = stars_dict
+	
+	save_local_profile()
+	
+	# If online, sync to Firebase
+	if FirebaseManager.is_authenticated():
+		FirebaseManager.write_player_profile(user_profile)
 
 # Clears local cache on logout
 func clear_profile() -> void:
-	user_profile = {}
+	user_profile = {
+		"full_name": "Adventurer Alex",
+		"player_level": 1,
+		"xp": 0,
+		"unlocked_level": 1,
+		"hint_tokens": 5,
+		"current_level": 1,
+		"level_stars": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+	}
 	if FileAccess.file_exists(SAVE_PATH):
 		DirAccess.remove_absolute(SAVE_PATH)

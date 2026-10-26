@@ -1,3 +1,180 @@
 [gd_scene format=3 uid="uid://c57o6goq47u2w"]
 
-[node name="VisualStage" type="Node2D" unique_id=808548687]
+[ext_resource type="Script" uid="uid://ypnpbb3pln7r" path="res://scripts/world/VisualStage.gd" id="1_stage_script"]
+[ext_resource type="PackedScene" uid="uid://l07qioho22wn" path="res://scenes/components/Player.tscn" id="2_alex_node"]
+[ext_resource type="Texture2D" uid="uid://beg2kw4bcvamg" path="res://assets/sprites/objects/chest_01.png" id="3_chest_tex"]
+[ext_resource type="Texture2D" uid="uid://8jg40l1a5gxb" path="res://assets/sprites/characters/skeleton.png" id="4_wizard_tex"]
+[ext_resource type="Texture2D" uid="uid://n2713h8u3513" path="res://assets/sprites/objects/objects.png" id="5_objects_tex"]
+
+[sub_resource type="Curve" id="Curve_particles"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="VisualStage" type="Node2D"]
+script = ExtResource("1_stage_script")
+
+[node name="DungeonEnvironment" type="Node2D" parent="."]
+
+[node name="ChamberBackdrop" type="ColorRect" parent="DungeonEnvironment"]
+offset_right = 1080.0
+offset_bottom = 960.0
+color = Color(0.0627451, 0.0862745, 0.141176, 1)
+
+[node name="UpperWall" type="ColorRect" parent="DungeonEnvironment"]
+offset_right = 1080.0
+offset_bottom = 440.0
+color = Color(0.0980392, 0.137255, 0.219608, 1)
+
+[node name="WallTrim" type="ColorRect" parent="DungeonEnvironment"]
+offset_top = 440.0
+offset_right = 1080.0
+offset_bottom = 460.0
+color = Color(0.180392, 0.239216, 0.352941, 1)
+
+[node name="FloorArea" type="ColorRect" parent="DungeonEnvironment"]
+offset_top = 460.0
+offset_right = 1080.0
+offset_bottom = 960.0
+color = Color(0.0823529, 0.113725, 0.184314, 1)
+
+[node name="FloorPatternLines" type="ColorRect" parent="DungeonEnvironment"]
+offset_top = 780.0
+offset_right = 1080.0
+offset_bottom = 784.0
+color = Color(0.137255, 0.184314, 0.27451, 1)
+
+[node name="LeftPillar" type="Sprite2D" parent="DungeonEnvironment"]
+position = Vector2(80, 430)
+scale = Vector2(3.5, 3.5)
+texture = ExtResource("5_objects_tex")
+region_enabled = true
+region_rect = Rect2(96, 96, 32, 64)
+
+[node name="RightPillar" type="Sprite2D" parent="DungeonEnvironment"]
+position = Vector2(1000, 430)
+scale = Vector2(3.5, 3.5)
+texture = ExtResource("5_objects_tex")
+region_enabled = true
+region_rect = Rect2(96, 96, 32, 64)
+
+[node name="ChamberBanner" type="Label" parent="DungeonEnvironment"]
+offset_left = 320.0
+offset_top = 100.0
+offset_right = 760.0
+offset_bottom = 150.0
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 0.8)
+theme_override_font_sizes/font_size = 22
+text = "RUINS OF PYTHONIA • CHAMBER I"
+horizontal_alignment = 1
+
+[node name="ChamberSubBanner" type="Label" parent="DungeonEnvironment"]
+offset_left = 320.0
+offset_top = 150.0
+offset_right = 760.0
+offset_bottom = 180.0
+theme_override_colors/font_color = Color(0.580392, 0.639216, 0.721569, 0.7)
+theme_override_font_sizes/font_size = 14
+text = "Rune Altar of Variable Assignment"
+horizontal_alignment = 1
+
+[node name="TreasureChest" type="Node2D" parent="."]
+position = Vector2(780, 680)
+
+[node name="AltarPedestal" type="Sprite2D" parent="TreasureChest"]
+position = Vector2(0, 30)
+scale = Vector2(3.5, 3.5)
+texture = ExtResource("5_objects_tex")
+region_enabled = true
+region_rect = Rect2(0, 80, 48, 32)
+
+[node name="Sprite2D" type="Sprite2D" parent="TreasureChest"]
+scale = Vector2(4, 4)
+texture = ExtResource("3_chest_tex")
+hframes = 4
+
+[node name="ChestGlow" type="ColorRect" parent="TreasureChest"]
+visible = false
+offset_left = -40.0
+offset_top = -40.0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.960784, 0.745098, 0.168627, 0.25)
+
+[node name="ChestParticles" type="CPUParticles2D" parent="TreasureChest"]
+emitting = false
+amount = 35
+lifetime = 1.0
+one_shot = true
+explosiveness = 0.85
+spread = 180.0
+gravity = Vector2(0, -90)
+initial_velocity_min = 60.0
+initial_velocity_max = 140.0
+scale_amount_min = 4.0
+scale_amount_max = 8.0
+scale_amount_curve = SubResource("Curve_particles")
+color = Color(0.984314, 0.74902, 0.141176, 1)
+
+[node name="ChestLabel" type="Label" parent="TreasureChest"]
+offset_left = -100.0
+offset_top = -70.0
+offset_right = 100.0
+offset_bottom = -45.0
+theme_override_colors/font_color = Color(0.941176, 0.843137, 0.529412, 1)
+theme_override_font_sizes/font_size = 14
+text = "Ancient Gold Chest"
+horizontal_alignment = 1
+
+[node name="Alex" parent="." instance=ExtResource("2_alex_node")]
+position = Vector2(280, 680)
+scale = Vector2(3.5, 3.5)
+
+[node name="PyWizard" type="Node2D" parent="."]
+position = Vector2(180, 340)
+
+[node name="Aura" type="ColorRect" parent="PyWizard"]
+offset_left = -45.0
+offset_top = -50.0
+offset_right = 45.0
+offset_bottom = 50.0
+color = Color(0.380392, 0.65098, 0.980392, 0.12)
+
+[node name="Sprite2D" type="Sprite2D" parent="PyWizard"]
+scale = Vector2(2.6, 2.6)
+texture = ExtResource("4_wizard_tex")
+hframes = 6
+vframes = 13
+
+[node name="WizardName" type="Label" parent="PyWizard"]
+offset_left = -90.0
+offset_top = 55.0
+offset_right = 90.0
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.584314, 0.772549, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Master PyWizard"
+horizontal_alignment = 1
+
+[node name="WizardRole" type="Label" parent="PyWizard"]
+offset_left = -90.0
+offset_top = 75.0
+offset_right = 90.0
+offset_bottom = 95.0
+theme_override_colors/font_color = Color(0.580392, 0.639216, 0.721569, 0.7)
+theme_override_font_sizes/font_size = 11
+text = "Guardian of Syntax"
+horizontal_alignment = 1
+
+[node name="FloatingLabel" type="Label" parent="."]
+visible = false
+offset_left = 380.0
+offset_top = 560.0
+offset_right = 680.0
+offset_bottom = 610.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 26
+text = "+100 XP"
+horizontal_alignment = 1
+

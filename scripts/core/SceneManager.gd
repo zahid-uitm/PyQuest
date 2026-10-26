@@ -7,7 +7,8 @@ const SIGN_UP = "res://scenes/ui/SignUp.tscn"
 const MAIN_MENU = "res://scenes/ui/MainMenu.tscn"
 const LEVEL_SELECT = "res://scenes/ui/LevelSelect.tscn"
 const LEVEL_GAMEPLAY = "res://scenes/ui/LevelGameplay.tscn"
-const GAMEPLAY = "res://scenes/world/World2D.tscn"
+const WORLD_1 = "res://scenes/world/World1.tscn"
+const GAMEPLAY = "res://scenes/world/World1.tscn"
 
 func change_scene(scene_path: String) -> void:
 	var error = get_tree().change_scene_to_file(scene_path)

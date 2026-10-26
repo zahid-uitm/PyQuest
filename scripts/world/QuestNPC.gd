@@ -11,6 +11,7 @@ func _ready() -> void:
 		prompt_label.visible = false
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	input_event.connect(_on_input_event)
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Player"):
@@ -25,7 +26,21 @@ func _on_body_exited(body: Node2D) -> void:
 			prompt_label.visible = false
 
 func _unhandled_input(event: InputEvent) -> void:
-	if player_in_range and event.is_action_pressed("ui_accept"):
-		var world = get_tree().current_scene
-		if world.has_method("start_quiz"):
-			world.start_quiz(level_json_path)
+	if not player_in_range:
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_E or event.is_action_pressed("ui_accept"):
+			_trigger_quest_dialog()
+	elif event.is_action_pressed("ui_accept"):
+		_trigger_quest_dialog()
+
+func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if player_in_range and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_trigger_quest_dialog()
+
+func _trigger_quest_dialog() -> void:
+	var world = get_tree().current_scene
+	if world and world.has_method("open_quest_dialog"):
+		world.open_quest_dialog()
+	elif world and world.has_method("start_quiz"):
+		world.start_quiz(level_json_path)

@@ -146,19 +146,6 @@ func _on_db_request_completed(_result: int, response_code: int, _headers: Packed
 		db_write_complete.emit(response_code == 200)
 		
 	if http_db.has_meta("action"): http_db.remove_meta("action")
-	
-	if db_action == "read_profile":
-		if response_code == 200:
-			var profile = JSON.parse_string(body.get_string_from_utf8())
-			if typeof(profile) == TYPE_DICTIONARY:
-				SaveManager.user_profile = profile
-			auth_success.emit({"user_id": current_user_id})
-		else:
-			auth_failed.emit("Failed to load user profile from database.")
-	else:
-		db_write_complete.emit(response_code == 200)
-		
-	if http_db.has_meta("action"): http_db.remove_meta("action")
 
 func _clean_error_message(raw_msg: String) -> String:
 	if "EMAIL_EXISTS" in raw_msg:

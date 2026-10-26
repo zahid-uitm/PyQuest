@@ -27,6 +27,19 @@ func _physics_process(_delta: float) -> void:
 
 	# Combine Keyboard (WASD / Arrow Keys) + Touch Joystick input
 	var keyboard_input: Vector2 = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	if keyboard_input == Vector2.ZERO:
+		var x: float = 0.0
+		var y: float = 0.0
+		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+			x -= 1.0
+		if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+			x += 1.0
+		if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+			y -= 1.0
+		if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+			y += 1.0
+		keyboard_input = Vector2(x, y).normalized()
+
 	var move_dir: Vector2 = keyboard_input + joystick_vector
 
 	if move_dir.length() > 1.0:
@@ -68,3 +81,29 @@ func _update_animation(move_dir: Vector2) -> void:
 				sprite.play("back_idle")
 			"front", _:
 				sprite.play("front_idle")
+
+func play_anim(anim_name: String) -> void:
+	if sprite and sprite.sprite_frames.has_animation(anim_name):
+		sprite.play(anim_name)
+
+func face_direction(left: bool) -> void:
+	if sprite:
+		sprite.flip_h = left
+
+func perform_attack() -> void:
+	if sprite:
+		sprite.play("side_attack")
+		await sprite.animation_finished
+		sprite.play("side_idle")
+
+func perform_recoil() -> void:
+	if sprite:
+		sprite.play("death")
+		modulate = Color(1.8, 0.3, 0.3)
+		var orig_x = position.x
+		var tween = create_tween()
+		tween.tween_property(self, "position:x", orig_x - 30.0, 0.15)
+		tween.tween_property(self, "position:x", orig_x, 0.2)
+		tween.parallel().tween_property(self, "modulate", Color.WHITE, 0.35)
+		await tween.finished
+		sprite.play("side_idle")

@@ -2,54 +2,103 @@
 extends Control
 
 # Top Bar Nodes
-@onready var question_tracker_label: Label = $TopBar/TopBarContainer/QuestionTrackerLabel
-@onready var timer_label: Label = $TopBar/TopBarContainer/TimerLabel
-@onready var score_streak_label: Label = $TopBar/TopBarContainer/ScoreStreakLabel
-@onready var hint_button: Button = $TopBar/TopBarContainer/HintButton
-@onready var pause_button: Button = $TopBar/TopBarContainer/PauseButton
+@onready var pause_button: Button = $LayoutVBox/TopBar/TopBarContainer/PauseButton
+@onready var level_title_label: Label = $LayoutVBox/TopBar/TopBarContainer/LevelTitleLabel
+@onready var question_tracker_label: Label = $LayoutVBox/TopBar/TopBarContainer/QuestionTrackerLabel
+@onready var score_streak_label: Label = $LayoutVBox/TopBar/TopBarContainer/ScoreStreakLabel
+@onready var xp_label: Label = $LayoutVBox/TopBar/TopBarContainer/XPLabel
+@onready var hint_button: Button = $LayoutVBox/TopBar/TopBarContainer/HintButton
+@onready var timer_label: Label = $LayoutVBox/TopBar/TopBarContainer/TimerLabel
 
-# Main Question Nodes
-@onready var question_prompt_label: Label = $MainContainer/QuestionCard/CardVBox/QuestionPromptLabel
-@onready var code_display_container: PanelContainer = $MainContainer/QuestionCard/CardVBox/CodeDisplayContainer
-@onready var code_label: RichTextLabel = $MainContainer/QuestionCard/CardVBox/CodeDisplayContainer/CodeLabel
-@onready var answer_area: VBoxContainer = $MainContainer/QuestionCard/CardVBox/AnswerInteractiveArea
+# Visual Stage
+@onready var visual_stage: Node2D = $LayoutVBox/SplitArea/VisualStageContainer/SubViewport/VisualStage
 
-# Feedback Overlay Nodes
+# Code & Puzzle Panel Nodes
+@onready var question_title_label: Label = $LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/HeaderBar/QuestionTitleLabel
+@onready var topic_badge: Label = $LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/HeaderBar/TopicBadge
+@onready var question_prompt_label: Label = $LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/QuestionPromptLabel
+@onready var code_label: RichTextLabel = $LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/CodeDisplayContainer/CodeVBox/CodeLabel
+@onready var answer_area: VBoxContainer = $LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/AnswerInteractiveArea
+@onready var ask_wizard_button: Button = $LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/ActionRow/AskWizardButton
+@onready var submit_button: Button = $LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/ActionRow/SubmitButton
+
+# Bottom Bar Nodes
+@onready var weapon_status_label: Label = $LayoutVBox/BottomBar/BottomBarContainer/WeaponStatusLabel
+@onready var progress_text: Label = $LayoutVBox/BottomBar/BottomBarContainer/ProgressText
+@onready var level_progress_bar: ProgressBar = $LayoutVBox/BottomBar/BottomBarContainer/LevelProgressBar
+
+# Modals & Overlays
 @onready var feedback_overlay: ColorRect = $FeedbackOverlay
-@onready var status_title: Label = $FeedbackOverlay/FeedbackCard/FeedbackVBox/StatusTitle
-@onready var status_message: Label = $FeedbackOverlay/FeedbackCard/FeedbackVBox/StatusMessage
-@onready var next_button: Button = $FeedbackOverlay/FeedbackCard/FeedbackVBox/NextButton
+@onready var status_title: Label = $FeedbackOverlay/Center/FeedbackCard/FeedbackVBox/StatusTitle
+@onready var status_message: Label = $FeedbackOverlay/Center/FeedbackCard/FeedbackVBox/StatusMessage
+@onready var explanation_label: Label = $FeedbackOverlay/Center/FeedbackCard/FeedbackVBox/ExplanationBox/ExplanationLabel
+@onready var next_button: Button = $FeedbackOverlay/Center/FeedbackCard/FeedbackVBox/NextButton
 
-# Pause Menu Nodes
+@onready var hint_modal_overlay: ColorRect = $HintModalOverlay
+@onready var hint_message: Label = $HintModalOverlay/Center/HintCard/HintVBox/HintMessage
+@onready var close_hint_button: Button = $HintModalOverlay/Center/HintCard/HintVBox/CloseHintButton
+
 @onready var pause_overlay: ColorRect = $PauseMenuOverlay
-@onready var resume_button: Button = $PauseMenuOverlay/PauseCard/PauseVBox/ResumeButton
-@onready var restart_button: Button = $PauseMenuOverlay/PauseCard/PauseVBox/RestartButton
-@onready var quit_button: Button = $PauseMenuOverlay/PauseCard/PauseVBox/QuitButton
+@onready var resume_button: Button = $PauseMenuOverlay/Center/PauseCard/PauseVBox/ResumeButton
+@onready var restart_button: Button = $PauseMenuOverlay/Center/PauseCard/PauseVBox/RestartButton
+@onready var quit_button: Button = $PauseMenuOverlay/Center/PauseCard/PauseVBox/QuitButton
 
-# State Variables
+@onready var victory_overlay: ColorRect = $VictoryOverlay
+@onready var victory_title: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/VictoryTitle
+@onready var rank_label: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/RankLabel
+@onready var acc_value: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid/AccValue
+@onready var streak_value: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid/StreakValue
+@onready var time_value: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid/TimeValue
+@onready var score_value: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid/ScoreValue
+@onready var xp_value: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid/XPValue
+@onready var replay_button: Button = $VictoryOverlay/Center/VictoryCard/VictoryVBox/VictoryButtonsHBox/ReplayButton
+@onready var level_select_btn: Button = $VictoryOverlay/Center/VictoryCard/VictoryVBox/VictoryButtonsHBox/LevelSelectBtn
+
+# Gameplay State
 var level_data: Dictionary = {}
 var current_question_index: int = 0
 var score: int = 0
+var total_xp: int = 0
 var streak: int = 0
-var correct_answers_count: int = 0
+var max_streak: int = 0
+var first_try_correct: int = 0
+var current_question_attempts: int = 0
 var elapsed_time: float = 0.0
 var is_timer_active: bool = false
 
-# Current Selected State for Ordering / Blank Filling
+# Interactive State
+var current_selected_answer: Variant = null
+var current_selected_btn: Button = null
 var selected_ordering: Array[int] = []
+var mcq_option_buttons: Array[Button] = []
+var is_evaluating: bool = false
+var last_answer_correct: bool = false
 
 func _ready() -> void:
 	feedback_overlay.visible = false
+	hint_modal_overlay.visible = false
 	pause_overlay.visible = false
-	
+	victory_overlay.visible = false
+
 	pause_button.pressed.connect(_on_pause_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
+
 	next_button.pressed.connect(_on_next_question_pressed)
 	hint_button.pressed.connect(_on_hint_pressed)
-	
-	load_level_json("res://data/question_level1.json")
+	ask_wizard_button.pressed.connect(_on_hint_pressed)
+	close_hint_button.pressed.connect(_on_close_hint_pressed)
+
+	submit_button.pressed.connect(_on_submit_pressed)
+	replay_button.pressed.connect(_on_restart_pressed)
+	level_select_btn.pressed.connect(_on_quit_pressed)
+
+	var cur_lvl = SaveManager.user_profile.get("current_level", 1)
+	var path = "res://data/" + "question_level%d.json" % cur_lvl
+	if not FileAccess.file_exists(path):
+		path = "res://data/question_level1.json"
+	load_level_json(path)
 
 func _process(delta: float) -> void:
 	if is_timer_active:
@@ -60,39 +109,66 @@ func _process(delta: float) -> void:
 
 func load_level_json(path: String) -> void:
 	if not FileAccess.file_exists(path):
-		print("Error: Question JSON file not found at ", path)
+		push_error("Question JSON not found: %s" % path)
 		return
-		
 	var file = FileAccess.open(path, FileAccess.READ)
-	var json_string = file.get_as_text()
+	var json_str = file.get_as_text()
 	file.close()
-	
-	var json = JSON.new()
-	if json.parse(json_string) == OK:
-		level_data = json.data
+
+	var parsed = JSON.parse_string(json_str)
+	if typeof(parsed) == TYPE_DICTIONARY:
+		level_data = parsed
 		start_level()
 	else:
-		print("Error parsing JSON level file.")
+		push_error("Failed to parse level JSON: %s" % path)
 
 func start_level() -> void:
 	current_question_index = 0
 	score = 0
+	total_xp = 0
 	streak = 0
-	correct_answers_count = 0
+	max_streak = 0
+	first_try_correct = 0
+	current_question_attempts = 0
 	elapsed_time = 0.0
 	is_timer_active = true
+	is_evaluating = false
+	
+	feedback_overlay.visible = false
+	hint_modal_overlay.visible = false
+	pause_overlay.visible = false
+	victory_overlay.visible = false
+
+	if visual_stage and visual_stage.has_method("reset_stage"):
+		visual_stage.reset_stage()
+
 	update_hud()
 	display_question()
 
 func update_hud() -> void:
 	var total_q = level_data.get("questions", []).size()
-	question_tracker_label.text = "Question %d / %d" % [current_question_index + 1, total_q]
-	score_streak_label.text = "Score: %d | 🔥 %d" % [score, streak]
-	var tokens = SaveManager.user_profile.get("hint_tokens", 5)
-	hint_button.text = "💡 Hint (%d)" % tokens
+	level_title_label.text = "⚔️ " + level_data.get("level_title", "Level 1: Variable Valley")
+	question_tracker_label.text = "Challenge %d / %d" % [current_question_index + 1, total_q]
+
+	var mult: float = min(2.0, 1.0 + (streak * 0.1))
+	score_streak_label.text = "⭐ Score: %d | 🔥 x%.1f" % [score, mult]
+	xp_label.text = "✨ XP: %d" % total_xp
+
+	var tokens: int = int(SaveManager.user_profile.get("hint_tokens", 5))
+	hint_button.text = "💡 Tokens: %d" % tokens
+	ask_wizard_button.text = "🧙 Ask Master PyWizard (%d left)" % tokens
+
+	progress_text.text = "Progress: %d/%d" % [current_question_index + 1, total_q]
+	level_progress_bar.max_value = total_q
+	level_progress_bar.value = current_question_index + 1
 
 func display_question() -> void:
-	# Clear interactive area
+	current_selected_answer = null
+	current_selected_btn = null
+	selected_ordering.clear()
+	mcq_option_buttons.clear()
+	current_question_attempts = 0
+
 	for child in answer_area.get_children():
 		child.queue_free()
 
@@ -102,146 +178,310 @@ func display_question() -> void:
 		return
 
 	var q: Dictionary = questions[current_question_index]
+	question_title_label.text = q.get("title", "Python Challenge")
+	topic_badge.text = level_data.get("topic", "Variables & Data Types")
 	question_prompt_label.text = q.get("prompt", "")
+
+	var raw_snippet: String = q.get("code_snippet", "")
+	code_label.text = "[code]%s[/code]" % raw_snippet
+
 	update_hud()
 
-	var q_type: String = q.get("type", "")
-	
+	var q_type: String = q.get("type", "multiple_choice")
 	if q_type == "multiple_choice":
-		code_display_container.visible = false
 		_setup_multiple_choice(q)
 	elif q_type == "code_completion":
-		code_display_container.visible = true
-		code_label.text = "[code]%s[/code]" % q.get("code_snippet", "")
 		_setup_code_completion(q)
 	elif q_type == "syntax_ordering":
-		code_display_container.visible = false
 		_setup_syntax_ordering(q)
 
 func _setup_multiple_choice(q: Dictionary) -> void:
 	var options: Array = q.get("options", [])
+	var instruction = Label.new()
+	instruction.text = "Select the correct code statement:"
+	instruction.add_theme_color_override("font_color", Color("#94A3B8"))
+	answer_area.add_child(instruction)
+
 	for i in range(options.size()):
 		var btn = Button.new()
 		btn.text = options[i]
-		btn.custom_minimum_size = Vector2(0, 50)
-		_apply_button_style(btn)
-		btn.pressed.connect(_evaluate_answer.bind(i == q.get("correct_index", -1)))
+		btn.custom_minimum_size = Vector2(0, 48)
+		btn.focus_mode = Control.FOCUS_NONE
+		_apply_option_style(btn, false)
+		btn.pressed.connect(_on_mcq_option_selected.bind(i, btn))
 		answer_area.add_child(btn)
+		mcq_option_buttons.append(btn)
+
+	submit_button.text = "▶ Submit Answer"
+	submit_button.disabled = true
+
+func _on_mcq_option_selected(index: int, btn: Button) -> void:
+	current_selected_answer = index
+	for b in mcq_option_buttons:
+		_apply_option_style(b, false)
+	_apply_option_style(btn, true)
+	submit_button.disabled = false
 
 func _setup_code_completion(q: Dictionary) -> void:
 	var options: Array = q.get("options", [])
-	var correct_ans: String = q.get("correct_answer", "")
+	var instruction = Label.new()
+	instruction.text = "Choose the token to fill into '____':"
+	instruction.add_theme_color_override("font_color", Color("#94A3B8"))
+	answer_area.add_child(instruction)
+
+	var hbox = HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.add_theme_constant_override("separation", 16)
+
 	for opt in options:
 		var btn = Button.new()
 		btn.text = opt
-		btn.custom_minimum_size = Vector2(0, 50)
-		_apply_button_style(btn)
-		btn.pressed.connect(_evaluate_answer.bind(opt == correct_ans))
-		answer_area.add_child(btn)
+		btn.custom_minimum_size = Vector2(120, 50)
+		btn.focus_mode = Control.FOCUS_NONE
+		_apply_option_style(btn, false)
+		btn.pressed.connect(_on_completion_option_selected.bind(opt, btn, q))
+		hbox.add_child(btn)
+		mcq_option_buttons.append(btn)
+
+	answer_area.add_child(hbox)
+	submit_button.text = "▶ Submit & Run Code"
+	submit_button.disabled = true
+
+func _on_completion_option_selected(token: String, btn: Button, q: Dictionary) -> void:
+	current_selected_answer = token
+	for b in mcq_option_buttons:
+		_apply_option_style(b, false)
+	_apply_option_style(btn, true)
+
+	var snippet: String = q.get("code_snippet", "")
+	var filled_snippet = snippet.replace("____", "[color=#F59E0B]%s[/color]" % token)
+	code_label.text = "[code]%s[/code]" % filled_snippet
+	submit_button.disabled = false
 
 func _setup_syntax_ordering(q: Dictionary) -> void:
 	selected_ordering.clear()
 	var blocks: Array = q.get("blocks", [])
-	
-	var display_label = Label.new()
-	display_label.name = "OrderResultLabel"
-	display_label.text = "Your Order: [ Select blocks below ]"
-	display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	answer_area.add_child(display_label)
 
-	var hbox = HBoxContainer.new()
-	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox.add_theme_constant_override("separation", 12)
-	
+	var instruction = Label.new()
+	instruction.text = "Click blocks in the correct logical execution order:"
+	instruction.add_theme_color_override("font_color", Color("#94A3B8"))
+	answer_area.add_child(instruction)
+
+	var blocks_vbox = VBoxContainer.new()
+	blocks_vbox.add_theme_constant_override("separation", 10)
+
 	for i in range(blocks.size()):
 		var btn = Button.new()
 		btn.text = blocks[i]
-		btn.custom_minimum_size = Vector2(80, 50)
-		_apply_button_style(btn)
-		btn.pressed.connect(_on_block_clicked.bind(i, btn, display_label, q))
-		hbox.add_child(btn)
-	
-	answer_area.add_child(hbox)
+		btn.custom_minimum_size = Vector2(0, 44)
+		btn.focus_mode = Control.FOCUS_NONE
+		_apply_option_style(btn, false)
+		btn.pressed.connect(_on_order_block_clicked.bind(i, btn, q))
+		blocks_vbox.add_child(btn)
+		mcq_option_buttons.append(btn)
 
-func _on_block_clicked(block_idx: int, btn: Button, display_label: Label, q: Dictionary) -> void:
+	answer_area.add_child(blocks_vbox)
+
+	var reset_btn = Button.new()
+	reset_btn.text = "↺ Reset Block Order"
+	reset_btn.custom_minimum_size = Vector2(0, 36)
+	reset_btn.focus_mode = Control.FOCUS_NONE
+	reset_btn.pressed.connect(func():
+		selected_ordering.clear()
+		for b in mcq_option_buttons:
+			b.disabled = false
+			_apply_option_style(b, false)
+		code_label.text = "[code]# Select blocks below to construct sequence[/code]"
+		submit_button.disabled = true
+	)
+	answer_area.add_child(reset_btn)
+
+	code_label.text = "[code]# Select blocks below to construct sequence[/code]"
+	submit_button.text = "▶ Execute Ordered Script"
+	submit_button.disabled = true
+
+func _on_order_block_clicked(block_idx: int, btn: Button, q: Dictionary) -> void:
 	if selected_ordering.has(block_idx):
 		return
-		
 	selected_ordering.append(block_idx)
 	btn.disabled = true
-	
-	var blocks: Array = q.get("blocks", [])
-	var result_text = ""
-	for idx in selected_ordering:
-		result_text += blocks[idx] + " "
-	display_label.text = "Your Order: " + result_text
-	
-	# Auto check when all blocks are selected
-	if selected_ordering.size() == blocks.size():
-		var correct_seq: Array = q.get("correct_sequence", [])
-		var is_correct: bool = (selected_ordering == correct_seq)
-		_evaluate_answer(is_correct)
 
-func _evaluate_answer(is_correct: bool) -> void:
-	is_timer_active = false
-	feedback_overlay.visible = true
-	
+	var blocks: Array = q.get("blocks", [])
+	var code_assembled = ""
+	for idx in selected_ordering:
+		code_assembled += blocks[idx] + "\n"
+	code_label.text = "[code]%s[/code]" % code_assembled.strip_edges()
+
+	if selected_ordering.size() == blocks.size():
+		submit_button.disabled = false
+
+func _on_submit_pressed() -> void:
+	if is_evaluating:
+		return
+	is_evaluating = true
+	submit_button.disabled = true
+	current_question_attempts += 1
+
+	var q: Dictionary = level_data.get("questions", [])[current_question_index]
+	var q_type: String = q.get("type", "multiple_choice")
+	var is_correct: bool = false
+
+	if q_type == "multiple_choice":
+		var correct_idx = int(q.get("correct_index", 0))
+		is_correct = (current_selected_answer == correct_idx)
+	elif q_type == "code_completion":
+		var correct_str = str(q.get("correct_answer", ""))
+		is_correct = (str(current_selected_answer) == correct_str)
+	elif q_type == "syntax_ordering":
+		var correct_seq: Array = q.get("correct_sequence", [])
+		is_correct = true
+		if selected_ordering.size() != correct_seq.size():
+			is_correct = false
+		else:
+			for k in range(selected_ordering.size()):
+				if selected_ordering[k] != int(correct_seq[k]):
+					is_correct = false
+					break
+
+	last_answer_correct = is_correct
+
+	# Formula calculations
 	if is_correct:
+		if current_question_attempts == 1:
+			first_try_correct += 1
 		streak += 1
-		correct_answers_count += 1
-		var points: int = 100 + (streak * 20)
-		score += points
-		status_title.text = "🎉 Correct!"
-		status_title.add_theme_color_override("font_color", Color("#10B981"))
-		status_message.text = "+%d XP | Streak: %d🔥" % [points, streak]
+		max_streak = max(max_streak, streak)
+		var mult: float = min(2.0, 1.0 + (streak * 0.1))
+		var earned_pts: int = roundi(100.0 * mult)
+		var earned_xp: int = roundi(50.0 * mult)
+		score += earned_pts
+		total_xp += earned_xp
+		update_hud()
+
+		# Trigger visual action on stage
+		if visual_stage and visual_stage.has_method("play_correct_action"):
+			await visual_stage.play_correct_action(q.get("action_trigger", "unlock"), earned_pts, earned_xp)
+
+		_show_feedback(true, q, earned_pts, earned_xp, mult)
 	else:
 		streak = 0
-		status_title.text = "❌ Incorrect"
+		update_hud()
+		if visual_stage and visual_stage.has_method("play_incorrect_action"):
+			await visual_stage.play_incorrect_action()
+
+		_show_feedback(false, q, 0, 0, 1.0)
+
+	is_evaluating = false
+
+func _show_feedback(is_correct: bool, q: Dictionary, earned_pts: int, earned_xp: int, mult: float) -> void:
+	feedback_overlay.visible = true
+	if is_correct:
+		status_title.text = "🎉 CODE EXECUTED SUCCESSFULLY!"
+		status_title.add_theme_color_override("font_color", Color("#10B981"))
+		status_message.text = "+%d Score  •  +%d XP  •  Streak Multiplier: x%.1f 🔥" % [earned_pts, earned_xp, mult]
+		explanation_label.text = q.get("explanation", "Excellent work! Python variable syntax correct.")
+		next_button.text = "Continue Adventure ➔"
+	else:
+		status_title.text = "⚠️ EXECUTION FAILED: SYNTAX ERROR"
 		status_title.add_theme_color_override("font_color", Color("#EF4444"))
-		status_message.text = "Streak reset. Keep going!"
+		status_message.text = "The mechanism did not budge. Streak reset to 0."
+		explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
+		next_button.text = "Try Again ↺" if current_question_attempts < 3 else "Continue ➔"
 
 func _on_next_question_pressed() -> void:
 	feedback_overlay.visible = false
-	current_question_index += 1
-	is_timer_active = true
+	if last_answer_correct or current_question_attempts >= 3:
+		current_question_index += 1
 	display_question()
 
 func _on_hint_pressed() -> void:
-	var tokens = SaveManager.user_profile.get("hint_tokens", 5)
+	var tokens: int = int(SaveManager.user_profile.get("hint_tokens", 5))
+	var q: Dictionary = level_data.get("questions", [])[current_question_index]
+
 	if tokens > 0:
 		tokens -= 1
 		SaveManager.user_profile["hint_tokens"] = tokens
+		SaveManager.save_local_profile()
 		update_hud()
-		var q: Dictionary = level_data.get("questions", [])[current_question_index]
-		status_title.text = "💡 Hint"
-		status_title.add_theme_color_override("font_color", Color("#F59E0B"))
-		status_message.text = q.get("hint", "No hint available.")
-		feedback_overlay.visible = true
+
+		if visual_stage and visual_stage.has_method("show_pywizard_hint"):
+			visual_stage.show_pywizard_hint()
+
+		# Eliminate one wrong option for MCQ if possible
+		if q.get("type") == "multiple_choice" and mcq_option_buttons.size() > 1:
+			var correct_idx: int = int(q.get("correct_index", 0))
+			for i in range(mcq_option_buttons.size()):
+				if i != correct_idx and not mcq_option_buttons[i].disabled:
+					mcq_option_buttons[i].disabled = true
+					mcq_option_buttons[i].text = "❌ " + mcq_option_buttons[i].text
+					break
+
+		hint_message.text = q.get("hint", "Master PyWizard says: Check your variable assignment syntax.")
+	else:
+		hint_message.text = "You have exhausted your hint tokens for this expedition! Trust your Python instincts."
+
+	hint_modal_overlay.visible = true
+
+func _on_close_hint_pressed() -> void:
+	hint_modal_overlay.visible = false
 
 func finish_level() -> void:
 	is_timer_active = false
-	var total_q = level_data.get("questions", []).size()
-	var accuracy: float = (float(correct_answers_count) / float(total_q)) * 100.0
-	
-	# Pass stats to SaveManager
-	SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + score
-	if SaveManager.user_profile.get("unlocked_level", 1) <= 1:
-		SaveManager.user_profile["unlocked_level"] = 2
-		
-	SaveManager.save_local_data()
-	
-	# Route to Level Complete screen or Main Menu
-	print("Level 1 Completed! Final Score: %d | Accuracy: %.1f%%" % [score, accuracy])
-	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+	var total_q = max(1, level_data.get("questions", []).size())
+	var accuracy: float = (float(first_try_correct) / float(total_q)) * 100.0
 
-func _apply_button_style(btn: Button) -> void:
+	# GDD Star Rating:
+	# 3 Stars >= 90%
+	# 2 Stars >= 70%
+	# 1 Star < 70%
+	var stars: int = 1
+	var title_rank: String = "Survivor (★☆☆)"
+	if accuracy >= 90.0:
+		stars = 3
+		title_rank = "Master Adventurer (★★★)"
+	elif accuracy >= 70.0:
+		stars = 2
+		title_rank = "Experienced Explorer (★★☆)"
+
+	# Time Bonus formula from GDD: max(0, 300 - elapsed) * 2
+	var time_bonus: int = max(0, int((300.0 - elapsed_time) * 2.0))
+	var final_score: int = score + time_bonus
+
+	# Update stats in SaveManager
+	var level_num: int = int(level_data.get("level_id", 1))
+	SaveManager.record_level_completion(level_num, final_score, total_xp, stars)
+
+	# Populate Victory Overlay
+	acc_value.text = "%.1f%%" % accuracy
+	var mult: float = min(2.0, 1.0 + (max_streak * 0.1))
+	streak_value.text = "%d (x%.1f Max)" % [max_streak, mult]
+	time_value.text = "+%d pts (%02d:%02d)" % [time_bonus, int(elapsed_time)/60, int(elapsed_time)%60]
+	score_value.text = "%d pts" % final_score
+	xp_value.text = "+%d XP" % total_xp
+	rank_label.text = title_rank
+
+	victory_overlay.visible = true
+
+func _apply_option_style(btn: Button, is_selected: bool) -> void:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color("#161F33")
-	style.border_color = Color("#2E3D5A")
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.set_border_width_all(2)
+
+	if is_selected:
+		style.bg_color = Color("#1E293B")
+		style.border_color = Color("#F59E0B")
+		btn.add_theme_color_override("font_color", Color("#F59E0B"))
+	else:
+		style.bg_color = Color("#111827")
+		style.border_color = Color("#1F2937")
+		btn.add_theme_color_override("font_color", Color("#E2E8F0"))
+
 	btn.add_theme_stylebox_override("normal", style)
-	btn.add_theme_color_override("font_color", Color("#FFFFFF"))
+	btn.add_theme_stylebox_override("hover", style)
+	btn.add_theme_stylebox_override("pressed", style)
 
 func _on_pause_pressed() -> void:
 	is_timer_active = false
@@ -252,8 +492,7 @@ func _on_resume_pressed() -> void:
 	is_timer_active = true
 
 func _on_restart_pressed() -> void:
-	pause_overlay.visible = false
 	start_level()
 
 func _on_quit_pressed() -> void:
-	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+	SceneManager.change_scene(SceneManager.WORLD_1)

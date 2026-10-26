@@ -27,7 +27,9 @@ func update_dashboard() -> void:
 	tween.tween_property(xp_progress_bar, "value", xp_in_level, 0.8)
 
 func _on_continue_quest_button_pressed() -> void:
-	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+	var unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	SaveManager.user_profile["current_level"] = unlocked
+	SceneManager.change_scene(SceneManager.WORLD_1)
 
 func _on_level_select_button_pressed() -> void:
 	SceneManager.change_scene(SceneManager.LEVEL_SELECT)

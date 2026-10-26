@@ -1,7 +1,6 @@
 [gd_scene format=4 uid="uid://cguv02bd3re1f"]
 
-[ext_resource type="PackedScene" uid="uid://dn6dbrm1om4fa" path="res://scenes/ui/LevelGameplay.tscn" id="1_tiibd"]
-[ext_resource type="Script" uid="uid://b8e0vue8flwqf" path="res://scripts/world/World2D.gd" id="1_xjplc"]
+[ext_resource type="Script" uid="uid://b8e0vue8flwqf" path="res://scripts/world/World1.gd" id="1_xjplc"]
 [ext_resource type="Texture2D" uid="uid://r5q1nptsbqjy" path="res://assets/sprites/tilesets/plains.png" id="2_dojjd"]
 [ext_resource type="PackedScene" uid="uid://l07qioho22wn" path="res://scenes/components/Player.tscn" id="2_odyut"]
 [ext_resource type="PackedScene" uid="uid://bg7armliwfv1t" path="res://scenes/world/QuestNPC.tscn" id="3_caqni"]
@@ -62,7 +61,66 @@ sources/0 = SubResource("TileSetAtlasSource_j6q1j")
 sources/1 = SubResource("TileSetAtlasSource_m7sba")
 sources/2 = SubResource("TileSetAtlasSource_xbjvd")
 
-[node name="World2D" type="Node2D" unique_id=874235099]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud"]
+bg_color = Color(0.0862745, 0.121569, 0.2, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.24, 0.35, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_btn"]
+bg_color = Color(0.12, 0.16, 0.24, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.32, 0.45, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialog_card"]
+content_margin_left = 32.0
+content_margin_top = 28.0
+content_margin_right = 32.0
+content_margin_bottom = 28.0
+bg_color = Color(0.0862745, 0.121569, 0.2, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.960784, 0.619608, 0.0431373, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_accept_btn"]
+bg_color = Color(0.960784, 0.619608, 0.0431373, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_decline_btn"]
+bg_color = Color(0.15, 0.2, 0.3, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.38, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="World1" type="Node2D" unique_id=874235099]
 script = ExtResource("1_xjplc")
 
 [node name="GroundLayer" type="TileMapLayer" parent="." unique_id=1592571521]
@@ -72,23 +130,126 @@ tile_set = SubResource("TileSet_jriny")
 
 [node name="Player" parent="." unique_id=459131665 instance=ExtResource("2_odyut")]
 unique_name_in_owner = true
-visible = false
+position = Vector2(960, 540)
 
 [node name="QuestNPC" parent="." unique_id=416993052 instance=ExtResource("3_caqni")]
-visible = false
+position = Vector2(1060, 540)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=444868708]
+
+[node name="TopHUD" type="PanelContainer" parent="UILayer"]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 640.0
+offset_bottom = 76.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud")
+
+[node name="HBox" type="HBoxContainer" parent="UILayer/TopHUD"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackToSelectButton" type="Button" parent="UILayer/TopHUD/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 36)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
+text = "🗺️ Chapters"
+
+[node name="AreaTitleLabel" type="Label" parent="UILayer/TopHUD/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 15
+text = "📍 Chapter 1: Variable Valley"
 
 [node name="VirtualJoystick" parent="UILayer" unique_id=1887336294 instance=ExtResource("4_cml1i")]
 unique_name_in_owner = true
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -120.0
-offset_right = 120.0
+offset_left = 32.0
+offset_top = -140.0
+offset_right = 152.0
+offset_bottom = -20.0
 grow_vertical = 0
 pivot_offset = Vector2(40, 40)
 
-[node name="LevelGameplay" parent="UILayer" unique_id=829659668 instance=ExtResource("1_tiibd")]
+[node name="QuestDialogModal" type="ColorRect" parent="UILayer"]
 unique_name_in_owner = true
 visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="Center" type="CenterContainer" parent="UILayer/QuestDialogModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DialogCard" type="PanelContainer" parent="UILayer/QuestDialogModal/Center"]
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialog_card")
+
+[node name="DialogVBox" type="VBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SpeakerHeader" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="SpeakerIcon" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "🧙"
+
+[node name="SpeakerName" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 22
+text = "Master PyWizard"
+
+[node name="QuestText" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.93, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+text = "Greetings, Adventurer Alex!\n\nWelcome to Variable Valley. The ancient chambers require mastery of Python variables, data types, and syntax to unlock.\n\nWill you accept this quest and begin the trial?"
+autowrap_mode = 3
+
+[node name="ButtonsHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="DeclineButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0.8, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_decline_btn")
+text = "Maybe Later"
+
+[node name="AcceptButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_accept_btn")
+text = "⚔️ Accept Quest"
+

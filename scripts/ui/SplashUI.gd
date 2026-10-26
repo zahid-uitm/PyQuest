@@ -8,7 +8,7 @@ extends Control
 var loading_messages: Array[String] = [
 	"Initializing quest engine...",
 	"Loading Python syntax modules...",
-	"Connecting to PyQuest servers...",
+	"Synchronizing quest archives...",
 	"Preparing your adventure..."
 ]
 

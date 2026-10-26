@@ -1,12 +1,86 @@
 [gd_scene format=3 uid="uid://dn6dbrm1om4fa"]
 
 [ext_resource type="Script" uid="uid://703p5hfkvv4a" path="res://scripts/ui/GameplayUI.gd" id="1_52h1o"]
+[ext_resource type="PackedScene" uid="uid://c57o6goq47u2w" path="res://scenes/world/VisualStage.tscn" id="2_visual_stage"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_52h1o"]
-bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
-border_color = Color(0.9607843, 0.61960787, 0.043137256, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_topbar"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(0.0705882, 0.0980392, 0.160784, 1)
+border_width_bottom = 2
+border_color = Color(0.960784, 0.619608, 0.0431373, 0.8)
 
-[node name="LevelGameplay" type="Control" unique_id=829659668]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bottombar"]
+content_margin_left = 20.0
+content_margin_top = 6.0
+content_margin_right = 20.0
+content_margin_bottom = 6.0
+bg_color = Color(0.06, 0.08, 0.13, 1)
+border_width_top = 1
+border_color = Color(0.18, 0.24, 0.35, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_codepanel"]
+content_margin_left = 24.0
+content_margin_top = 20.0
+content_margin_right = 24.0
+content_margin_bottom = 20.0
+bg_color = Color(0.0862745, 0.117647, 0.192157, 0.98)
+border_width_left = 2
+border_color = Color(0.180392, 0.239216, 0.352941, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_codebox"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.0392157, 0.054902, 0.0901961, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.235294, 0.313726, 0.45098, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_primary"]
+bg_color = Color(0.960784, 0.619608, 0.0431373, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_card"]
+content_margin_left = 36.0
+content_margin_top = 32.0
+content_margin_right = 36.0
+content_margin_bottom = 32.0
+bg_color = Color(0.0862745, 0.121569, 0.2, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.960784, 0.619608, 0.0431373, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.14, 0.2, 0.32, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="LevelGameplay" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,76 +89,224 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_52h1o")
 
-[node name="Background" type="ColorRect" parent="." unique_id=840914239]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+color = Color(0.0470588, 0.0666667, 0.109804, 1)
 
-[node name="TopBar" type="PanelContainer" parent="." unique_id=1605590768]
+[node name="LayoutVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="TopBar" type="PanelContainer" parent="LayoutVBox"]
 custom_minimum_size = Vector2(0, 60)
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 23.0
-grow_horizontal = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_52h1o")
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_topbar")
 
-[node name="TopBarContainer" type="HBoxContainer" parent="TopBar" unique_id=1443922476]
+[node name="TopBarContainer" type="HBoxContainer" parent="LayoutVBox/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="PauseButton" type="Button" parent="LayoutVBox/TopBar/TopBarContainer"]
+custom_minimum_size = Vector2(90, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "⏸ Pause"
+
+[node name="LevelTitleLabel" type="Label" parent="LayoutVBox/TopBar/TopBarContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 18
+text = "⚔️ Level 1: Variable Valley"
+
+[node name="SpacerLeft" type="Control" parent="LayoutVBox/TopBar/TopBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QuestionTrackerLabel" type="Label" parent="LayoutVBox/TopBar/TopBarContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.886275, 0.909804, 0.941176, 1)
+theme_override_font_sizes/font_size = 15
+text = "Challenge 1 / 4"
+
+[node name="ScoreStreakLabel" type="Label" parent="LayoutVBox/TopBar/TopBarContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.341176, 0.823529, 0.584314, 1)
+theme_override_font_sizes/font_size = 15
+text = "⭐ Score: 0 | 🔥 x1.0"
+
+[node name="XPLabel" type="Label" parent="LayoutVBox/TopBar/TopBarContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.984314, 0.74902, 0.141176, 1)
+theme_override_font_sizes/font_size = 15
+text = "✨ XP: 0"
+
+[node name="HintButton" type="Button" parent="LayoutVBox/TopBar/TopBarContainer"]
+custom_minimum_size = Vector2(110, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "💡 Tokens: 5"
+
+[node name="TimerLabel" type="Label" parent="LayoutVBox/TopBar/TopBarContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.580392, 0.639216, 0.721569, 1)
+theme_override_font_sizes/font_size = 15
+text = "⏱ 00:00"
+
+[node name="SplitArea" type="HBoxContainer" parent="LayoutVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="VisualStageContainer" type="SubViewportContainer" parent="LayoutVBox/SplitArea"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.28
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="LayoutVBox/SplitArea/VisualStageContainer"]
+handle_input_locally = false
+size = Vector2i(1080, 970)
+render_target_update_mode = 4
+
+[node name="VisualStage" parent="LayoutVBox/SplitArea/VisualStageContainer/SubViewport" instance=ExtResource("2_visual_stage")]
+
+[node name="CodePanel" type="PanelContainer" parent="LayoutVBox/SplitArea"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_codepanel")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="LayoutVBox/SplitArea/CodePanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CardVBox" type="VBoxContainer" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="HeaderBar" type="HBoxContainer" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox"]
 layout_mode = 2
 
-[node name="PauseButton" type="Button" parent="TopBar/TopBarContainer" unique_id=255704664]
+[node name="QuestionTitleLabel" type="Label" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/HeaderBar"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 18
+text = "Chamber Entrance: Pedestal Lock"
 
-[node name="QuestionTrackerLabel" type="Label" parent="TopBar/TopBarContainer" unique_id=611790623]
+[node name="TopicBadge" type="Label" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/HeaderBar"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.380392, 0.65098, 0.980392, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_badge")
+text = "Variables & Data Types"
 
-[node name="TimerLabel" type="Label" parent="TopBar/TopBarContainer" unique_id=2013756061]
+[node name="QuestionPromptLabel" type="Label" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.886275, 0.909804, 0.941176, 1)
+theme_override_font_sizes/font_size = 16
+text = "Assign 50 gold coins to the variable 'gold' to activate the mechanism."
+autowrap_mode = 3
 
-[node name="ScoreStreakLabel" type="Label" parent="TopBar/TopBarContainer" unique_id=895280398]
+[node name="CodeDisplayContainer" type="PanelContainer" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_codebox")
 
-[node name="HintButton" type="Button" parent="TopBar/TopBarContainer" unique_id=905220136]
+[node name="CodeVBox" type="VBoxContainer" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/CodeDisplayContainer"]
 layout_mode = 2
+theme_override_constants/separation = 8
 
-[node name="MainContainer" type="MarginContainer" parent="." unique_id=608584027]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 90
-theme_override_constants/margin_right = 60
-theme_override_constants/margin_bottom = 40
-
-[node name="QuestionCard" type="PanelContainer" parent="MainContainer" unique_id=1943124497]
+[node name="CodeFileTab" type="Label" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/CodeDisplayContainer/CodeVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.5, 0.65, 1)
+theme_override_font_sizes/font_size = 12
+text = "🐍 python_codex.py"
 
-[node name="CardVBox" type="VBoxContainer" parent="MainContainer/QuestionCard" unique_id=711508035]
+[node name="CodeLabel" type="RichTextLabel" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/CodeDisplayContainer/CodeVBox"]
 layout_mode = 2
+theme_override_colors/default_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "[code]gold = ____[/code]"
+fit_content = true
+scroll_active = false
 
-[node name="QuestionTitleLabel" type="Label" parent="MainContainer/QuestionCard/CardVBox" unique_id=1470388363]
+[node name="AnswerInteractiveArea" type="VBoxContainer" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox"]
 layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="QuestionPromptLabel" type="Label" parent="MainContainer/QuestionCard/CardVBox" unique_id=220736198]
+[node name="ActionRow" type="HBoxContainer" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox"]
 layout_mode = 2
+theme_override_constants/separation = 16
 
-[node name="CodeDisplayContainer" type="PanelContainer" parent="MainContainer/QuestionCard/CardVBox" unique_id=1419757035]
+[node name="AskWizardButton" type="Button" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/ActionRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "🧙 Ask Master PyWizard (-1 Token)"
 
-[node name="CodeLabel" type="RichTextLabel" parent="MainContainer/QuestionCard/CardVBox/CodeDisplayContainer" unique_id=1324593088]
+[node name="SubmitButton" type="Button" parent="LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox/ActionRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
+text = "▶ Submit & Run Code"
 
-[node name="AnswerInteractiveArea" type="VBoxContainer" parent="MainContainer/QuestionCard/CardVBox" unique_id=305375600]
+[node name="BottomBar" type="PanelContainer" parent="LayoutVBox"]
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bottombar")
 
-[node name="FeedbackOverlay" type="ColorRect" parent="." unique_id=1430356637]
+[node name="BottomBarContainer" type="HBoxContainer" parent="LayoutVBox/BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="WeaponStatusLabel" type="Label" parent="LayoutVBox/BottomBar/BottomBarContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+text = "🗡️ Weapon: Python Codex | Environment: Python 3.12"
+
+[node name="SpacerBottom" type="Control" parent="LayoutVBox/BottomBar/BottomBarContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ProgressText" type="Label" parent="LayoutVBox/BottomBar/BottomBarContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.69, 0.22, 1)
+theme_override_font_sizes/font_size = 13
+text = "Progress: 1/4"
+
+[node name="LevelProgressBar" type="ProgressBar" parent="LayoutVBox/BottomBar/BottomBarContainer"]
+custom_minimum_size = Vector2(240, 16)
+layout_mode = 2
+size_flags_vertical = 4
+value = 25.0
+show_percentage = false
+
+[node name="FeedbackOverlay" type="ColorRect" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -92,26 +314,59 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7019608)
+color = Color(0, 0, 0, 0.75)
 
-[node name="FeedbackCard" type="PanelContainer" parent="FeedbackOverlay" unique_id=1559595792]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Center" type="CenterContainer" parent="FeedbackOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="FeedbackVBox" type="VBoxContainer" parent="FeedbackOverlay/FeedbackCard" unique_id=2147203537]
+[node name="FeedbackCard" type="PanelContainer" parent="FeedbackOverlay/Center"]
+custom_minimum_size = Vector2(620, 0)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
 
-[node name="StatusTitle" type="Label" parent="FeedbackOverlay/FeedbackCard/FeedbackVBox" unique_id=427687834]
+[node name="FeedbackVBox" type="VBoxContainer" parent="FeedbackOverlay/Center/FeedbackCard"]
 layout_mode = 2
+theme_override_constants/separation = 16
 
-[node name="StatusMessage" type="Label" parent="FeedbackOverlay/FeedbackCard/FeedbackVBox" unique_id=1463594414]
+[node name="StatusTitle" type="Label" parent="FeedbackOverlay/Center/FeedbackCard/FeedbackVBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "🎉 Correct!"
+horizontal_alignment = 1
 
-[node name="NextButton" type="Button" parent="FeedbackOverlay/FeedbackCard/FeedbackVBox" unique_id=351002080]
+[node name="StatusMessage" type="Label" parent="FeedbackOverlay/Center/FeedbackCard/FeedbackVBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "+100 XP | Streak: 1🔥"
+horizontal_alignment = 1
+autowrap_mode = 3
 
-[node name="PauseMenuOverlay" type="ColorRect" parent="." unique_id=99276835]
+[node name="ExplanationBox" type="PanelContainer" parent="FeedbackOverlay/Center/FeedbackCard/FeedbackVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_codebox")
+
+[node name="ExplanationLabel" type="Label" parent="FeedbackOverlay/Center/FeedbackCard/FeedbackVBox/ExplanationBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Explanation details..."
+autowrap_mode = 3
+
+[node name="NextButton" type="Button" parent="FeedbackOverlay/Center/FeedbackCard/FeedbackVBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
+text = "Continue Journey ➔"
+
+[node name="HintModalOverlay" type="ColorRect" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -119,24 +374,213 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7019608)
+color = Color(0, 0, 0, 0.75)
 
-[node name="PauseCard" type="PanelContainer" parent="PauseMenuOverlay" unique_id=1692917015]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Center" type="CenterContainer" parent="HintModalOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="PauseVBox" type="VBoxContainer" parent="PauseMenuOverlay/PauseCard" unique_id=1523068325]
+[node name="HintCard" type="PanelContainer" parent="HintModalOverlay/Center"]
+custom_minimum_size = Vector2(580, 0)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
 
-[node name="PauseTitle" type="Label" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=1665590160]
+[node name="HintVBox" type="VBoxContainer" parent="HintModalOverlay/Center/HintCard"]
 layout_mode = 2
+theme_override_constants/separation = 16
 
-[node name="ResumeButton" type="Button" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=852960134]
+[node name="WizardHeader" type="HBoxContainer" parent="HintModalOverlay/Center/HintCard/HintVBox"]
 layout_mode = 2
+alignment = 1
 
-[node name="RestartButton" type="Button" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=658862445]
+[node name="WizardIcon" type="Label" parent="HintModalOverlay/Center/HintCard/HintVBox/WizardHeader"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "🧙"
 
-[node name="QuitButton" type="Button" parent="PauseMenuOverlay/PauseCard/PauseVBox" unique_id=1483820935]
+[node name="WizardTitle" type="Label" parent="HintModalOverlay/Center/HintCard/HintVBox/WizardHeader"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.380392, 0.65098, 0.980392, 1)
+theme_override_font_sizes/font_size = 22
+text = "Master PyWizard's Guidance"
+
+[node name="HintMessage" type="Label" parent="HintModalOverlay/Center/HintCard/HintVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+text = "Hint explanation..."
+autowrap_mode = 3
+
+[node name="CloseHintButton" type="Button" parent="HintModalOverlay/Center/HintCard/HintVBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
+text = "Thank you, Master PyWizard"
+
+[node name="PauseMenuOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="Center" type="CenterContainer" parent="PauseMenuOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PauseCard" type="PanelContainer" parent="PauseMenuOverlay/Center"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="PauseVBox" type="VBoxContainer" parent="PauseMenuOverlay/Center/PauseCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PauseTitle" type="Label" parent="PauseMenuOverlay/Center/PauseCard/PauseVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "⏸ Quest Paused"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="PauseMenuOverlay/Center/PauseCard/PauseVBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "▶ Resume"
+
+[node name="RestartButton" type="Button" parent="PauseMenuOverlay/Center/PauseCard/PauseVBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "↺ Restart Level"
+
+[node name="QuitButton" type="Button" parent="PauseMenuOverlay/Center/PauseCard/PauseVBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+text = "🌍 Return to World"
+
+[node name="VictoryOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="Center" type="CenterContainer" parent="VictoryOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VictoryCard" type="PanelContainer" parent="VictoryOverlay/Center"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="VictoryVBox" type="VBoxContainer" parent="VictoryOverlay/Center/VictoryCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="VictoryTitle" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 28
+text = "🏆 CHAMBER CLEARED!"
+horizontal_alignment = 1
+
+[node name="RankLabel" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "Master Adventurer (★★★)"
+horizontal_alignment = 1
+
+[node name="StatsGrid" type="GridContainer" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 30
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="AccLabelTitle" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+text = "Accuracy:"
+
+[node name="AccValue" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.82, 0.58, 1)
+text = "100%"
+
+[node name="StreakLabelTitle" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+text = "Max Streak:"
+
+[node name="StreakValue" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
+text = "4 (x1.4 Multiplier)"
+
+[node name="TimeLabelTitle" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+text = "Time Bonus:"
+
+[node name="TimeValue" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.65, 0.98, 1)
+text = "+480 pts"
+
+[node name="ScoreLabelTitle" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+text = "Final Score:"
+
+[node name="ScoreValue" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.75, 0.14, 1)
+text = "920 pts"
+
+[node name="XPLabelTitle" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+text = "XP Earned:"
+
+[node name="XPValue" type="Label" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/StatsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.75, 0.14, 1)
+text = "+260 XP"
+
+[node name="VictoryButtonsHBox" type="HBoxContainer" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ReplayButton" type="Button" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/VictoryButtonsHBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "↺ Replay"
+
+[node name="LevelSelectBtn" type="Button" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/VictoryButtonsHBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
+text = "🌍 Return to World"

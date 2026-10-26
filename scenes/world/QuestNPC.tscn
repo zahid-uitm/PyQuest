@@ -1,15 +1,52 @@
 [gd_scene format=3 uid="uid://bg7armliwfv1t"]
 
 [ext_resource type="Script" uid="uid://c8wvwyiruqmsy" path="res://scripts/world/QuestNPC.gd" id="1_rxnkq"]
+[ext_resource type="Texture2D" uid="uid://8jg40l1a5gxb" path="res://assets/sprites/characters/skeleton.png" id="2_npctex"]
 
-[node name="QuestNpc" type="Area2D" unique_id=416993052]
+[sub_resource type="CircleShape2D" id="CircleShape2D_m7n1a"]
+radius = 50.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+bg_color = Color(0.08, 0.12, 0.2, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.96, 0.62, 0.04, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="QuestNPC" type="Area2D" unique_id=416993052]
 script = ExtResource("1_rxnkq")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=381830270]
+texture = ExtResource("2_npctex")
+hframes = 6
+vframes = 13
+frame = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1408817616]
+shape = SubResource("CircleShape2D_m7n1a")
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -70.0
+offset_top = -46.0
+offset_right = 70.0
+offset_bottom = -26.0
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 12
+text = "🧙 Master PyWizard"
+horizontal_alignment = 1
 
 [node name="InteractionPrompt" type="Label" parent="." unique_id=663227170]
-offset_right = 40.0
-offset_bottom = 23.0
-text = "Tap to Start Question"
+offset_left = -65.0
+offset_top = -24.0
+offset_right = 65.0
+offset_bottom = -2.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_prompt")
+text = "[E / Tap] Speak"
+horizontal_alignment = 1
