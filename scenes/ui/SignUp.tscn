@@ -2,22 +2,34 @@
 
 [ext_resource type="Script" uid="uid://cdubkj333dxio" path="res://scripts/ui/AuthUI.gd" id="1_j1nah"]
 [ext_resource type="Texture2D" uid="uid://l4xe1oubofqo" path="res://pyquest _logo.jpg" id="2_8foet"]
+[ext_resource type="Texture2D" uid="uid://btjljaww6hs4s" path="res://pyquest_splash.jpg" id="3_splash"]
+[ext_resource type="Texture2D" uid="uid://dbgdff4mlgaus" path="res://assets/sprites/particles/magic_star.png" id="4_star_tex"]
+
+[sub_resource type="Curve" id="Curve_particle_scale"]
+_data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.25, 0.7), 0.0, 0.0, 0, 0, Vector2(0.5, 0.35), 0.0, 0.0, 0, 0, Vector2(0.75, 1.1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="Gradient" id="Gradient_particle_color"]
+offsets = PackedFloat32Array(0, 0.15, 0.55, 0.85, 1)
+colors = PackedColorArray(1, 0.95, 0.6, 0, 1, 0.92, 0.4, 0.95, 0.85, 0.95, 1, 0.98, 0.98, 0.75, 0.25, 0.75, 0.95, 0.5, 0.1, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j1nah"]
 content_margin_left = 32.0
 content_margin_top = 32.0
 content_margin_right = 32.0
 content_margin_bottom = 32.0
-bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.18039216, 0.23921569, 0.3529412, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+bg_color = Color(0.0705882, 0.101961, 0.172549, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.960784, 0.619608, 0.043137, 0.8)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.75)
+shadow_size = 28
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u8cw5"]
 content_margin_left = 12.0
@@ -72,14 +84,48 @@ grow_vertical = 2
 script = ExtResource("1_j1nah")
 is_signup_screen = true
 
-[node name="Background" type="ColorRect" parent="." unique_id=153433144]
+[node name="Background" type="TextureRect" parent="." unique_id=153433144]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+texture = ExtResource("3_splash")
+expand_mode = 1
+stretch_mode = 6
+modulate = Color(0.38, 0.40, 0.48, 1)
+
+[node name="DimOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.06, 0.5)
+
+[node name="AmbientParticles" type="CPUParticles2D" parent="."]
+position = Vector2(960, 540)
+amount = 55
+texture = ExtResource("4_star_tex")
+lifetime = 6.0
+preprocess = 4.0
+emission_shape = 3
+emission_rect_extents = Vector2(960, 540)
+direction = Vector2(0, -1)
+spread = 45.0
+gravity = Vector2(0, -16)
+initial_velocity_min = 15.0
+initial_velocity_max = 45.0
+angular_velocity_min = -30.0
+angular_velocity_max = 30.0
+tangential_accel_min = -15.0
+tangential_accel_max = 15.0
+scale_amount_min = 0.4
+scale_amount_max = 1.1
+scale_amount_curve = SubResource("Curve_particle_scale")
+color_ramp = SubResource("Gradient_particle_color")
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=834903071]
 layout_mode = 1

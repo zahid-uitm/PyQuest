@@ -25,9 +25,7 @@ func _ready() -> void:
 		guest_button.pressed.connect(_on_guest_button_pressed)
 
 func _on_guest_button_pressed() -> void:
-	if SaveManager.user_profile.is_empty() or not SaveManager.user_profile.has("full_name") or SaveManager.user_profile["full_name"] == "":
-		SaveManager.user_profile["full_name"] = "Adventurer Alex"
-	SaveManager.save_local_profile()
+	SaveManager.start_guest_session()
 	SceneManager.change_scene(SceneManager.MAIN_MENU)
 
 func _on_submit_button_pressed() -> void:

@@ -53,7 +53,7 @@ func login_user(email: String, password: String) -> void:
 func logout() -> void:
 	current_user_id = ""
 	id_token = ""
-	SaveManager.user_profile = {}
+	SaveManager.clear_profile()
 
 func write_player_profile(profile_data: Dictionary) -> void:
 	if not is_authenticated():
@@ -92,12 +92,22 @@ func _on_auth_request_completed(_result: int, response_code: int, _headers: Pack
 			var full_name = http_auth.get_meta("full_name") if http_auth.has_meta("full_name") else "Player"
 			var initial_profile = {
 				"full_name": full_name,
+				"is_guest": false,
 				"player_level": 1,
 				"xp": 0,
 				"unlocked_level": 1,
-				"hint_tokens": 5
+				"hint_tokens": 5,
+				"current_level": 1,
+				"level_stars": {
+					"1": 0,
+					"2": 0,
+					"3": 0,
+					"4": 0,
+					"5": 0
+				}
 			}
 			SaveManager.user_profile = initial_profile
+			SaveManager.save_local_profile()
 			write_player_profile(initial_profile)
 			auth_success.emit(response)
 		elif action == "login":
@@ -123,19 +133,25 @@ func _on_db_request_completed(_result: int, response_code: int, _headers: Packed
 			var profile = JSON.parse_string(response_text)
 			
 			if typeof(profile) == TYPE_DICTIONARY:
+				profile["is_guest"] = false
 				SaveManager.user_profile = profile
+				SaveManager.save_local_profile()
 				auth_success.emit({"user_id": current_user_id})
 			elif profile == null:
 				# Profile doesn't exist in DB yet (e.g. account created during earlier failed test)
 				# Auto-generate initial profile
 				var default_profile = {
 					"full_name": "Player",
+					"is_guest": false,
 					"player_level": 1,
 					"xp": 0,
 					"unlocked_level": 1,
-					"hint_tokens": 5
+					"hint_tokens": 5,
+					"current_level": 1,
+					"level_stars": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
 				}
 				SaveManager.user_profile = default_profile
+				SaveManager.save_local_profile()
 				write_player_profile(default_profile)
 				auth_success.emit({"user_id": current_user_id})
 			else:

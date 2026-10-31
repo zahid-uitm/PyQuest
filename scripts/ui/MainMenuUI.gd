@@ -12,10 +12,14 @@ func update_dashboard() -> void:
 	var profile: Dictionary = SaveManager.user_profile
 	
 	var raw_name: String = profile.get("full_name", "Player")
-	user_name_label.text = "Welcome back, %s!" % raw_name
-	
 	var current_level: int = int(profile.get("player_level", 1))
-	level_label.text = "Level %d Adventurer" % current_level
+	
+	if SaveManager.is_guest():
+		user_name_label.text = "⚔️ %s (Guest)" % raw_name
+		level_label.text = "Level %d Adventurer • Local Device Storage" % current_level
+	else:
+		user_name_label.text = "Welcome back, %s!" % raw_name
+		level_label.text = "Level %d Adventurer • Cloud Sync Active" % current_level
 	
 	var current_xp: int = int(profile.get("xp", 0))
 	var xp_in_level: int = current_xp % 500

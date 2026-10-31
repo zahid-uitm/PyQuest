@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cisccge6ty4dv"]
 
 [ext_resource type="Script" uid="uid://c0n5gvdxj1gw8" path="res://scripts/ui/SplashUI.gd" id="1_yprc2"]
-[ext_resource type="Texture2D" uid="uid://l4xe1oubofqo" path="res://pyquest _logo.jpg" id="2_j80mf"]
+[ext_resource type="Texture2D" uid="uid://btjljaww6hs4s" path="res://pyquest_splash.jpg" id="2_j80mf"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_101qs"]
 bg_color = Color(0.11764706, 0.16078432, 0.23137255, 1)
@@ -26,14 +26,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_yprc2")
 
-[node name="Background" type="ColorRect" parent="." unique_id=50821084]
+[node name="Background" type="TextureRect" parent="." unique_id=323463885]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+texture = ExtResource("2_j80mf")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1174870835]
 layout_mode = 1
@@ -48,14 +50,8 @@ layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="Logo" type="TextureRect" parent="CenterContainer/VBoxContainer" unique_id=483507630]
-custom_minimum_size = Vector2(420, 240)
-layout_mode = 2
-texture = ExtResource("2_j80mf")
-expand_mode = 1
-stretch_mode = 5
-
 [node name="SubtitleLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=2048143666]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83137256, 0.6862745, 0.21568628, 1)
 theme_override_font_sizes/font_size = 18
@@ -63,7 +59,7 @@ text = "Master Python Through Adventure"
 horizontal_alignment = 1
 
 [node name="ControlSpacer" type="Control" parent="CenterContainer/VBoxContainer" unique_id=1664650677]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 560)
 layout_mode = 2
 
 [node name="ProgressBar" type="ProgressBar" parent="CenterContainer/VBoxContainer" unique_id=1984136844]
@@ -74,7 +70,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_0y1kt")
 
 [node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1247463456]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5803922, 0.6392157, 0.72156864, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
 text = "Initializing quest engine..."
 horizontal_alignment = 1

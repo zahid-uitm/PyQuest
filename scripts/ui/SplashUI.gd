@@ -1,7 +1,6 @@
 # res://scripts/ui/SplashUI.gd
 extends Control
 
-@onready var logo: TextureRect = $CenterContainer/VBoxContainer/Logo
 @onready var progress_bar: ProgressBar = $CenterContainer/VBoxContainer/ProgressBar
 @onready var status_label: Label = $CenterContainer/VBoxContainer/StatusLabel
 
@@ -13,17 +12,12 @@ var loading_messages: Array[String] = [
 ]
 
 func _ready() -> void:
-	# Start with logo faded out for a smooth entry
-	logo.modulate.a = 0.0
 	progress_bar.value = 0.0
-	
 	run_splash_sequence()
 
 func run_splash_sequence() -> void:
-	# 1. Fade in the PyQuest Logo
-	var logo_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	logo_tween.tween_property(logo, "modulate:a", 1.0, 0.8)
-	await logo_tween.finished
+	# 1. Subtle delay to let wallpaper display
+	await get_tree().create_timer(0.4).timeout
 
 	# 2. Animate Progress Bar loading
 	var progress_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

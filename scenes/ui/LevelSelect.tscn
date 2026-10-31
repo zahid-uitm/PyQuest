@@ -2,32 +2,83 @@
 
 [ext_resource type="Script" uid="uid://dfsyfhtils70x" path="res://scripts/ui/LevelSelectUI.gd" id="1_2fnwa"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2fnwa"]
-content_margin_left = 20.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+content_margin_left = 24.0
 content_margin_top = 10.0
-content_margin_right = 20.0
+content_margin_right = 24.0
 content_margin_bottom = 10.0
-bg_color = Color(0.08627451, 0.12156863, 0.2, 1)
+bg_color = Color(0.0666667, 0.0941176, 0.152941, 0.95)
 border_width_bottom = 2
-border_color = Color(0.18039216, 0.23921569, 0.3529412, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+border_color = Color(0.960784, 0.619608, 0.0431373, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp86k"]
-bg_color = Color(0.11764706, 0.16078432, 0.23137255, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_back_btn"]
+bg_color = Color(0.117647, 0.160784, 0.239216, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.2, 0.25490198, 0.33333334, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+border_color = Color(0.25, 0.32, 0.45, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
-[node name="LevelSelect" type="Control" unique_id=709427490]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_card"]
+content_margin_left = 32.0
+content_margin_top = 28.0
+content_margin_right = 32.0
+content_margin_bottom = 28.0
+bg_color = Color(0.0784314, 0.113725, 0.188235, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.960784, 0.619608, 0.0431373, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats_box"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.04, 0.06, 0.1, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.24, 0.35, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_travel_btn"]
+bg_color = Color(0.960784, 0.619608, 0.0431373, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_close_btn"]
+bg_color = Color(0.14, 0.18, 0.28, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.35, 0.48, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="LevelSelect" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -36,53 +87,96 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_2fnwa")
 
-[node name="Background" type="ColorRect" parent="." unique_id=2041103248]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.050980393, 0.08235294, 0.15294118, 1)
+color = Color(0.0431373, 0.0627451, 0.101961, 1)
 
-[node name="HeaderPanel" type="PanelContainer" parent="." unique_id=1388541213]
+[node name="MapDecorGrid" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.12, 0.2, 0.08)
+
+[node name="HeaderPanel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 16.0
+offset_left = 20.0
 offset_top = 16.0
-offset_right = -16.0
-offset_bottom = 116.0
+offset_right = -20.0
+offset_bottom = 100.0
 grow_horizontal = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_2fnwa")
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
 
-[node name="Header" type="HBoxContainer" parent="HeaderPanel" unique_id=560015971]
-custom_minimum_size = Vector2(0, 80)
+[node name="Header" type="HBoxContainer" parent="HeaderPanel"]
 layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
 
-[node name="BackButton" type="Button" parent="HeaderPanel/Header" unique_id=2042047491]
-custom_minimum_size = Vector2(110, 42)
+[node name="BackButton" type="Button" parent="HeaderPanel/Header"]
+custom_minimum_size = Vector2(140, 46)
 layout_mode = 2
-focus_mode = 1
-theme_override_colors/font_color = Color(0.8862745, 0.9098039, 0.9411765, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_wp86k")
-text = "← Back"
+focus_mode = 0
+theme_override_colors/font_color = Color(0.9, 0.93, 0.98, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_back_btn")
+text = "← Main Menu"
 
-[node name="TitleLabel" type="Label" parent="HeaderPanel/Header" unique_id=1288183675]
+[node name="TitleBox" type="VBoxContainer" parent="HeaderPanel/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 22
-text = "Select Adventure Chapter
-"
-horizontal_alignment = 1
+alignment = 1
 
-[node name="ProgressLabel" type="Label" parent="HeaderPanel/Header" unique_id=1763301767]
+[node name="TitleLabel" type="Label" parent="HeaderPanel/Header/TitleBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.83137256, 0.6862745, 0.21568628, 1)
-theme_override_font_sizes/font_size = 15
-text = "Progress: 1 / 15"
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 22
+text = "🗺️ THE REALM OF PYTHONIA"
 
-[node name="MainContainer" type="MarginContainer" parent="." unique_id=874736529]
+[node name="SubtitleLabel" type="Label" parent="HeaderPanel/Header/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.580392, 0.639216, 0.721569, 1)
+theme_override_font_sizes/font_size = 13
+text = "Choose your destination across the 5 Ancient Sanctuaries"
+
+[node name="ProgressLabel" type="Label" parent="HeaderPanel/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.82, 0.58, 1)
+theme_override_font_sizes/font_size = 15
+text = "Unlocked: 1 / 5"
+
+[node name="StarsTotalLabel" type="Label" parent="HeaderPanel/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.984314, 0.74902, 0.141176, 1)
+theme_override_font_sizes/font_size = 15
+text = "⭐ 0 / 15 Stars"
+
+[node name="MapArea" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MapCanvas" type="Control" parent="MapArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BiomeCanvas" type="Control" parent="MapArea/MapCanvas"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -90,21 +184,143 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 150
-theme_override_constants/margin_right = 60
-theme_override_constants/margin_bottom = 40
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainContainer" unique_id=267858186]
+[node name="PathDrawer" type="Control" parent="MapArea/MapCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NodesContainer" type="Control" parent="MapArea/MapCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ModalOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="Center" type="CenterContainer" parent="ModalOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Card" type="PanelContainer" parent="ModalOverlay/Center"]
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="VBox" type="VBoxContainer" parent="ModalOverlay/Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeaderHBox" type="HBoxContainer" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="IconLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "📦"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleVBox" type="VBoxContainer" parent="ModalOverlay/Center/Card/VBox/HeaderHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
+alignment = 1
 
-[node name="GridContainer" type="GridContainer" parent="MainContainer/ScrollContainer" unique_id=404122100]
+[node name="ChapterLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 13
+text = "CHAPTER 1"
+
+[node name="TitleLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Variable Valley"
+
+[node name="TopicLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.380392, 0.65098, 0.980392, 1)
+theme_override_font_sizes/font_size = 14
+text = "Core Subject: Variables & Data Types"
+
+[node name="DescLabel" type="Label" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+text = "Description text..."
+autowrap_mode = 3
+
+[node name="StatsBox" type="PanelContainer" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stats_box")
+
+[node name="StatsHBox" type="HBoxContainer" parent="ModalOverlay/Center/Card/VBox/StatsBox"]
+layout_mode = 2
+
+[node name="StarsTitle" type="Label" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.75, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mastery: "
+
+[node name="StarsValue" type="Label" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.984314, 0.74902, 0.141176, 1)
+theme_override_font_sizes/font_size = 14
+text = "★★★ (3 / 3 Stars)"
+
+[node name="Spacer" type="Control" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 28
-theme_override_constants/v_separation = 28
-columns = 5
 
-[connection signal="pressed" from="HeaderPanel/Header/BackButton" to="." method="_on_back_button_pressed"]
+[node name="StatusValue" type="Label" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.8, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "Ready for Expedition"
+
+[node name="ButtonHBox" type="HBoxContainer" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="CloseButton" type="Button" parent="ModalOverlay/Center/Card/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_modal_close_btn")
+text = "Close"
+
+[node name="TravelButton" type="Button" parent="ModalOverlay/Center/Card/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_travel_btn")
+text = "⚔️ Travel to World"
