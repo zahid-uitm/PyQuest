@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cisccge6ty4dv"]
 
 [ext_resource type="Script" uid="uid://c0n5gvdxj1gw8" path="res://scripts/ui/SplashUI.gd" id="1_yprc2"]
-[ext_resource type="Texture2D" uid="uid://btjljaww6hs4s" path="res://pyquest_splash.jpg" id="2_j80mf"]
+[ext_resource type="Texture2D" uid="uid://wkw7dmn5nm8p" path="res://pyquest_splash2.jpg" id="2_j80mf"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_101qs"]
 bg_color = Color(0.11764706, 0.16078432, 0.23137255, 1)

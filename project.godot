@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+AudioManager="*res://scripts/core/AudioManager.gd"
 FirebaseManager="*uid://dfl602aw64co6"
 GameManager="*uid://cdponkgx3b5s0"
 SaveManager="*uid://b4cp0jolxx64b"

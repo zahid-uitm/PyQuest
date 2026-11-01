@@ -1,12 +1,37 @@
 # res://scripts/ui/MainMenuUI.gd
 extends Control
 
-@onready var user_name_label: Label = $HeaderPanel/HeaderContainer/UserInfo/UserNameLabel
-@onready var level_label: Label = $HeaderPanel/HeaderContainer/UserInfo/LevelLabel
-@onready var xp_progress_bar: ProgressBar = $HeaderPanel/HeaderContainer/XPContainer/XPProgressBar
+@onready var user_name_label: Label = $HangingSignboard/WoodPlank/PlankVBox/UserNameLabel
+@onready var level_label: Label = $HangingSignboard/WoodPlank/PlankVBox/LevelLabel
+@onready var xp_progress_bar: ProgressBar = $HangingSignboard/WoodPlank/PlankVBox/XPContainer/XPProgressBar
+@onready var hanging_signboard: Control = get_node_or_null("HangingSignboard")
+@onready var title_logo: TextureRect = get_node_or_null("TitleLogo")
 
 func _ready() -> void:
+	AudioManager.play_bgm_by_path("res://pyquest_audio_mainmenu.mp3", 0.01)
 	update_dashboard()
+	_start_hanging_sign_sway()
+	_start_title_bob()
+
+func _start_title_bob() -> void:
+	if not title_logo:
+		return
+	var base_y: float = title_logo.position.y
+	var bob_tween = create_tween().set_loops().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	bob_tween.tween_property(title_logo, "position:y", base_y - 6.0, 2.2)
+	bob_tween.tween_property(title_logo, "position:y", base_y + 6.0, 2.2)
+
+func _start_hanging_sign_sway() -> void:
+	if not hanging_signboard:
+		return
+	
+	# Set pivot at top center so the sign physically swings like a pendulum from its hanging ropes
+	hanging_signboard.pivot_offset = Vector2(hanging_signboard.size.x * 0.5, 0.0)
+	
+	# Prominent, natural pendulum swing like PvZ hanging wooden sign
+	var sway_tween = create_tween().set_loops().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	sway_tween.tween_property(hanging_signboard, "rotation", 0.065, 2.0)
+	sway_tween.tween_property(hanging_signboard, "rotation", -0.065, 2.0)
 
 func update_dashboard() -> void:
 	var profile: Dictionary = SaveManager.user_profile

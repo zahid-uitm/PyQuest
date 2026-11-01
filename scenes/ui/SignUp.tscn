@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://cdubkj333dxio" path="res://scripts/ui/AuthUI.gd" id="1_j1nah"]
 [ext_resource type="Texture2D" uid="uid://l4xe1oubofqo" path="res://pyquest _logo.jpg" id="2_8foet"]
-[ext_resource type="Texture2D" uid="uid://btjljaww6hs4s" path="res://pyquest_splash.jpg" id="3_splash"]
-[ext_resource type="Texture2D" uid="uid://dbgdff4mlgaus" path="res://assets/sprites/particles/magic_star.png" id="4_star_tex"]
+[ext_resource type="Texture2D" uid="uid://wkw7dmn5nm8p" path="res://pyquest_splash2.jpg" id="3_3tgqo"]
+[ext_resource type="Texture2D" uid="uid://cttr42i4yy84f" path="res://assets/sprites/particles/magic_star.png" id="4_3tgqo"]
 
 [sub_resource type="Curve" id="Curve_particle_scale"]
 _data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.25, 0.7), 0.0, 0.0, 0, 0, Vector2(0.5, 0.35), 0.0, 0.0, 0, 0, Vector2(0.75, 1.1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
@@ -84,19 +84,19 @@ grow_vertical = 2
 script = ExtResource("1_j1nah")
 is_signup_screen = true
 
-[node name="Background" type="TextureRect" parent="." unique_id=153433144]
+[node name="Background" type="TextureRect" parent="." unique_id=1424217056]
+modulate = Color(0.38, 0.4, 0.48, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_splash")
+texture = ExtResource("3_3tgqo")
 expand_mode = 1
 stretch_mode = 6
-modulate = Color(0.38, 0.40, 0.48, 1)
 
-[node name="DimOverlay" type="ColorRect" parent="."]
+[node name="DimOverlay" type="ColorRect" parent="." unique_id=649686793]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -105,16 +105,15 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.02, 0.03, 0.06, 0.5)
 
-[node name="AmbientParticles" type="CPUParticles2D" parent="."]
+[node name="AmbientParticles" type="CPUParticles2D" parent="." unique_id=1259892333]
 position = Vector2(960, 540)
 amount = 55
-texture = ExtResource("4_star_tex")
+texture = ExtResource("4_3tgqo")
 lifetime = 6.0
 preprocess = 4.0
 emission_shape = 3
 emission_rect_extents = Vector2(960, 540)
 direction = Vector2(0, -1)
-spread = 45.0
 gravity = Vector2(0, -16)
 initial_velocity_min = 15.0
 initial_velocity_max = 45.0

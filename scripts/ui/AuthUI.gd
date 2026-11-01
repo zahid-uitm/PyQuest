@@ -18,6 +18,7 @@ const COLOR_SUCCESS: Color = Color("10B981") # Emerald Green
 const COLOR_INFO: Color = Color("F59E0B")    # Gold / Amber
 
 func _ready() -> void:
+	AudioManager.play_bgm_by_path("res://pyquest_audio_login.mp3")
 	FirebaseManager.auth_success.connect(_on_auth_success)
 	FirebaseManager.auth_failed.connect(_on_auth_failed)
 	status_label.text = ""

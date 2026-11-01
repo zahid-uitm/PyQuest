@@ -2,9 +2,8 @@
 
 [ext_resource type="Script" uid="uid://cdubkj333dxio" path="res://scripts/ui/AuthUI.gd" id="1_ooglm"]
 [ext_resource type="Texture2D" uid="uid://l4xe1oubofqo" path="res://pyquest _logo.jpg" id="2_cglj6"]
-[ext_resource type="VideoStream" uid="uid://cc2csh6lj7hig" path="res://login_bg.ogv" id="2_j11lk"]
-[ext_resource type="Texture2D" uid="uid://btjljaww6hs4s" path="res://pyquest_splash.jpg" id="3_splash"]
-[ext_resource type="Texture2D" uid="uid://dbgdff4mlgaus" path="res://assets/sprites/particles/magic_star.png" id="4_star_tex"]
+[ext_resource type="Texture2D" uid="uid://wkw7dmn5nm8p" path="res://pyquest_splash2.jpg" id="3_j11lk"]
+[ext_resource type="Texture2D" uid="uid://cttr42i4yy84f" path="res://assets/sprites/particles/magic_star.png" id="4_j11lk"]
 
 [sub_resource type="Curve" id="Curve_particle_scale"]
 _data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.25, 0.7), 0.0, 0.0, 0, 0, Vector2(0.5, 0.35), 0.0, 0.0, 0, 0, Vector2(0.75, 1.1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
@@ -66,19 +65,6 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ooglm")
 
-[node name="BackgroundVideo" type="VideoStreamPlayer" parent="." unique_id=538816861]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-stream = ExtResource("2_j11lk")
-autoplay = true
-expand = true
-loop = true
-
 [node name="Background" type="TextureRect" parent="." unique_id=627492278]
 modulate = Color(0.38, 0.4, 0.48, 1)
 layout_mode = 1
@@ -87,7 +73,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_splash")
+texture = ExtResource("3_j11lk")
 expand_mode = 1
 stretch_mode = 6
 
@@ -103,13 +89,12 @@ color = Color(0.02, 0.03, 0.06, 0.5)
 [node name="AmbientParticles" type="CPUParticles2D" parent="." unique_id=2083193865]
 position = Vector2(960, 540)
 amount = 55
-texture = ExtResource("4_star_tex")
+texture = ExtResource("4_j11lk")
 lifetime = 6.0
 preprocess = 4.0
 emission_shape = 3
 emission_rect_extents = Vector2(960, 540)
 direction = Vector2(0, -1)
-spread = 45.0
 gravity = Vector2(0, -16)
 initial_velocity_min = 15.0
 initial_velocity_max = 45.0
