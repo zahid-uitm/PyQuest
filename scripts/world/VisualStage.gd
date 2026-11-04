@@ -65,7 +65,7 @@ func _shake_arena(intensity: float = 10.0) -> void:
 
 func _update_arena_bars() -> void:
 	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
-	var b_name = "Chronos-If" if cur_lvl == 2 else "NullByte"
+	var b_name = "Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte"))
 	var hp_label = get_node_or_null("DungeonEnvironment/BossHUD/VBox/HeaderHBox/BossHPLabel") as Label
 	var hp_bar = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossHPBar") as ProgressBar
 	var status_lbl = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossStatusLabel") as Label
@@ -261,7 +261,21 @@ func reset_stage() -> void:
 	var boss_tag = get_node_or_null("BossGolem/BossTag") as Label
 	var boss_title = get_node_or_null("DungeonEnvironment/BossHUD/VBox/HeaderHBox/BossTitleLabel") as Label
 
-	if cur_lvl == 2:
+	if cur_lvl == 4:
+		if boss_sprite:
+			boss_sprite.texture = load("res://assets/sprites/custom/boss_index_warden_sheet.png")
+		if boss_tag:
+			boss_tag.text = "🏺 Vektor-Zero [Boss]"
+		if boss_title:
+			boss_title.text = "🏺 WORLD 4 BOSS: VEKTOR-ZERO, THE CATACOMB SEQUENCE LICH"
+	elif cur_lvl == 3:
+		if boss_sprite:
+			boss_sprite.texture = load("res://assets/sprites/custom/boss_arbiter_sheet.png")
+		if boss_tag:
+			boss_tag.text = "🔮 Lambda-Prime [Boss]"
+		if boss_title:
+			boss_title.text = "🔮 WORLD 3 BOSS: LAMBDA-PRIME, THE MODULAR RELIC SOVEREIGN"
+	elif cur_lvl == 2:
 		if boss_sprite:
 			boss_sprite.texture = load("res://assets/sprites/custom/boss_warden_sheet.png")
 		if boss_tag:

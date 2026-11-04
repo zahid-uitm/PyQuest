@@ -1,0 +1,95 @@
+{
+	"level_id": 4,
+	"level_title": "Boss Trial: Vektor-Zero, The Sequence Lich",
+	"topic": "Lists & Sequences (Indexing, Mutation & Slicing)",
+	"questions": [
+		{
+			"id": "w4_boss_q1",
+			"title": "Phase 1: Zero-Indexed Soul Strike (list[0])",
+			"type": "code_completion",
+			"prompt": "Vektor-Zero summons an array of 3 Necropolis Shields! Complete the index inside the square brackets to shatter the FIRST element ('obsidian') in the 'shields' list.",
+			"code_snippet": "shields = [\"obsidian\", \"bone\", \"emerald\"]\ntarget = shields[____]\nshatter_shield(target)",
+			"options": [
+				"0",
+				"1",
+				"-1",
+				"first"
+			],
+			"correct_answer": "0",
+			"action_trigger": "boss_hit_1",
+			"hint": "Master PyWizard says: Python lists are zero-indexed! The very first item is always at index 0.",
+			"explanation": "Direct hit! In Python, list indices start at 0, so 'shields[0]' accesses the first element, \"obsidian\"!"
+		},
+		{
+			"id": "w4_boss_q2",
+			"title": "Phase 2: Appending the Arcane Counter-Rune (.append)",
+			"type": "multiple_choice",
+			"prompt": "Load a new spell rune onto the END of your 'arsenal' list! Which Python list method adds an element to the end of a list?",
+			"code_snippet": "arsenal = [\"fire_bolt\", \"ice_lance\"]\narsenal.____(\"solar_flare\")\ncast_all(arsenal)",
+			"options": [
+				"push",
+				"append",
+				"add_last",
+				"insert_end"
+			],
+			"correct_index": 1,
+			"action_trigger": "boss_hit_2",
+			"hint": "Master PyWizard says: Use '.append(item)' to attach a new item to the end of any Python list!",
+			"explanation": "Bullseye! 'arsenal.append(\"solar_flare\")' mutates the list in-place, adding \"solar_flare\" at the end!"
+		},
+		{
+			"id": "w4_boss_q3",
+			"title": "Phase 3: Measuring the Lich's Phylactery Array (len)",
+			"type": "code_completion",
+			"prompt": "Vektor-Zero splits his soul into a list of urns! Fill in the built-in Python function that returns the total number of items in 'urns'.",
+			"code_snippet": "urns = [\"alpha\", \"beta\", \"gamma\", \"omega\"]\ncount = ____(urns)\nstrike_all_urns(count)",
+			"options": [
+				"len",
+				"size",
+				"count",
+				"length"
+			],
+			"correct_answer": "len",
+			"action_trigger": "boss_hit_3",
+			"hint": "Master PyWizard says: Python's 3-letter built-in function 'len(sequence)' returns the length of any list or string!",
+			"explanation": "Critical hit! 'len(urns)' returns 4, the exact number of elements inside the 'urns' list!"
+		},
+		{
+			"id": "w4_boss_q4",
+			"title": "Phase 4: Negative Indexing & List Slicing",
+			"type": "multiple_choice",
+			"prompt": "Vektor-Zero hides his core in the LAST element of 'phylacteries'! What does 'phylacteries[-1]' return in Python?",
+			"code_snippet": "phylacteries = [10, 25, 50, 99]\ncore_power = phylacteries[-1]",
+			"options": [
+				"99 (the last element in the list)",
+				"10 (the first element in the list)",
+				"IndexError: list index out of range",
+				"-1"
+			],
+			"correct_index": 0,
+			"action_trigger": "boss_hit_4",
+			"hint": "Master PyWizard says: Negative indices count backward from the end of the list—index -1 is always the last item!",
+			"explanation": "Core exposed! In Python, index '-1' refers to the last item in a list, returning 99!"
+		},
+		{
+			"id": "w4_boss_q5",
+			"title": "Final Phase: The Sequence Matrix Finisher!",
+			"type": "syntax_ordering",
+			"prompt": "Vektor-Zero is down to his final 100 HP! Arrange the Python blocks in order to create the 'runes' list, append the 'omega' key, and unleash the finisher if 'omega' is in 'runes'!",
+			"code_snippet": "# Construct the List Creation, .append() Mutation, and 'in' Membership Check",
+			"blocks": [
+				"runes = [\"alpha\", \"beta\"]",
+				"runes.append(\"omega\")",
+				"if \"omega\" in runes:\n    unleash_matrix_finisher()"
+			],
+			"correct_sequence": [
+				0,
+				1,
+				2
+			],
+			"action_trigger": "boss_finisher",
+			"hint": "Master PyWizard says: First initialize the 'runes' list, then '.append(\"omega\")' to it, and finally check 'if \"omega\" in runes:'!",
+			"explanation": "VICTORY! You mastered Python Lists, '.append()', and 'in' membership search to vanquish Vektor-Zero, The Catacomb Sequence Lich!"
+		}
+	]
+}

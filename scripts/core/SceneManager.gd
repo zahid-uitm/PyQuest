@@ -9,6 +9,8 @@ const LEVEL_SELECT = "res://scenes/ui/LevelSelect.tscn"
 const LEVEL_GAMEPLAY = "res://scenes/ui/LevelGameplay.tscn"
 const WORLD_1 = "res://scenes/world/World1.tscn"
 const WORLD_2 = "res://scenes/world/World2.tscn"
+const WORLD_3 = "res://scenes/world/World3.tscn"
+const WORLD_4 = "res://scenes/world/World4.tscn"
 const GAMEPLAY = "res://scenes/world/World1.tscn"
 
 func change_scene(scene_path: String) -> void:

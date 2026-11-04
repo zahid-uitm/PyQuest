@@ -583,6 +583,10 @@ func _on_confirm_travel() -> void:
 		SceneManager.change_scene(SceneManager.WORLD_1)
 	elif selected_level_num == 2:
 		SceneManager.change_scene(SceneManager.WORLD_2)
+	elif selected_level_num == 3:
+		SceneManager.change_scene(SceneManager.WORLD_3)
+	elif selected_level_num == 4:
+		SceneManager.change_scene(SceneManager.WORLD_4)
 	else:
 		SceneManager.change_scene(SceneManager.LEVEL_GAMEPLAY)
 

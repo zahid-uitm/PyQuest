@@ -1,0 +1,1165 @@
+[gd_scene format=3 uid="uid://2g0sdmoqktyg"]
+
+[ext_resource type="Script" path="res://scripts/world/World3.gd" id="1_w3_script"]
+[ext_resource type="Texture2D" path="res://assets/maps/world3_vault_bg.jpg" id="2_vault_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/relic_pillar.png" id="3_relic_pillar"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/function_altar.png" id="5_terminal"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/campfire.png" id="6_campfire"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/magic_sparkle.png" id="7_star"]
+[ext_resource type="PackedScene" uid="uid://l07qioho22wn" path="res://scenes/components/Player.tscn" id="8_player"]
+[ext_resource type="PackedScene" uid="uid://bg7armliwfv1t" path="res://scenes/world/QuestNPC.tscn" id="9_quest_npc"]
+[ext_resource type="PackedScene" uid="uid://cx6r1g1g1e6h" path="res://scenes/world/Shrine.tscn" id="10_shrine"]
+[ext_resource type="PackedScene" uid="uid://b5t83ykw7u05m" path="res://scenes/world/TreasureChest.tscn" id="11_chest"]
+[ext_resource type="PackedScene" uid="uid://c40kpvg5xfq77" path="res://scenes/world/SlimeCreature.tscn" id="12_slime"]
+[ext_resource type="PackedScene" uid="uid://bwt0r8ntq2xkt" path="res://scenes/components/VirtualJoystick.tscn" id="13_joystick"]
+[ext_resource type="Texture2D" uid="uid://dnrf5fakoc33o" path="res://assets/sprites/custom/signpost.png" id="14_signpost"]
+[ext_resource type="Texture2D" uid="uid://0xnu0dutr683" path="res://assets/sprites/custom/stone_pillar.png" id="15_pillar"]
+[ext_resource type="Texture2D" uid="uid://bdvve6j3xse1w" path="res://assets/sprites/custom/gate_arch.png" id="16_gate_arch"]
+[ext_resource type="Texture2D" uid="uid://bi22qndgi4r0u" path="res://assets/sprites/custom/rune_orb.png" id="17_rune_orb"]
+[ext_resource type="PackedScene" uid="uid://d3v8m1k7qaq2x" path="res://scenes/world/ValleyNPC.tscn" id="18_valley_npc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/npc_archivist_def_sheet.png" id="19_archivist_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/npc_artificer_param_sheet.png" id="20_param_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/npc_oracle_ret_sheet.png" id="21_oracle_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/boss_arbiter_sheet.png" id="22_boss_arbiter"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/arcane_vault_seal.png" id="23_vault_seal"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/return_pad_sheet.png" id="24_pad_sheet"]
+
+[sub_resource type="Shader" id="Shader_vault_conduits"]
+code = "shader_type canvas_item;
+
+void fragment() {
+	vec4 base_col = texture(TEXTURE, UV);
+	float purple_mask = clamp((base_col.b - base_col.g * 1.35) * (base_col.r - base_col.g * 0.9) * 6.0, 0.0, 1.0);
+	float gold_mask = clamp((base_col.r - base_col.b * 1.45) * (base_col.g - base_col.b * 1.25) * 4.0, 0.0, 1.0);
+
+	vec2 wp = UV * vec2(2400.0, 1350.0);
+	float pulse = 0.5 + 0.5 * sin(TIME * 3.2 - length(wp - vec2(1215.0, 650.0)) * 0.015);
+	float stream = 0.5 + 0.5 * sin(wp.y * 0.06 - TIME * 4.5 + sin(wp.x * 0.04) * 2.0);
+
+	vec3 glow_rgb = base_col.rgb;
+	glow_rgb += vec3(0.22, 0.08, 0.35) * purple_mask * stream * 0.85;
+	glow_rgb += vec3(0.28, 0.20, 0.04) * gold_mask * pulse * 0.55;
+	COLOR = vec4(glow_rgb, base_col.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vault_conduits"]
+shader = SubResource("Shader_vault_conduits")
+
+[sub_resource type="Curve" id="Curve_gate_particles"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
+size = Vector2(2440, 92)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_v"]
+size = Vector2(120, 1400)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_chasm_segment"]
+size = Vector2(96, 260)
+
+[sub_resource type="Curve" id="Curve_campfire_particles"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.5, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bridge_lock"]
+size = Vector2(44, 150)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_terminal"]
+radius = 54.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_btn"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+bg_color = Color(0.2, 0.12, 0.34, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.65, 0.25, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_trap"]
+radius = 26.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tree_col"]
+size = Vector2(32, 22)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.11, 0.06, 0.2, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.92, 0.72, 0.25, 0.92)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(0.13, 0.07, 0.24, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.78, 0.28, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialog_card"]
+content_margin_left = 32.0
+content_margin_top = 28.0
+content_margin_right = 32.0
+content_margin_bottom = 28.0
+bg_color = Color(0.11, 0.07, 0.22, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.92, 0.72, 0.28, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 12
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_decline_btn"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.2, 0.15, 0.32, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.35, 0.65, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_accept_btn"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.96, 0.68, 0.08, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scroll_card"]
+content_margin_left = 36.0
+content_margin_top = 28.0
+content_margin_right = 36.0
+content_margin_bottom = 28.0
+bg_color = Color(0.12, 0.08, 0.23, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.92, 0.72, 0.28, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 12
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lesson_box"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.07, 0.04, 0.15, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.35, 0.85, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="World3" type="Node2D"]
+script = ExtResource("1_w3_script")
+
+[node name="BackgroundLandscape" type="Node2D" parent="."]
+
+[node name="ValleyWallpaper" type="TextureRect" parent="BackgroundLandscape"]
+material = SubResource("ShaderMaterial_vault_conduits")
+offset_right = 2400.0
+offset_bottom = 1350.0
+texture = ExtResource("2_vault_bg")
+expand_mode = 1
+
+[node name="VaultParticles" type="CPUParticles2D" parent="BackgroundLandscape"]
+position = Vector2(1200, 675)
+amount = 46
+texture = ExtResource("7_star")
+lifetime = 3.6
+emission_shape = 3
+emission_rect_extents = Vector2(1100, 600)
+direction = Vector2(0, -1)
+spread = 60.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 8.0
+initial_velocity_max = 20.0
+scale_amount_min = 0.2
+scale_amount_max = 0.5
+scale_amount_curve = SubResource("Curve_gate_particles")
+color = Color(0.95, 0.78, 1, 0.65)
+
+[node name="WorldBoundaries" type="StaticBody2D" parent="."]
+
+[node name="WallTop" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(1200, 10)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="WallBottom" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(1200, 1324)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="WallLeft" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(40, 675)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="WallRight" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(2360, 675)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="ChasmWestNorth" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(745, 430)
+shape = SubResource("RectangleShape2D_chasm_segment")
+
+[node name="ChasmWestSouth" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(745, 880)
+shape = SubResource("RectangleShape2D_chasm_segment")
+
+[node name="ChasmEastNorth" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(1685, 430)
+shape = SubResource("RectangleShape2D_chasm_segment")
+
+[node name="ChasmEastSouth" type="CollisionShape2D" parent="WorldBoundaries"]
+position = Vector2(1685, 880)
+shape = SubResource("RectangleShape2D_chasm_segment")
+
+[node name="YSortEntities" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="CampSite" type="Node2D" parent="YSortEntities"]
+position = Vector2(1015, 1085)
+
+[node name="CampSign" type="Sprite2D" parent="YSortEntities/CampSite"]
+position = Vector2(-38, -46)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("14_signpost")
+
+[node name="CampfireBase" type="Sprite2D" parent="YSortEntities/CampSite"]
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("6_campfire")
+
+[node name="FireParticles" type="CPUParticles2D" parent="YSortEntities/CampSite"]
+position = Vector2(0, -10)
+amount = 14
+texture = ExtResource("7_star")
+emission_shape = 1
+emission_sphere_radius = 6.0
+direction = Vector2(0, -1)
+spread = 30.0
+gravity = Vector2(0, -35)
+initial_velocity_min = 15.0
+initial_velocity_max = 30.0
+scale_amount_min = 0.2
+scale_amount_max = 0.45
+scale_amount_curve = SubResource("Curve_campfire_particles")
+color = Color(0.88, 0.55, 1, 0.9)
+
+[node name="CampLabel" type="Label" parent="YSortEntities/CampSite"]
+offset_left = -95.0
+offset_top = -82.0
+offset_right = 95.0
+offset_bottom = -62.0
+theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
+theme_override_font_sizes/font_size = 11
+text = "🔮 Relic Vault Sanctum Entry"
+horizontal_alignment = 1
+
+[node name="TrialGate" type="Node2D" parent="YSortEntities"]
+position = Vector2(1215, 175)
+
+[node name="PortalAura" type="Polygon2D" parent="YSortEntities/TrialGate"]
+position = Vector2(0, -14)
+color = Color(0.55, 0.22, 0.88, 0.45)
+polygon = PackedVector2Array(-48, -38, 48, -38, 48, 38, -48, 38)
+
+[node name="BossStatue" type="Sprite2D" parent="YSortEntities/TrialGate"]
+modulate = Color(0.65, 0.55, 0.85, 0.85)
+texture_filter = 1
+position = Vector2(0, -16)
+scale = Vector2(1.85, 1.85)
+texture = ExtResource("22_boss_arbiter")
+hframes = 6
+vframes = 10
+
+[node name="PillarLeft" type="Sprite2D" parent="YSortEntities/TrialGate"]
+position = Vector2(-65, -12)
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("15_pillar")
+
+[node name="PillarRight" type="Sprite2D" parent="YSortEntities/TrialGate"]
+position = Vector2(65, -12)
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("15_pillar")
+
+[node name="GateArch" type="Sprite2D" parent="YSortEntities/TrialGate"]
+position = Vector2(0, -72)
+scale = Vector2(1.15, 1.15)
+texture = ExtResource("16_gate_arch")
+
+[node name="GateParticles" type="CPUParticles2D" parent="YSortEntities/TrialGate"]
+position = Vector2(0, -14)
+emitting = false
+amount = 24
+texture = ExtResource("7_star")
+lifetime = 1.8
+emission_shape = 3
+emission_rect_extents = Vector2(35, 35)
+direction = Vector2(0, -1)
+spread = 20.0
+gravity = Vector2(0, -20)
+scale_amount_min = 0.3
+scale_amount_max = 0.7
+scale_amount_curve = SubResource("Curve_gate_particles")
+color = Color(0.98, 0.82, 0.35, 1)
+
+[node name="Rune1" type="Sprite2D" parent="YSortEntities/TrialGate"]
+modulate = Color(0.25, 0.3, 0.4, 0.5)
+position = Vector2(-46, -71)
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("17_rune_orb")
+
+[node name="Rune2" type="Sprite2D" parent="YSortEntities/TrialGate"]
+modulate = Color(0.25, 0.3, 0.4, 0.5)
+position = Vector2(0, -71)
+scale = Vector2(0.95, 0.95)
+texture = ExtResource("17_rune_orb")
+
+[node name="Rune3" type="Sprite2D" parent="YSortEntities/TrialGate"]
+modulate = Color(0.25, 0.3, 0.4, 0.5)
+position = Vector2(46, -71)
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("17_rune_orb")
+
+[node name="GateBanner" type="Label" parent="YSortEntities/TrialGate"]
+offset_left = -145.0
+offset_top = -115.0
+offset_right = 145.0
+offset_bottom = -93.0
+theme_override_colors/font_color = Color(0.98, 0.82, 0.38, 1)
+theme_override_font_sizes/font_size = 14
+text = "⛩️ Lambda-Prime's Modular Sanctum"
+horizontal_alignment = 1
+
+[node name="GateArea" type="Area2D" parent="YSortEntities/TrialGate"]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/TrialGate/GateArea"]
+shape = SubResource("CircleShape2D_terminal")
+
+[node name="PromptLabel" type="Label" parent="YSortEntities/TrialGate/GateArea"]
+visible = false
+offset_left = -135.0
+offset_top = 42.0
+offset_right = 135.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(1, 0.92, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.05, 0.14, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+text = "[E / Tap] Challenge Boss Lambda-Prime"
+horizontal_alignment = 1
+
+[node name="VaultSealWest" type="Node2D" parent="YSortEntities"]
+position = Vector2(745, 655)
+
+[node name="LaserBarrier" type="Sprite2D" parent="YSortEntities/VaultSealWest"]
+texture_filter = 1
+scale = Vector2(1.15, 1.05)
+texture = ExtResource("23_vault_seal")
+
+[node name="BarrierBody" type="StaticBody2D" parent="YSortEntities/VaultSealWest"]
+
+[node name="BarrierCol" type="CollisionShape2D" parent="YSortEntities/VaultSealWest/BarrierBody"]
+shape = SubResource("RectangleShape2D_bridge_lock")
+
+[node name="TerminalArea" type="Area2D" parent="YSortEntities/VaultSealWest"]
+position = Vector2(82, -48)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/VaultSealWest/TerminalArea"]
+shape = SubResource("CircleShape2D_terminal")
+
+[node name="TerminalSprite" type="Sprite2D" parent="YSortEntities/VaultSealWest/TerminalArea"]
+texture_filter = 1
+scale = Vector2(1.15, 1.15)
+texture = ExtResource("5_terminal")
+
+[node name="StatusLabel" type="Label" parent="YSortEntities/VaultSealWest/TerminalArea"]
+offset_left = -135.0
+offset_top = -56.0
+offset_right = 135.0
+offset_bottom = -34.0
+theme_override_colors/font_color = Color(1, 0.78, 0.35, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 12
+text = "🔒 West Archive Seal: SEALED"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="YSortEntities/VaultSealWest/TerminalArea"]
+visible = false
+offset_left = -125.0
+offset_top = -82.0
+offset_right = 125.0
+offset_bottom = -58.0
+theme_override_colors/font_color = Color(0.98, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
+text = "[E / Tap] Call break_seal('west', 4)"
+horizontal_alignment = 1
+
+[node name="VaultSealEast" type="Node2D" parent="YSortEntities"]
+position = Vector2(1685, 655)
+
+[node name="LaserBarrier" type="Sprite2D" parent="YSortEntities/VaultSealEast"]
+texture_filter = 1
+scale = Vector2(1.15, 1.05)
+texture = ExtResource("23_vault_seal")
+
+[node name="BarrierBody" type="StaticBody2D" parent="YSortEntities/VaultSealEast"]
+
+[node name="BarrierCol" type="CollisionShape2D" parent="YSortEntities/VaultSealEast/BarrierBody"]
+shape = SubResource("RectangleShape2D_bridge_lock")
+
+[node name="TerminalArea" type="Area2D" parent="YSortEntities/VaultSealEast"]
+position = Vector2(-82, -48)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/VaultSealEast/TerminalArea"]
+shape = SubResource("CircleShape2D_terminal")
+
+[node name="TerminalSprite" type="Sprite2D" parent="YSortEntities/VaultSealEast/TerminalArea"]
+texture_filter = 1
+scale = Vector2(1.15, 1.15)
+texture = ExtResource("5_terminal")
+
+[node name="StatusLabel" type="Label" parent="YSortEntities/VaultSealEast/TerminalArea"]
+offset_left = -135.0
+offset_top = -56.0
+offset_right = 135.0
+offset_bottom = -34.0
+theme_override_colors/font_color = Color(1, 0.78, 0.35, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 12
+text = "🔒 East Forge Seal: SEALED"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="YSortEntities/VaultSealEast/TerminalArea"]
+visible = false
+offset_left = -125.0
+offset_top = -82.0
+offset_right = 125.0
+offset_bottom = -58.0
+theme_override_colors/font_color = Color(0.98, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
+text = "[E / Tap] Call unlock_forge(7)"
+horizontal_alignment = 1
+
+[node name="ReturnPads" type="Node2D" parent="YSortEntities"]
+
+[node name="ReturnPadCenter" type="Area2D" parent="YSortEntities/ReturnPads"]
+position = Vector2(1215, 650)
+metadata/pad_id = "pad_center"
+
+[node name="PadSprite" type="Sprite2D" parent="YSortEntities/ReturnPads/ReturnPadCenter"]
+texture_filter = 1
+scale = Vector2(1.35, 1.35)
+texture = ExtResource("24_pad_sheet")
+hframes = 3
+frame = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/ReturnPads/ReturnPadCenter"]
+shape = SubResource("CircleShape2D_terminal")
+
+[node name="PadTitle" type="Label" parent="YSortEntities/ReturnPads/ReturnPadCenter"]
+offset_left = -110.0
+offset_top = 28.0
+offset_right = 110.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.98, 0.85, 0.38, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 11
+text = "✨ return warp_to('west_wing')"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="YSortEntities/ReturnPads/ReturnPadCenter"]
+visible = false
+offset_left = -120.0
+offset_top = -58.0
+offset_right = 120.0
+offset_bottom = -34.0
+theme_override_colors/font_color = Color(1, 0.92, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
+text = "[R / Tap] Execute Return Teleport"
+horizontal_alignment = 1
+
+[node name="ReturnPadWest" type="Area2D" parent="YSortEntities/ReturnPads"]
+position = Vector2(440, 385)
+metadata/pad_id = "pad_west"
+
+[node name="PadSprite" type="Sprite2D" parent="YSortEntities/ReturnPads/ReturnPadWest"]
+texture_filter = 1
+scale = Vector2(1.35, 1.35)
+texture = ExtResource("24_pad_sheet")
+hframes = 3
+frame = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/ReturnPads/ReturnPadWest"]
+shape = SubResource("CircleShape2D_terminal")
+
+[node name="PadTitle" type="Label" parent="YSortEntities/ReturnPads/ReturnPadWest"]
+offset_left = -110.0
+offset_top = 28.0
+offset_right = 110.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.98, 0.85, 0.38, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 11
+text = "✨ return warp_to('east_wing')"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="YSortEntities/ReturnPads/ReturnPadWest"]
+visible = false
+offset_left = -120.0
+offset_top = -58.0
+offset_right = 120.0
+offset_bottom = -34.0
+theme_override_colors/font_color = Color(1, 0.92, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
+text = "[R / Tap] Execute Return Teleport"
+horizontal_alignment = 1
+
+[node name="ReturnPadEast" type="Area2D" parent="YSortEntities/ReturnPads"]
+position = Vector2(1995, 985)
+metadata/pad_id = "pad_east"
+
+[node name="PadSprite" type="Sprite2D" parent="YSortEntities/ReturnPads/ReturnPadEast"]
+texture_filter = 1
+scale = Vector2(1.35, 1.35)
+texture = ExtResource("24_pad_sheet")
+hframes = 3
+frame = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/ReturnPads/ReturnPadEast"]
+shape = SubResource("CircleShape2D_terminal")
+
+[node name="PadTitle" type="Label" parent="YSortEntities/ReturnPads/ReturnPadEast"]
+offset_left = -110.0
+offset_top = 28.0
+offset_right = 110.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.98, 0.85, 0.38, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 11
+text = "✨ return warp_to('rotunda_hub')"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="YSortEntities/ReturnPads/ReturnPadEast"]
+visible = false
+offset_left = -120.0
+offset_top = -58.0
+offset_right = 120.0
+offset_bottom = -34.0
+theme_override_colors/font_color = Color(1, 0.92, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
+text = "[R / Tap] Execute Return Teleport"
+horizontal_alignment = 1
+
+[node name="ConditionTraps" type="Node2D" parent="YSortEntities"]
+
+[node name="Trap1" type="Area2D" parent="YSortEntities/ConditionTraps"]
+position = Vector2(860, 880)
+
+[node name="TrapSprite" type="Sprite2D" parent="YSortEntities/ConditionTraps/Trap1"]
+texture_filter = 1
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("24_pad_sheet")
+hframes = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/ConditionTraps/Trap1"]
+shape = SubResource("CircleShape2D_trap")
+
+[node name="TrapLabel" type="Label" parent="YSortEntities/ConditionTraps/Trap1"]
+offset_left = -95.0
+offset_top = -42.0
+offset_right = 95.0
+offset_bottom = -22.0
+theme_override_colors/font_color = Color(0.85, 0.68, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 11
+text = "🟣 in_scope == True (SAFE)"
+horizontal_alignment = 1
+
+[node name="Trap2" type="Area2D" parent="YSortEntities/ConditionTraps"]
+position = Vector2(985, 495)
+
+[node name="TrapSprite" type="Sprite2D" parent="YSortEntities/ConditionTraps/Trap2"]
+texture_filter = 1
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("24_pad_sheet")
+hframes = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/ConditionTraps/Trap2"]
+shape = SubResource("CircleShape2D_trap")
+
+[node name="TrapLabel" type="Label" parent="YSortEntities/ConditionTraps/Trap2"]
+offset_left = -95.0
+offset_top = -42.0
+offset_right = 95.0
+offset_bottom = -22.0
+theme_override_colors/font_color = Color(0.85, 0.68, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 11
+text = "🟣 in_scope == True (SAFE)"
+horizontal_alignment = 1
+
+[node name="Trap3" type="Area2D" parent="YSortEntities/ConditionTraps"]
+position = Vector2(1445, 495)
+
+[node name="TrapSprite" type="Sprite2D" parent="YSortEntities/ConditionTraps/Trap3"]
+texture_filter = 1
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("24_pad_sheet")
+hframes = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/ConditionTraps/Trap3"]
+shape = SubResource("CircleShape2D_trap")
+
+[node name="TrapLabel" type="Label" parent="YSortEntities/ConditionTraps/Trap3"]
+offset_left = -95.0
+offset_top = -42.0
+offset_right = 95.0
+offset_bottom = -22.0
+theme_override_colors/font_color = Color(0.85, 0.68, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 11
+text = "🟣 in_scope == True (SAFE)"
+horizontal_alignment = 1
+
+[node name="Shrines" type="Node2D" parent="YSortEntities"]
+
+[node name="ShrineNumbers" parent="YSortEntities/Shrines" instance=ExtResource("10_shrine")]
+position = Vector2(390, 1085)
+shrine_id = "shrine_def"
+shrine_title = "Shrine of Declarations"
+concept_title = "def Functions & Calls"
+rune_color = Color(0.8, 0.45, 1, 1)
+
+[node name="ShrineStrings" parent="YSortEntities/Shrines" instance=ExtResource("10_shrine")]
+position = Vector2(310, 655)
+shrine_id = "shrine_params"
+shrine_title = "Shrine of Parameters"
+concept_title = "Parameters & Default Args"
+rune_color = Color(0.98, 0.8, 0.25, 1)
+
+[node name="ShrineBooleans" parent="YSortEntities/Shrines" instance=ExtResource("10_shrine")]
+position = Vector2(1985, 655)
+shrine_id = "shrine_return"
+shrine_title = "Shrine of Return Values"
+concept_title = "return & Variable Scope"
+rune_color = Color(0.28, 0.95, 0.72, 1)
+
+[node name="Chests" type="Node2D" parent="YSortEntities"]
+
+[node name="Chest1" parent="YSortEntities/Chests" instance=ExtResource("11_chest")]
+position = Vector2(1465, 910)
+chest_id = "w3_chest_dry"
+lore_title = "The Principle of Modularity (DRY)"
+lore_text = "Ancient Vault Scroll: DRY stands for 'Don't Repeat Yourself'. Wrapping repeated logic inside a Python 'def' function lets you update or debug the spell in one place and call it anywhere!"
+
+[node name="Chest2" parent="YSortEntities/Chests" instance=ExtResource("11_chest")]
+position = Vector2(255, 815)
+chest_id = "w3_chest_defaults"
+lore_title = "Scroll of Default Parameters"
+lore_text = "Ancient Vault Scroll: In 'def cast_spell(mana, mult=2):', 'mult' has a default value of 2. Non-default parameters must always be listed BEFORE default parameters in the function header!"
+
+[node name="Chest3" parent="YSortEntities/Chests" instance=ExtResource("11_chest")]
+position = Vector2(2110, 425)
+chest_id = "w3_chest_return"
+lore_title = "print() vs. return"
+lore_text = "Ancient Vault Scroll: 'print()' only displays text on the console and returns 'None'. Use 'return value' when you need to pass a function's output into another variable or calculation!"
+
+[node name="Chest4" parent="YSortEntities/Chests" instance=ExtResource("11_chest")]
+position = Vector2(1395, 385)
+chest_id = "w3_chest_scope"
+lore_title = "Local vs. Global Scope"
+lore_text = "Ancient Vault Scroll: Variables created inside a function have Local Scope—they vanish once the function finishes! Return the result if you need to use it outside the function."
+
+[node name="Slimes" type="Node2D" parent="YSortEntities"]
+
+[node name="Slime1" parent="YSortEntities/Slimes" instance=ExtResource("12_slime")]
+position = Vector2(1010, 790)
+slime_name = "Def Slime"
+quote_text = "Boing! Don't forget the parentheses () when calling a function! 📜"
+
+[node name="Slime2" parent="YSortEntities/Slimes" instance=ExtResource("12_slime")]
+position = Vector2(540, 745)
+slime_name = "Param Slime"
+quote_text = "Squish! Arguments are passed into parameters in order! ⚙️"
+
+[node name="Slime3" parent="YSortEntities/Slimes" instance=ExtResource("12_slime")]
+position = Vector2(1860, 825)
+slime_name = "Return Slime"
+quote_text = "Bloop! Without 'return', a Python function returns None! 🔮"
+
+[node name="Trees" type="Node2D" parent="YSortEntities"]
+
+[node name="Pillar1" type="StaticBody2D" parent="YSortEntities/Trees"]
+position = Vector2(930, 340)
+
+[node name="Sprite" type="Sprite2D" parent="YSortEntities/Trees/Pillar1"]
+position = Vector2(0, -38)
+texture = ExtResource("3_relic_pillar")
+
+[node name="Collision" type="CollisionShape2D" parent="YSortEntities/Trees/Pillar1"]
+shape = SubResource("RectangleShape2D_tree_col")
+
+[node name="Pillar2" type="StaticBody2D" parent="YSortEntities/Trees"]
+position = Vector2(1500, 340)
+
+[node name="Sprite" type="Sprite2D" parent="YSortEntities/Trees/Pillar2"]
+position = Vector2(0, -38)
+texture = ExtResource("3_relic_pillar")
+
+[node name="Collision" type="CollisionShape2D" parent="YSortEntities/Trees/Pillar2"]
+shape = SubResource("RectangleShape2D_tree_col")
+
+[node name="Pillar3" type="StaticBody2D" parent="YSortEntities/Trees"]
+position = Vector2(220, 480)
+
+[node name="Sprite" type="Sprite2D" parent="YSortEntities/Trees/Pillar3"]
+position = Vector2(0, -38)
+texture = ExtResource("3_relic_pillar")
+
+[node name="Collision" type="CollisionShape2D" parent="YSortEntities/Trees/Pillar3"]
+shape = SubResource("RectangleShape2D_tree_col")
+
+[node name="Pillar4" type="StaticBody2D" parent="YSortEntities/Trees"]
+position = Vector2(2180, 780)
+
+[node name="Sprite" type="Sprite2D" parent="YSortEntities/Trees/Pillar4"]
+position = Vector2(0, -38)
+texture = ExtResource("3_relic_pillar")
+
+[node name="Collision" type="CollisionShape2D" parent="YSortEntities/Trees/Pillar4"]
+shape = SubResource("RectangleShape2D_tree_col")
+
+[node name="Player" parent="YSortEntities" instance=ExtResource("8_player")]
+unique_name_in_owner = true
+position = Vector2(1215, 1020)
+
+[node name="QuestNPC" parent="YSortEntities" instance=ExtResource("9_quest_npc")]
+position = Vector2(1055, 385)
+level_json_path = "res://data/question_level3.json"
+
+[node name="NPCs" type="Node2D" parent="YSortEntities"]
+
+[node name="ArchivistDef" parent="YSortEntities/NPCs" instance=ExtResource("18_valley_npc")]
+position = Vector2(730, 965)
+npc_id = "npc_archivist_def"
+npc_name = "Grand Archivist Def"
+npc_role = "Keeper of Declarations"
+npc_sheet = ExtResource("19_archivist_sheet")
+
+[node name="ArtificerParam" parent="YSortEntities/NPCs" instance=ExtResource("18_valley_npc")]
+position = Vector2(510, 520)
+npc_id = "npc_artificer_param"
+npc_name = "Artificer Param"
+npc_role = "Master of Arguments"
+npc_sheet = ExtResource("20_param_sheet")
+
+[node name="OracleReturnia" parent="YSortEntities/NPCs" instance=ExtResource("18_valley_npc")]
+position = Vector2(1900, 515)
+npc_id = "npc_oracle_ret"
+npc_name = "Oracle Returnia"
+npc_role = "Weaver of Return & Scope"
+npc_sheet = ExtResource("21_oracle_sheet")
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="TopHUD" type="PanelContainer" parent="UILayer"]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 810.0
+offset_bottom = 80.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud")
+
+[node name="HBox" type="HBoxContainer" parent="UILayer/TopHUD"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackToSelectButton" type="Button" parent="UILayer/TopHUD/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.98, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
+text = "◀ Map"
+
+[node name="AreaTitleLabel" type="Label" parent="UILayer/TopHUD/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "🔮 The Relic Vault"
+
+[node name="VSeparator" type="VSeparator" parent="UILayer/TopHUD/HBox"]
+layout_mode = 2
+
+[node name="ShrineTrackerLabel" type="Label" parent="UILayer/TopHUD/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "Shrines: 0/3 [⚪ ⚪ ⚪]  |  Vault Seals Broken: 0/2"
+
+[node name="ToastPanel" type="PanelContainer" parent="UILayer"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -240.0
+offset_top = 24.0
+offset_right = 240.0
+offset_bottom = 68.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
+
+[node name="ToastLabel" type="Label" parent="UILayer/ToastPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "✨ Discovery Notice!"
+horizontal_alignment = 1
+
+[node name="VirtualJoystick" parent="UILayer" instance=ExtResource("13_joystick")]
+unique_name_in_owner = true
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -220.0
+offset_right = 180.0
+offset_bottom = -80.0
+grow_vertical = 0
+
+[node name="QuestDialogModal" type="ColorRect" parent="UILayer"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="Center" type="CenterContainer" parent="UILayer/QuestDialogModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DialogCard" type="PanelContainer" parent="UILayer/QuestDialogModal/Center"]
+custom_minimum_size = Vector2(580, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialog_card")
+
+[node name="DialogVBox" type="VBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SpeakerHeader" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SpeakerIcon" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "🧙‍♂️"
+
+[node name="SpeakerName" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+text = "Master PyWizard"
+
+[node name="QuestText" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 0.98, 1)
+theme_override_font_sizes/font_size = 15
+text = "Greetings, Adventurer Alex!..."
+autowrap_mode = 2
+
+[node name="ButtonsHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 2
+
+[node name="DeclineButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 44)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.85, 0.82, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_decline_btn")
+text = "Explore More"
+
+[node name="AcceptButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.1, 0.08, 0.02, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_accept_btn")
+text = "⚔️ Enter Trial"
+
+[node name="ShrineModal" type="ColorRect" parent="UILayer"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Center" type="CenterContainer" parent="UILayer/ShrineModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShrineModalCard" type="PanelContainer" parent="UILayer/ShrineModal/Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_scroll_card")
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/ShrineModal/Center/ShrineModalCard"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderHBox" type="HBoxContainer" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ShrineModalIcon" type="Label" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox/HeaderHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "📜"
+
+[node name="TitleVBox" type="VBoxContainer" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShrineModalTitle" type="Label" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox/HeaderHBox/TitleVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 20
+text = "Shrine of Declarations"
+
+[node name="ShrineModalTopic" type="Label" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox/HeaderHBox/TitleVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.65, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "Topic: Functions & Modularity"
+
+[node name="LessonPanel" type="PanelContainer" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lesson_box")
+
+[node name="ShrineLessonText" type="RichTextLabel" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox/LessonPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "Lesson text..."
+fit_content = true
+
+[node name="ShrineQuestionLabel" type="RichTextLabel" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+text = "[b]Trial Check:[/b] Question"
+fit_content = true
+
+[node name="ShrineOptionsContainer" type="VBoxContainer" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShrineFeedbackLabel" type="Label" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.82, 0.94, 1)
+theme_override_font_sizes/font_size = 13
+text = "Select an option above to attune the shrine."
+autowrap_mode = 2
+
+[node name="BtnHBox" type="HBoxContainer" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 2
+
+[node name="ShrineCloseBtn" type="Button" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox/BtnHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.88, 0.85, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_decline_btn")
+text = "Back"
+
+[node name="ShrineActionBtn" type="Button" parent="UILayer/ShrineModal/Center/ShrineModalCard/VBox/BtnHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.1, 0.08, 0.02, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_accept_btn")
+text = "⚡ Attune Shrine"
+
+[node name="LoreModal" type="ColorRect" parent="UILayer"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Center" type="CenterContainer" parent="UILayer/LoreModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LoreCard" type="PanelContainer" parent="UILayer/LoreModal/Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialog_card")
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/LoreModal/Center/LoreCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LoreTitleLabel" type="Label" parent="UILayer/LoreModal/Center/LoreCard/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+text = "📦 Secret Relic Scroll"
+
+[node name="LoreTextLabel" type="Label" parent="UILayer/LoreModal/Center/LoreCard/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.98, 1)
+theme_override_font_sizes/font_size = 14
+text = "Lore text goes here..."
+autowrap_mode = 2
+
+[node name="LoreXPLabel" type="Label" parent="UILayer/LoreModal/Center/LoreCard/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 15
+text = "+25 XP Claimed!"
+horizontal_alignment = 1
+
+[node name="BtnHBox" type="HBoxContainer" parent="UILayer/LoreModal/Center/LoreCard/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="LoreCloseBtn" type="Button" parent="UILayer/LoreModal/Center/LoreCard/VBox/BtnHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.1, 0.08, 0.02, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_accept_btn")
+text = "Continue Journey"
+

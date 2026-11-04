@@ -408,6 +408,25 @@ theme_override_font_sizes/font_size = 14
 text = "⛩️ Chronos-If's Temporal Sanctuary"
 horizontal_alignment = 1
 
+[node name="GateArea" type="Area2D" parent="YSortEntities/TrialGate"]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/TrialGate/GateArea"]
+shape = SubResource("CircleShape2D_terminal")
+
+[node name="PromptLabel" type="Label" parent="YSortEntities/TrialGate/GateArea"]
+visible = false
+offset_left = -125.0
+offset_top = 42.0
+offset_right = 125.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(1, 0.92, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.05, 0.14, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+text = "[E / Tap] Challenge Boss Chronos-If"
+horizontal_alignment = 1
+
 [node name="BridgeGateSouth" type="Node2D" parent="YSortEntities" unique_id=1519736620]
 position = Vector2(1010, 995)
 

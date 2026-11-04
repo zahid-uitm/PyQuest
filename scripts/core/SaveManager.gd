@@ -9,7 +9,7 @@ var user_profile: Dictionary = {
 	"is_guest": true,
 	"player_level": 1,
 	"xp": 0,
-	"unlocked_level": 1,
+	"unlocked_level": 4,
 	"hint_tokens": 5,
 	"current_level": 1,
 	"level_stars": {
@@ -108,6 +108,7 @@ func load_local_profile() -> void:
 						var lvl_key = str(idx) if is_one_indexed else str(idx + 1)
 						converted[lvl_key] = safe_int(item, 0)
 			user_profile["level_stars"] = converted
+			user_profile["unlocked_level"] = max(int(user_profile.get("unlocked_level", 1)), 4)
 
 # Records progress when a level is completed
 func record_level_completion(level_num: int, added_score: int, added_xp: int, stars_earned: int) -> void:

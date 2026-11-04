@@ -1,0 +1,96 @@
+{
+	"level_id": 3,
+	"level_title": "Boss Trial: Lambda-Prime, The Relic Sovereign",
+	"topic": "Functions & Modularity (def / parameters / return)",
+	"questions": [
+		{
+			"id": "w3_boss_q1",
+			"title": "Phase 1: Declaring the Relic Breaker (def)",
+			"type": "code_completion",
+			"prompt": "Lambda-Prime projects an Arcane Vault Aegis! Complete the Python keyword to define a reusable spell function named 'shatter_aegis'.",
+			"code_snippet": "____ shatter_aegis():\n    channel_relic_beam()\n\nshatter_aegis()",
+			"options": [
+				"def",
+				"func",
+				"function",
+				"define"
+			],
+			"correct_answer": "def",
+			"action_trigger": "boss_hit_1",
+			"hint": "Master PyWizard says: Every Python function declaration begins with the 3-letter keyword 'def'!",
+			"explanation": "Direct hit! In Python, 'def function_name():' defines a reusable block of code that executes whenever called."
+		},
+		{
+			"id": "w3_boss_q2",
+			"title": "Phase 2: Passing Arcane Arguments (Parameters)",
+			"type": "multiple_choice",
+			"prompt": "Lambda-Prime shifts his Relic Core frequency! If we call 'cast_lance(\"amethyst\", 3)', what will 'power' be set to inside the function?",
+			"code_snippet": "def cast_lance(element, power):\n    strike_core(element, power * 25)\n\ncast_lance(\"amethyst\", 3)",
+			"options": [
+				"\"amethyst\"",
+				"3",
+				"75",
+				"element"
+			],
+			"correct_index": 1,
+			"action_trigger": "boss_hit_2",
+			"hint": "Master PyWizard says: Positional arguments match parameters in order from left to right: element = \"amethyst\", power = 3.",
+			"explanation": "Bullseye! Positional argument '3' is bound to the second parameter 'power', dealing 3 * 25 = 75 arcane damage!"
+		},
+		{
+			"id": "w3_boss_q3",
+			"title": "Phase 3: Capturing the Relic Output (return)",
+			"type": "code_completion",
+			"prompt": "Compute the exact resonance needed to crack Lambda-Prime's armor! Fill in the keyword that sends the calculated value back to the caller.",
+			"code_snippet": "def compute_damage(base, multiplier):\n    ____ base * multiplier\n\ntotal_dmg = compute_damage(40, 2)",
+			"options": [
+				"return",
+				"output",
+				"send",
+				"yield_to"
+			],
+			"correct_answer": "return",
+			"action_trigger": "boss_hit_3",
+			"hint": "Master PyWizard says: Without 'return', a function gives back 'None'. Use 'return' to send a result back!",
+			"explanation": "Armor cracked! The 'return' statement outputs 80 so 'total_dmg' stores the computed result instead of None."
+		},
+		{
+			"id": "w3_boss_q4",
+			"title": "Phase 4: Default Parameter Overdrive",
+			"type": "multiple_choice",
+			"prompt": "Lambda-Prime summons a Modular Suppression Field! What value does 'amplify_spell(10)' return when the second argument is omitted?",
+			"code_snippet": "def amplify_spell(mana, boost=3):\n    return mana * boost\n\nresult = amplify_spell(10)",
+			"options": [
+				"30 (because 'boost' defaults to 3 when not provided)",
+				"10 (because 'boost' is ignored)",
+				"TypeError: missing 1 required argument",
+				"13 (10 + 3)"
+			],
+			"correct_index": 0,
+			"action_trigger": "boss_hit_4",
+			"hint": "Master PyWizard says: 'boost=3' in the function header defines a default parameter value used whenever only 1 argument is passed!",
+			"explanation": "Suppression Field broken! Since 'boost' has a default value of 3, calling 'amplify_spell(10)' evaluates '10 * 3' and returns 30."
+		},
+		{
+			"id": "w3_boss_q5",
+			"title": "Final Phase: The Modular Sovereign Finisher!",
+			"type": "syntax_ordering",
+			"prompt": "Lambda-Prime is down to his final 100 HP! Arrange the Python blocks in the exact order to define 'relic_finisher(charge)', return the amplified strike, and invoke it!",
+			"code_snippet": "# Construct the Function Definition, Return Statement, and Call",
+			"blocks": [
+				"def relic_finisher(charge):",
+				"    return charge * 100",
+				"unleash_ult(relic_finisher(5))"
+			],
+			"correct_sequence": [
+				0,
+				1,
+				2
+			],
+			"action_trigger": "boss_finisher",
+			"hint": "Master PyWizard says: First define the function header ('def ...:'), then indent the 'return' body, and finally call the function outside!",
+			"explanation": "VICTORY! You mastered 'def', parameters, and 'return' to vanquish Lambda-Prime, The Modular Relic Sovereign!"
+		}
+	]
+}
+

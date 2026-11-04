@@ -95,6 +95,8 @@ func _ready() -> void:
 	level_select_btn.pressed.connect(_on_quit_pressed)
 
 	var cur_lvl = SaveManager.user_profile.get("current_level", 1)
+	var bgm_path = "res://assets/audio/world%d_music.mp3" % clampi(int(cur_lvl), 1, 4)
+	AudioManager.play_bgm_by_path(bgm_path)
 	var path = "res://data/" + "question_level%d.json" % cur_lvl
 	if not FileAccess.file_exists(path):
 		path = "res://data/question_level1.json"
@@ -388,19 +390,21 @@ func _show_feedback(is_correct: bool, q: Dictionary, earned_pts: int, earned_xp:
 		explanation_label.text = q.get("explanation", "Excellent work! Python variable syntax correct.")
 		next_button.text = "Next Boss Phase ➔"
 	else:
+		var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
+		var b_name = "Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte"))
 		var hero_dead = visual_stage and visual_stage.has_method("is_hero_dead") and visual_stage.is_hero_dead()
 		if hero_dead:
 			is_timer_active = false
 			status_title.text = "💀 ALEX HAS FALLEN! (0 / 100 HP)"
 			status_title.add_theme_color_override("font_color", Color("#EF4444"))
-			status_message.text = "NullByte's Corrupt Syntax Blade shattered your shield! Study the spell explanation below and challenge the Boss again."
+			status_message.text = "%s's Arcane Blade shattered your shield! Study the spell explanation below and challenge the Boss again." % b_name
 			explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
 			next_button.text = "↺ Retry Boss Battle"
 		else:
 			var hp_left = int(visual_stage.hero_hp) if (visual_stage and "hero_hp" in visual_stage) else 65
 			status_title.text = "💥 BOSS COUNTERATTACK: SYNTAX ERROR!"
 			status_title.add_theme_color_override("font_color", Color("#EF4444"))
-			status_message.text = "NullByte deflected your spell and struck back! (-35 Shield HP • %d/100 HP left • Streak reset)" % hp_left
+			status_message.text = "%s deflected your spell and struck back! (-35 Shield HP • %d/100 HP left • Streak reset)" % [b_name, hp_left]
 			explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
 			next_button.text = "Recast Spell ↺" if current_question_attempts < 3 else "Next Phase ➔"
 
@@ -471,7 +475,8 @@ func finish_level() -> void:
 	SaveManager.record_level_completion(level_num, final_score, total_xp, stars)
 
 	# Populate Victory Overlay
-	victory_title.text = "🏆 BOSS DEFEATED: NULLBYTE SHATTERED!"
+	var b_upper = "VEKTOR-ZERO" if level_num == 4 else ("LAMBDA-PRIME" if level_num == 3 else ("CHRONOS-IF" if level_num == 2 else "NULLBYTE"))
+	victory_title.text = "🏆 BOSS DEFEATED: %s SHATTERED!" % b_upper
 	acc_value.text = "%.1f%%" % accuracy
 	var mult: float = min(2.0, 1.0 + (max_streak * 0.1))
 	streak_value.text = "%d (x%.1f Max)" % [max_streak, mult]
@@ -516,7 +521,11 @@ func _on_restart_pressed() -> void:
 
 func _on_quit_pressed() -> void:
 	var cur_lvl: int = int(SaveManager.user_profile.get("current_level", 1))
-	if cur_lvl == 2:
+	if cur_lvl == 4:
+		SceneManager.change_scene(SceneManager.WORLD_4)
+	elif cur_lvl == 3:
+		SceneManager.change_scene(SceneManager.WORLD_3)
+	elif cur_lvl == 2:
 		SceneManager.change_scene(SceneManager.WORLD_2)
 	else:
 		SceneManager.change_scene(SceneManager.WORLD_1)

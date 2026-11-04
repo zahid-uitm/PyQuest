@@ -56,6 +56,7 @@ var boss_anim_timer: float = 0.0
 var trap_state: int = 0 # 0 = SAFE (False), 1 = CHARGING, 2 = ARMED (True)
 var trap_cooldown: float = 0.0
 var active_terminal_id: String = ""
+var player_at_boss_gate: bool = false
 
 const NPCS_DATA: Dictionary = {
 	"npc_keeper_venn": {
@@ -359,7 +360,7 @@ func _ready() -> void:
 	_refresh_all_npc_states()
 	_refresh_bridge_states()
 
-	AudioManager.play_bgm_by_path("res://assets/audio/world1_music.mp3")
+	AudioManager.play_bgm_by_path("res://assets/audio/world2_music.mp3")
 
 func _process(delta: float) -> void:
 	boss_anim_timer += delta
@@ -388,10 +389,14 @@ func _process(delta: float) -> void:
 		_check_player_in_armed_trap()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if active_terminal_id != "" and not shrine_modal.visible:
-		if event is InputEventKey and event.pressed and not event.echo:
-			if event.keycode == KEY_E or event.is_action_pressed("ui_accept"):
-				open_shrine_modal(active_terminal_id)
+	if quest_dialog.visible or shrine_modal.visible or lore_modal.visible:
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_E or event.is_action_pressed("ui_accept"):
+			if active_terminal_id != "":
+				open_shrine_dialog(active_terminal_id)
+			elif player_at_boss_gate:
+				open_quest_dialog()
 
 # ---------------------------------------------------------
 # World 2 Exclusive: Chasm Bridge Terminals & Laser Gates
@@ -425,8 +430,30 @@ func _setup_bridge_terminals() -> void:
 			term_area.input_event.connect(func(_vp: Node, ev: InputEvent, _idx: int):
 				if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
 					if active_terminal_id == b_id:
-						open_shrine_modal(b_id)
+						open_shrine_dialog(b_id)
 			)
+
+	var gate_area = get_node_or_null("YSortEntities/TrialGate/GateArea") as Area2D
+	if gate_area:
+		gate_area.body_entered.connect(func(body: Node2D):
+			if body.is_in_group("Player"):
+				player_at_boss_gate = true
+				var pr = gate_area.get_node_or_null("PromptLabel") as Label
+				if pr:
+					pr.visible = true
+		)
+		gate_area.body_exited.connect(func(body: Node2D):
+			if body.is_in_group("Player"):
+				player_at_boss_gate = false
+				var pr = gate_area.get_node_or_null("PromptLabel") as Label
+				if pr:
+					pr.visible = false
+		)
+		gate_area.input_event.connect(func(_vp: Node, ev: InputEvent, _idx: int):
+			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+				if player_at_boss_gate:
+					open_quest_dialog()
+		)
 
 func _refresh_bridge_states() -> void:
 	var unlocked = _get_unlocked_bridges()
@@ -579,6 +606,9 @@ func _update_gate_visuals(cleared: Array) -> void:
 			portal_aura.color = Color(0.12, 0.22, 0.38, 0.35)
 		if boss_statue:
 			boss_statue.modulate = Color(0.5, 0.6, 0.75, 0.75)
+
+func open_shrine_dialog(shrine_id: String) -> void:
+	open_shrine_modal(shrine_id)
 
 func open_shrine_modal(shrine_id: String) -> void:
 	if not SHRINES_DATA.has(shrine_id):
@@ -817,34 +847,34 @@ func open_npc_dialog(npc_id: String) -> void:
 # ---------------------------------------------------------
 # Treasure Chest Lore System
 # ---------------------------------------------------------
-func open_chest_lore(_chest_id: String, title: String, text: String, xp_reward: int, already_opened: bool) -> void:
+func show_lore_modal(title: String, body: String, xp: int) -> void:
 	if player:
 		player.can_move = false
+	if joystick:
+		joystick.visible = false
 
-	lore_title_label.text = "📦 Codex Scroll: %s" % title
-	lore_text_label.text = text
+	if lore_title_label:
+		lore_title_label.text = "📦 " + title
+	if lore_text_label:
+		lore_text_label.text = body
+	if lore_xp_label:
+		lore_xp_label.text = "+%d XP Claimed!" % xp
 
-	if already_opened:
-		lore_xp_label.text = "✨ Already Recorded in Your Python Codex"
-		lore_xp_label.add_theme_color_override("font_color", Color(0.6, 0.75, 0.95))
-	else:
-		SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + xp_reward
-		SaveManager.save_local_profile()
-		lore_xp_label.text = "🎉 +%d Bonus XP & +1 Hint Token!" % xp_reward
-		lore_xp_label.add_theme_color_override("font_color", Color(0.35, 1.0, 0.55))
-		SaveManager.user_profile["hint_tokens"] = int(SaveManager.user_profile.get("hint_tokens", 5)) + 1
-		SaveManager.save_local_profile()
-		show_toast("📦 Discovered '%s'! (+%d XP)" % [title, xp_reward])
+	if lore_modal:
+		lore_modal.visible = true
+		lore_card.scale = Vector2(0.92, 0.92)
+		var tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(lore_card, "scale", Vector2.ONE, 0.22)
 
-	lore_modal.visible = true
-	lore_card.scale = Vector2(0.92, 0.92)
-	var tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(lore_card, "scale", Vector2.ONE, 0.22)
+	show_toast("📦 Found Secret Lore: %s (+%d XP!)" % [title, xp])
 
 func _on_close_lore_modal() -> void:
-	lore_modal.visible = false
+	if lore_modal:
+		lore_modal.visible = false
 	if player:
 		player.can_move = true
+	if joystick:
+		joystick.visible = true
 
 # ---------------------------------------------------------
 # Master PyWizard & Final Boss Gate
