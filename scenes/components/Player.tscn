@@ -222,9 +222,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_dxsnc")
 }],
-"loop": true,
+"loop": false,
 "name": &"back_attack",
-"speed": 5.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -282,9 +282,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_xkus0")
 }],
-"loop": true,
+"loop": false,
 "name": &"death",
-"speed": 5.0
+"speed": 6.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -299,9 +299,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_5526v")
 }],
-"loop": true,
+"loop": false,
 "name": &"front_attack",
-"speed": 5.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -362,9 +362,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_u1kya")
 }],
-"loop": true,
+"loop": false,
 "name": &"side_attack",
-"speed": 5.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -420,6 +420,8 @@ radius = 12.0
 script = ExtResource("1_3wy7d")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=715664385]
+texture_filter = 1
+scale = Vector2(1.45, 1.45)
 sprite_frames = SubResource("SpriteFrames_vmrif")
 animation = &"side_attack"
 frame_progress = 0.62043077

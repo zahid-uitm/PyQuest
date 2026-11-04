@@ -7,6 +7,8 @@ extends CharacterBody2D
 
 var joystick_vector: Vector2 = Vector2.ZERO
 var can_move: bool = true
+var stage_controlled: bool = false
+var is_dead: bool = false
 var last_facing: String = "front" # Tracks "front", "back", or "side"
 
 func set_joystick(joystick_node: Node) -> void:
@@ -19,6 +21,9 @@ func _on_joystick_vector_changed(vector: Vector2) -> void:
 	joystick_vector = vector
 
 func _physics_process(_delta: float) -> void:
+	if stage_controlled or is_dead:
+		velocity = Vector2.ZERO
+		return
 	if not can_move:
 		velocity = Vector2.ZERO
 		_update_animation(Vector2.ZERO)
@@ -91,14 +96,17 @@ func face_direction(left: bool) -> void:
 		sprite.flip_h = left
 
 func perform_attack() -> void:
-	if sprite:
+	if sprite and not is_dead:
 		sprite.play("side_attack")
-		await sprite.animation_finished
-		sprite.play("side_idle")
+		await get_tree().create_timer(0.45).timeout
+		if not is_dead:
+			sprite.play("side_idle")
 
 func perform_recoil() -> void:
-	if sprite:
+	if sprite and not is_dead:
 		sprite.play("death")
+		sprite.pause()
+		sprite.frame = 0
 		modulate = Color(1.8, 0.3, 0.3)
 		var orig_x = position.x
 		var tween = create_tween()
@@ -106,4 +114,24 @@ func perform_recoil() -> void:
 		tween.tween_property(self, "position:x", orig_x, 0.2)
 		tween.parallel().tween_property(self, "modulate", Color.WHITE, 0.35)
 		await tween.finished
+		if not is_dead:
+			sprite.play("side_idle")
+
+func perform_death() -> void:
+	is_dead = true
+	if sprite:
+		modulate = Color(1.8, 0.25, 0.25)
+		var orig_x = position.x
+		sprite.play("death")
+		var tween = create_tween()
+		tween.tween_property(self, "position:x", orig_x - 35.0, 0.25)
+		tween.parallel().tween_property(self, "modulate", Color(0.85, 0.65, 0.65, 1.0), 0.45)
+		await tween.finished
+		sprite.pause()
+		sprite.frame = 2
+
+func revive() -> void:
+	is_dead = false
+	modulate = Color.WHITE
+	if sprite:
 		sprite.play("side_idle")

@@ -58,7 +58,10 @@ func update_dashboard() -> void:
 func _on_continue_quest_button_pressed() -> void:
 	var unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
 	SaveManager.user_profile["current_level"] = unlocked
-	SceneManager.change_scene(SceneManager.WORLD_1)
+	if unlocked == 2:
+		SceneManager.change_scene(SceneManager.WORLD_2)
+	else:
+		SceneManager.change_scene(SceneManager.WORLD_1)
 
 func _on_level_select_button_pressed() -> void:
 	SceneManager.change_scene(SceneManager.LEVEL_SELECT)

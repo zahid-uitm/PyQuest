@@ -147,8 +147,8 @@ func start_level() -> void:
 
 func update_hud() -> void:
 	var total_q = level_data.get("questions", []).size()
-	level_title_label.text = "⚔️ " + level_data.get("level_title", "Level 1: Variable Valley")
-	question_tracker_label.text = "Challenge %d / %d" % [current_question_index + 1, total_q]
+	level_title_label.text = "⚔️ " + level_data.get("level_title", "Boss Trial: NullByte")
+	question_tracker_label.text = "Boss Phase %d / %d" % [current_question_index + 1, total_q]
 
 	var mult: float = min(2.0, 1.0 + (streak * 0.1))
 	score_streak_label.text = "⭐ Score: %d | 🔥 x%.1f" % [score, mult]
@@ -158,7 +158,12 @@ func update_hud() -> void:
 	hint_button.text = "💡 Tokens: %d" % tokens
 	ask_wizard_button.text = "🧙 Ask Master PyWizard (%d left)" % tokens
 
-	progress_text.text = "Progress: %d/%d" % [current_question_index + 1, total_q]
+	var boss_hp_left = max(0, (total_q - current_question_index) * 100)
+	var hero_hp_left = 100
+	if visual_stage and "hero_hp" in visual_stage:
+		hero_hp_left = max(0, int(visual_stage.hero_hp))
+	weapon_status_label.text = "🛡️ Alex HP: %d/100  |  👾 Boss NullByte HP: %d/%d  |  🐍 Python 3.12 Grimoire" % [hero_hp_left, boss_hp_left, total_q * 100]
+	progress_text.text = "Boss Phase: %d/%d" % [current_question_index + 1, total_q]
 	level_progress_bar.max_value = total_q
 	level_progress_bar.value = current_question_index + 1
 
@@ -212,7 +217,7 @@ func _setup_multiple_choice(q: Dictionary) -> void:
 		answer_area.add_child(btn)
 		mcq_option_buttons.append(btn)
 
-	submit_button.text = "▶ Submit Answer"
+	submit_button.text = "⚡ Cast Spell & Strike!"
 	submit_button.disabled = true
 
 func _on_mcq_option_selected(index: int, btn: Button) -> void:
@@ -244,7 +249,7 @@ func _setup_code_completion(q: Dictionary) -> void:
 		mcq_option_buttons.append(btn)
 
 	answer_area.add_child(hbox)
-	submit_button.text = "▶ Submit & Run Code"
+	submit_button.text = "⚡ Cast Spell & Strike!"
 	submit_button.disabled = true
 
 func _on_completion_option_selected(token: String, btn: Button, q: Dictionary) -> void:
@@ -297,7 +302,7 @@ func _setup_syntax_ordering(q: Dictionary) -> void:
 	answer_area.add_child(reset_btn)
 
 	code_label.text = "[code]# Select blocks below to construct sequence[/code]"
-	submit_button.text = "▶ Execute Ordered Script"
+	submit_button.text = "⚡ Unleash Final Spell Combo!"
 	submit_button.disabled = true
 
 func _on_order_block_clicked(block_idx: int, btn: Button, q: Dictionary) -> void:
@@ -374,22 +379,36 @@ func _on_submit_pressed() -> void:
 	is_evaluating = false
 
 func _show_feedback(is_correct: bool, q: Dictionary, earned_pts: int, earned_xp: int, mult: float) -> void:
+	update_hud()
 	feedback_overlay.visible = true
 	if is_correct:
-		status_title.text = "🎉 CODE EXECUTED SUCCESSFULLY!"
+		status_title.text = "⚔️ DIRECT SPELL HIT! (-100 BOSS HP)"
 		status_title.add_theme_color_override("font_color", Color("#10B981"))
-		status_message.text = "+%d Score  •  +%d XP  •  Streak Multiplier: x%.1f 🔥" % [earned_pts, earned_xp, mult]
+		status_message.text = "+%d Score  •  +%d XP  •  Combo Streak: x%.1f 🔥" % [earned_pts, earned_xp, mult]
 		explanation_label.text = q.get("explanation", "Excellent work! Python variable syntax correct.")
-		next_button.text = "Continue Adventure ➔"
+		next_button.text = "Next Boss Phase ➔"
 	else:
-		status_title.text = "⚠️ EXECUTION FAILED: SYNTAX ERROR"
-		status_title.add_theme_color_override("font_color", Color("#EF4444"))
-		status_message.text = "The mechanism did not budge. Streak reset to 0."
-		explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
-		next_button.text = "Try Again ↺" if current_question_attempts < 3 else "Continue ➔"
+		var hero_dead = visual_stage and visual_stage.has_method("is_hero_dead") and visual_stage.is_hero_dead()
+		if hero_dead:
+			is_timer_active = false
+			status_title.text = "💀 ALEX HAS FALLEN! (0 / 100 HP)"
+			status_title.add_theme_color_override("font_color", Color("#EF4444"))
+			status_message.text = "NullByte's Corrupt Syntax Blade shattered your shield! Study the spell explanation below and challenge the Boss again."
+			explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
+			next_button.text = "↺ Retry Boss Battle"
+		else:
+			var hp_left = int(visual_stage.hero_hp) if (visual_stage and "hero_hp" in visual_stage) else 65
+			status_title.text = "💥 BOSS COUNTERATTACK: SYNTAX ERROR!"
+			status_title.add_theme_color_override("font_color", Color("#EF4444"))
+			status_message.text = "NullByte deflected your spell and struck back! (-35 Shield HP • %d/100 HP left • Streak reset)" % hp_left
+			explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
+			next_button.text = "Recast Spell ↺" if current_question_attempts < 3 else "Next Phase ➔"
 
 func _on_next_question_pressed() -> void:
 	feedback_overlay.visible = false
+	if visual_stage and visual_stage.has_method("is_hero_dead") and visual_stage.is_hero_dead():
+		start_level()
+		return
 	if last_answer_correct or current_question_attempts >= 3:
 		current_question_index += 1
 	display_question()
@@ -452,6 +471,7 @@ func finish_level() -> void:
 	SaveManager.record_level_completion(level_num, final_score, total_xp, stars)
 
 	# Populate Victory Overlay
+	victory_title.text = "🏆 BOSS DEFEATED: NULLBYTE SHATTERED!"
 	acc_value.text = "%.1f%%" % accuracy
 	var mult: float = min(2.0, 1.0 + (max_streak * 0.1))
 	streak_value.text = "%d (x%.1f Max)" % [max_streak, mult]
@@ -471,12 +491,12 @@ func _apply_option_style(btn: Button, is_selected: bool) -> void:
 	style.set_border_width_all(2)
 
 	if is_selected:
-		style.bg_color = Color("#1E293B")
+		style.bg_color = Color("#2A184E")
 		style.border_color = Color("#F59E0B")
-		btn.add_theme_color_override("font_color", Color("#F59E0B"))
+		btn.add_theme_color_override("font_color", Color("#FCD34D"))
 	else:
-		style.bg_color = Color("#111827")
-		style.border_color = Color("#1F2937")
+		style.bg_color = Color("#140D2B")
+		style.border_color = Color("#4C2A85")
 		btn.add_theme_color_override("font_color", Color("#E2E8F0"))
 
 	btn.add_theme_stylebox_override("normal", style)
@@ -495,4 +515,8 @@ func _on_restart_pressed() -> void:
 	start_level()
 
 func _on_quit_pressed() -> void:
-	SceneManager.change_scene(SceneManager.WORLD_1)
+	var cur_lvl: int = int(SaveManager.user_profile.get("current_level", 1))
+	if cur_lvl == 2:
+		SceneManager.change_scene(SceneManager.WORLD_2)
+	else:
+		SceneManager.change_scene(SceneManager.WORLD_1)

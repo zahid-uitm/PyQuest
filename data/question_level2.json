@@ -1,0 +1,96 @@
+{
+	"level_id": 2,
+	"level_title": "Boss Trial: Chronos-If, The Loop Warden",
+	"topic": "Control Structures (if / elif / loops)",
+	"questions": [
+		{
+			"id": "w2_boss_q1",
+			"title": "Phase 1: Conditional Shield Breach (if / else)",
+			"type": "code_completion",
+			"prompt": "Chronos-If raises a Temporal Barrier! Complete the conditional check to fire your spell only when 'mana' is greater than or equal to 50.",
+			"code_snippet": "mana = 75\nif mana ____ 50:\n    cast_chrono_breaker()",
+			"options": [
+				">=",
+				"==",
+				"<=",
+				"="
+			],
+			"correct_answer": ">=",
+			"action_trigger": "boss_hit_1",
+			"hint": "Master PyWizard says: The 'greater than or equal to' comparison operator in Python combines '>' and '=' into '>='.",
+			"explanation": "Direct hit! 'mana >= 50' evaluates to True when mana is 75, executing the indented block inside the if statement."
+		},
+		{
+			"id": "w2_boss_q2",
+			"title": "Phase 2: Multi-Branch Countermeasure (if / elif / else)",
+			"type": "multiple_choice",
+			"prompt": "Chronos-If shifts elemental phases! Which Python keyword checks a SECOND condition only if the first 'if' condition was False?",
+			"code_snippet": "if boss_stance == 'ice':\n    cast_fire()\n____ boss_stance == 'lightning':\n    cast_earth()\nelse:\n    cast_shield()",
+			"options": [
+				"elseif",
+				"elif",
+				"else if",
+				"otherwise"
+			],
+			"correct_index": 1,
+			"action_trigger": "boss_hit_2",
+			"hint": "Master PyWizard says: Python shortens 'else if' into a single 4-letter keyword!",
+			"explanation": "Bullseye! Python uses 'elif' for chained conditional branches between 'if' and 'else'."
+		},
+		{
+			"id": "w2_boss_q3",
+			"title": "Phase 3: Rapid-Fire Volley (for loop & range)",
+			"type": "code_completion",
+			"prompt": "Unleash a 5-hit Arcane Barrage to shatter the Warden's armor! Fill in the built-in function that generates a sequence of 5 numbers (0 through 4).",
+			"code_snippet": "for bolt in ____(5):\n    fire_arcane_bolt(bolt)",
+			"options": [
+				"range",
+				"loop",
+				"count",
+				"repeat"
+			],
+			"correct_answer": "range",
+			"action_trigger": "boss_hit_3",
+			"hint": "Master PyWizard says: In Python, 'for i in range(5):' repeats the loop body 5 times!",
+			"explanation": "Critical Barrage! 'range(5)' generates 0, 1, 2, 3, 4, causing the for-loop to fire 5 consecutive bolts!"
+		},
+		{
+			"id": "w2_boss_q4",
+			"title": "Phase 4: Breaking the Infinite Loop (while loop)",
+			"type": "multiple_choice",
+			"prompt": "Chronos-If traps the arena in a time loop! What happens inside this 'while' loop to prevent it from running forever?",
+			"code_snippet": "boss_shields = 3\nwhile boss_shields > 0:\n    strike_shield()\n    boss_shields = boss_shields - 1",
+			"options": [
+				"'boss_shields' is decreased by 1 each iteration until 'boss_shields > 0' becomes False",
+				"The while loop only runs once just like an if statement",
+				"'boss_shields > 0' is always False from the start",
+				"Python automatically stops all while loops after 3 seconds"
+			],
+			"correct_index": 0,
+			"action_trigger": "boss_hit_4",
+			"hint": "Master PyWizard says: Look at the last line inside the loop: 'boss_shields = boss_shields - 1'.",
+			"explanation": "Time Loop shattered! Updating the loop variable ('boss_shields = boss_shields - 1') ensures the condition 'boss_shields > 0' eventually becomes False."
+		},
+		{
+			"id": "w2_boss_q5",
+			"title": "Final Phase: The Chrono-Logic Finisher!",
+			"type": "syntax_ordering",
+			"prompt": "Chronos-If is down to his final 100 HP! Arrange the Python blocks in the exact execution order to loop through 3 runes and unleash the Finisher when 'rune == 2'!",
+			"code_snippet": "# Construct the Final Loop + Conditional Finisher",
+			"blocks": [
+				"for rune in range(3):",
+				"    if rune == 2:",
+				"        unleash_chrono_finisher()"
+			],
+			"correct_sequence": [
+				0,
+				1,
+				2
+			],
+			"action_trigger": "boss_finisher",
+			"hint": "Master PyWizard says: Start with the outer 'for' loop, then the indented 'if' check, and finally the doubly-indented finisher call!",
+			"explanation": "VICTORY! You combined a 'for' loop with a nested 'if' condition to defeat Chronos-If, The Infinite Loop Warden!"
+		}
+	]
+}
+

@@ -21,6 +21,16 @@ var user_profile: Dictionary = {
 	}
 }
 
+# Safely converts any value (int, float, string, or null) to int without crashing
+static func safe_int(val, fallback: int = 0) -> int:
+	if val == null:
+		return fallback
+	if typeof(val) == TYPE_INT or typeof(val) == TYPE_FLOAT:
+		return int(val)
+	if typeof(val) == TYPE_STRING and val.is_valid_int():
+		return val.to_int()
+	return fallback
+
 func _ready() -> void:
 	load_local_profile()
 
@@ -82,6 +92,22 @@ func load_local_profile() -> void:
 			# Merge with defaults to ensure all required fields exist
 			for k in data.keys():
 				user_profile[k] = data[k]
+			
+			# Ensure level_stars is always a valid Dictionary
+			var raw_stars = user_profile.get("level_stars", {})
+			var converted: Dictionary = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+			if typeof(raw_stars) == TYPE_DICTIONARY:
+				for k in raw_stars.keys():
+					converted[str(k)] = safe_int(raw_stars[k], 0)
+			elif typeof(raw_stars) == TYPE_ARRAY:
+				var arr: Array = raw_stars
+				var is_one_indexed: bool = arr.size() > 0 and arr[0] == null
+				for idx in range(arr.size()):
+					var item = arr[idx]
+					if item != null:
+						var lvl_key = str(idx) if is_one_indexed else str(idx + 1)
+						converted[lvl_key] = safe_int(item, 0)
+			user_profile["level_stars"] = converted
 
 # Records progress when a level is completed
 func record_level_completion(level_num: int, added_score: int, added_xp: int, stars_earned: int) -> void:
@@ -98,6 +124,8 @@ func record_level_completion(level_num: int, added_score: int, added_xp: int, st
 		
 	# Update star rating for level
 	var stars_dict = user_profile.get("level_stars", {})
+	if typeof(stars_dict) != TYPE_DICTIONARY:
+		stars_dict = {}
 	var prev_stars = int(stars_dict.get(str(level_num), 0))
 	stars_dict[str(level_num)] = max(prev_stars, stars_earned)
 	user_profile["level_stars"] = stars_dict

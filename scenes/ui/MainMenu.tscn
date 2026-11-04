@@ -393,7 +393,7 @@ theme_override_font_sizes/font_size = 21
 theme_override_styles/normal = SubResource("StyleBoxFlat_slab_level_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_level_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_slab_level_hover")
-text = "Select Levels"
+text = "SELECT LEVEL"
 
 [node name="LogoutButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=268582563]
 custom_minimum_size = Vector2(0, 58)
@@ -404,8 +404,7 @@ theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_slab_logout_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_logout_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_slab_logout_hover")
-text = "Logout
-"
+text = "LOG OUT"
 
 [connection signal="pressed" from="StoneMonolith/MonolithVBox/ContinueQuestButton" to="." method="_on_continue_quest_button_pressed"]
 [connection signal="pressed" from="StoneMonolith/MonolithVBox/LevelSelectButton" to="." method="_on_level_select_button_pressed"]

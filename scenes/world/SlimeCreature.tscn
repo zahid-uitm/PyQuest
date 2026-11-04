@@ -1,0 +1,143 @@
+[gd_scene format=3 uid="uid://c40kpvg5xfq77"]
+
+[ext_resource type="Script" uid="uid://b00slime0001" path="res://scripts/world/SlimeCreature.gd" id="1_slime_script"]
+[ext_resource type="Texture2D" uid="uid://b453eubk20b4a" path="res://assets/sprites/characters/slime.png" id="2_slime_tex"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i0"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i1"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i2"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i3"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h0"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(0, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h1"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(32, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h2"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(64, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h3"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(96, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h4"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(128, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h5"]
+atlas = ExtResource("2_slime_tex")
+region = Rect2(160, 96, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_slime"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h5")
+}],
+"loop": false,
+"name": &"hop",
+"speed": 8.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_slime"]
+radius = 18.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble"]
+bg_color = Color(0.1, 0.15, 0.22, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.75, 0.45, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="SlimeCreature" type="Area2D"]
+script = ExtResource("1_slime_script")
+
+[node name="Shadow" type="Polygon2D" parent="."]
+position = Vector2(0, 14)
+scale = Vector2(1.35, 1.35)
+color = Color(0.04, 0.06, 0.1, 0.35)
+polygon = PackedVector2Array(-14, 0, -10, -5, 0, -7, 10, -5, 14, 0, 10, 5, 0, 7, -10, 5)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(2.1, 2.1)
+sprite_frames = SubResource("SpriteFrames_slime")
+animation = &"idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_slime")
+
+[node name="SpeechBubble" type="PanelContainer" parent="."]
+offset_left = -110.0
+offset_top = -74.0
+offset_right = 110.0
+offset_bottom = -34.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
+
+[node name="Margin" type="MarginContainer" parent="SpeechBubble"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="SpeechLabel" type="Label" parent="SpeechBubble/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 1, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Boing! Variables are boxes for values!"
+horizontal_alignment = 1
+autowrap_mode = 2
+

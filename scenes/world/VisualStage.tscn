@@ -3,92 +3,213 @@
 [ext_resource type="Script" uid="uid://ypnpbb3pln7r" path="res://scripts/world/VisualStage.gd" id="1_stage_script"]
 [ext_resource type="PackedScene" uid="uid://l07qioho22wn" path="res://scenes/components/Player.tscn" id="2_alex_node"]
 [ext_resource type="Texture2D" uid="uid://beg2kw4bcvamg" path="res://assets/sprites/objects/chest_01.png" id="3_chest_tex"]
-[ext_resource type="Texture2D" uid="uid://8jg40l1a5gxb" path="res://assets/sprites/characters/skeleton.png" id="4_wizard_tex"]
-[ext_resource type="Texture2D" uid="uid://n2713h8u3513" path="res://assets/sprites/objects/objects.png" id="5_objects_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/pywizard_sheet.png" id="4_wizard_tex"]
+[ext_resource type="Texture2D" path="res://assets/maps/boss_arena_bg.jpg" id="5_arena_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/shrine_altar.png" id="6_altar_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/boss_golem_sheet.png" id="7_boss_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/spell_fireball.png" id="8_spell_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/magic_sparkle.png" id="9_sparkle_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/battle_pad_hero.png" id="10_pad_hero"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/battle_pad_boss.png" id="11_pad_boss"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/boss_brazier_sheet.png" id="12_brazier"]
 
 [sub_resource type="Curve" id="Curve_particles"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
 point_count = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_card"]
+content_margin_left = 22.0
+content_margin_top = 12.0
+content_margin_right = 22.0
+content_margin_bottom = 12.0
+bg_color = Color(0.06, 0.04, 0.12, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.92, 0.22, 0.48, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 12
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
+bg_color = Color(0.14, 0.06, 0.12, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.18, 0.32, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_fill"]
+bg_color = Color(0.95, 0.2, 0.42, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hero_card"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.09, 0.16, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.78, 0.98, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hero_fill"]
+bg_color = Color(0.18, 0.85, 0.58, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="VisualStage" type="Node2D"]
 script = ExtResource("1_stage_script")
 
 [node name="DungeonEnvironment" type="Node2D" parent="."]
 
-[node name="ChamberBackdrop" type="ColorRect" parent="DungeonEnvironment"]
+[node name="ArenaWallpaper" type="TextureRect" parent="DungeonEnvironment"]
 offset_right = 1080.0
-offset_bottom = 960.0
-color = Color(0.0627451, 0.0862745, 0.141176, 1)
+offset_bottom = 970.0
+texture = ExtResource("5_arena_bg")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="UpperWall" type="ColorRect" parent="DungeonEnvironment"]
+[node name="VignetteTop" type="ColorRect" parent="DungeonEnvironment"]
 offset_right = 1080.0
-offset_bottom = 440.0
-color = Color(0.0980392, 0.137255, 0.219608, 1)
-
-[node name="WallTrim" type="ColorRect" parent="DungeonEnvironment"]
-offset_top = 440.0
-offset_right = 1080.0
-offset_bottom = 460.0
-color = Color(0.180392, 0.239216, 0.352941, 1)
-
-[node name="FloorArea" type="ColorRect" parent="DungeonEnvironment"]
-offset_top = 460.0
-offset_right = 1080.0
-offset_bottom = 960.0
-color = Color(0.0823529, 0.113725, 0.184314, 1)
-
-[node name="FloorPatternLines" type="ColorRect" parent="DungeonEnvironment"]
-offset_top = 780.0
-offset_right = 1080.0
-offset_bottom = 784.0
-color = Color(0.137255, 0.184314, 0.27451, 1)
-
-[node name="LeftPillar" type="Sprite2D" parent="DungeonEnvironment"]
-position = Vector2(80, 430)
-scale = Vector2(3.5, 3.5)
-texture = ExtResource("5_objects_tex")
-region_enabled = true
-region_rect = Rect2(96, 96, 32, 64)
-
-[node name="RightPillar" type="Sprite2D" parent="DungeonEnvironment"]
-position = Vector2(1000, 430)
-scale = Vector2(3.5, 3.5)
-texture = ExtResource("5_objects_tex")
-region_enabled = true
-region_rect = Rect2(96, 96, 32, 64)
-
-[node name="ChamberBanner" type="Label" parent="DungeonEnvironment"]
-offset_left = 320.0
-offset_top = 100.0
-offset_right = 760.0
 offset_bottom = 150.0
-theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 0.8)
-theme_override_font_sizes/font_size = 22
-text = "RUINS OF PYTHONIA • CHAMBER I"
-horizontal_alignment = 1
+color = Color(0.03, 0.02, 0.07, 0.55)
 
-[node name="ChamberSubBanner" type="Label" parent="DungeonEnvironment"]
-offset_left = 320.0
-offset_top = 150.0
-offset_right = 760.0
-offset_bottom = 180.0
-theme_override_colors/font_color = Color(0.580392, 0.639216, 0.721569, 0.7)
-theme_override_font_sizes/font_size = 14
-text = "Rune Altar of Variable Assignment"
+[node name="VignetteBottom" type="ColorRect" parent="DungeonEnvironment"]
+offset_top = 860.0
+offset_right = 1080.0
+offset_bottom = 970.0
+color = Color(0.03, 0.02, 0.07, 0.65)
+
+[node name="VortexParticles" type="CPUParticles2D" parent="DungeonEnvironment"]
+position = Vector2(540, 320)
+amount = 26
+texture = ExtResource("9_sparkle_tex")
+lifetime = 2.4
+emission_shape = 1
+emission_sphere_radius = 120.0
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, -15)
+initial_velocity_min = 10.0
+initial_velocity_max = 35.0
+scale_amount_min = 0.25
+scale_amount_max = 0.65
+scale_amount_curve = SubResource("Curve_particles")
+color = Color(0.75, 0.5, 1, 0.8)
+
+[node name="StageEmbers" type="CPUParticles2D" parent="DungeonEnvironment"]
+position = Vector2(540, 780)
+amount = 22
+texture = ExtResource("9_sparkle_tex")
+lifetime = 2.2
+emission_shape = 3
+emission_rect_extents = Vector2(440, 40)
+direction = Vector2(0, -1)
+spread = 35.0
+gravity = Vector2(0, -35)
+initial_velocity_min = 15.0
+initial_velocity_max = 40.0
+scale_amount_min = 0.2
+scale_amount_max = 0.5
+scale_amount_curve = SubResource("Curve_particles")
+color = Color(0.4, 0.85, 1, 0.75)
+
+[node name="BrazierLeft" type="Sprite2D" parent="DungeonEnvironment"]
+position = Vector2(140, 690)
+scale = Vector2(1.6, 1.6)
+texture = ExtResource("12_brazier")
+hframes = 4
+
+[node name="BrazierRight" type="Sprite2D" parent="DungeonEnvironment"]
+position = Vector2(960, 690)
+scale = Vector2(1.6, 1.6)
+texture = ExtResource("12_brazier")
+hframes = 4
+
+[node name="HeroPlatform" type="Sprite2D" parent="DungeonEnvironment"]
+position = Vector2(280, 790)
+scale = Vector2(1.85, 1.65)
+texture = ExtResource("10_pad_hero")
+
+[node name="BossPlatform" type="Sprite2D" parent="DungeonEnvironment"]
+position = Vector2(720, 790)
+scale = Vector2(1.95, 1.75)
+texture = ExtResource("11_pad_boss")
+
+[node name="BossHUD" type="PanelContainer" parent="DungeonEnvironment"]
+offset_left = 110.0
+offset_top = 22.0
+offset_right = 970.0
+offset_bottom = 132.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_boss_card")
+
+[node name="VBox" type="VBoxContainer" parent="DungeonEnvironment/BossHUD"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderHBox" type="HBoxContainer" parent="DungeonEnvironment/BossHUD/VBox"]
+layout_mode = 2
+
+[node name="BossTitleLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.42, 0.62, 1)
+theme_override_font_sizes/font_size = 18
+text = "👾 WORLD 1 BOSS: NULLBYTE, THE DARK SYNTAX KNIGHT"
+
+[node name="BossHPLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox/HeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.92, 1)
+theme_override_font_sizes/font_size = 16
+text = "500 / 500 HP"
+
+[node name="BossHPBar" type="ProgressBar" parent="DungeonEnvironment/BossHUD/VBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_fill")
+max_value = 500.0
+value = 500.0
+show_percentage = false
+
+[node name="BossStatusLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.72, 0.98, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "⚡ SANCTUM SEAL ACTIVE: Execute valid Python spells to shatter NullByte's armor!"
 horizontal_alignment = 1
 
 [node name="TreasureChest" type="Node2D" parent="."]
-position = Vector2(780, 680)
+position = Vector2(900, 725)
 
 [node name="AltarPedestal" type="Sprite2D" parent="TreasureChest"]
-position = Vector2(0, 30)
-scale = Vector2(3.5, 3.5)
-texture = ExtResource("5_objects_tex")
-region_enabled = true
-region_rect = Rect2(0, 80, 48, 32)
+position = Vector2(0, 36)
+scale = Vector2(1.8, 1.2)
+texture = ExtResource("6_altar_tex")
 
 [node name="Sprite2D" type="Sprite2D" parent="TreasureChest"]
-scale = Vector2(4, 4)
+scale = Vector2(3.2, 3.2)
 texture = ExtResource("3_chest_tex")
 hframes = 4
 
@@ -103,6 +224,7 @@ color = Color(0.960784, 0.745098, 0.168627, 0.25)
 [node name="ChestParticles" type="CPUParticles2D" parent="TreasureChest"]
 emitting = false
 amount = 35
+texture = ExtResource("9_sparkle_tex")
 lifetime = 1.0
 one_shot = true
 explosiveness = 0.85
@@ -110,29 +232,106 @@ spread = 180.0
 gravity = Vector2(0, -90)
 initial_velocity_min = 60.0
 initial_velocity_max = 140.0
-scale_amount_min = 4.0
-scale_amount_max = 8.0
+scale_amount_min = 0.4
+scale_amount_max = 0.8
 scale_amount_curve = SubResource("Curve_particles")
 color = Color(0.984314, 0.74902, 0.141176, 1)
 
 [node name="ChestLabel" type="Label" parent="TreasureChest"]
 offset_left = -100.0
-offset_top = -70.0
+offset_top = -62.0
 offset_right = 100.0
-offset_bottom = -45.0
-theme_override_colors/font_color = Color(0.941176, 0.843137, 0.529412, 1)
+offset_bottom = -38.0
+theme_override_colors/font_color = Color(0.98, 0.86, 0.45, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 13
+text = "🔒 Grand Relic Chest"
+horizontal_alignment = 1
+
+[node name="BossGolem" type="Node2D" parent="."]
+position = Vector2(720, 725)
+
+[node name="BossSprite" type="Sprite2D" parent="BossGolem"]
+texture_filter = 1
+scale = Vector2(5.2, 5.2)
+texture = ExtResource("7_boss_sheet")
+flip_h = true
+hframes = 6
+vframes = 10
+
+[node name="HitParticles" type="CPUParticles2D" parent="BossGolem"]
+position = Vector2(0, 20)
+emitting = false
+amount = 32
+texture = ExtResource("9_sparkle_tex")
+lifetime = 0.75
+one_shot = true
+explosiveness = 0.92
+spread = 180.0
+gravity = Vector2(0, 40)
+initial_velocity_min = 100.0
+initial_velocity_max = 220.0
+scale_amount_min = 0.45
+scale_amount_max = 0.95
+scale_amount_curve = SubResource("Curve_particles")
+color = Color(0.4, 0.95, 1, 1)
+
+[node name="BossTag" type="Label" parent="BossGolem"]
+offset_left = -130.0
+offset_top = -65.0
+offset_right = 130.0
+offset_bottom = -40.0
+theme_override_colors/font_color = Color(1, 0.55, 0.85, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 14
-text = "Ancient Gold Chest"
+text = "⚔️ NullByte [Boss]"
 horizontal_alignment = 1
 
 [node name="Alex" parent="." instance=ExtResource("2_alex_node")]
-position = Vector2(280, 680)
-scale = Vector2(3.5, 3.5)
+position = Vector2(280, 725)
+scale = Vector2(3.4, 3.4)
+
+[node name="HeroHUDPanel" type="PanelContainer" parent="."]
+offset_left = 160.0
+offset_top = 835.0
+offset_right = 400.0
+offset_bottom = 895.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hero_card")
+
+[node name="HeroHUD" type="VBoxContainer" parent="HeroHUDPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeroNameLabel" type="Label" parent="HeroHUDPanel/HeroHUD"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.95, 0.72, 1)
+theme_override_font_sizes/font_size = 14
+text = "🛡️ Adventurer Alex • 100/100 HP"
+horizontal_alignment = 1
+
+[node name="HeroHPBar" type="ProgressBar" parent="HeroHUDPanel/HeroHUD"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hero_fill")
+value = 100.0
+show_percentage = false
+
+[node name="SpellProjectile" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(340, 735)
+scale = Vector2(2.4, 2.4)
+texture = ExtResource("8_spell_tex")
 
 [node name="PyWizard" type="Node2D" parent="."]
-position = Vector2(180, 340)
+position = Vector2(145, 515)
 
 [node name="Aura" type="ColorRect" parent="PyWizard"]
+visible = false
 offset_left = -45.0
 offset_top = -50.0
 offset_right = 45.0
@@ -140,41 +339,53 @@ offset_bottom = 50.0
 color = Color(0.380392, 0.65098, 0.980392, 0.12)
 
 [node name="Sprite2D" type="Sprite2D" parent="PyWizard"]
-scale = Vector2(2.6, 2.6)
+texture_filter = 1
+scale = Vector2(4.2, 4.2)
 texture = ExtResource("4_wizard_tex")
 hframes = 6
-vframes = 13
 
 [node name="WizardName" type="Label" parent="PyWizard"]
-offset_left = -90.0
-offset_top = 55.0
-offset_right = 90.0
+offset_left = -95.0
+offset_top = 56.0
+offset_right = 95.0
 offset_bottom = 78.0
-theme_override_colors/font_color = Color(0.584314, 0.772549, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Master PyWizard"
+theme_override_colors/font_color = Color(0.6, 0.85, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 13
+text = "🧙 Master PyWizard"
 horizontal_alignment = 1
 
 [node name="WizardRole" type="Label" parent="PyWizard"]
-offset_left = -90.0
-offset_top = 75.0
-offset_right = 90.0
-offset_bottom = 95.0
-theme_override_colors/font_color = Color(0.580392, 0.639216, 0.721569, 0.7)
+offset_left = -95.0
+offset_top = 74.0
+offset_right = 95.0
+offset_bottom = 94.0
+theme_override_colors/font_color = Color(0.75, 0.82, 0.95, 0.85)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 11
-text = "Guardian of Syntax"
+text = "Arcane Advisor"
 horizontal_alignment = 1
 
 [node name="FloatingLabel" type="Label" parent="."]
 visible = false
-offset_left = 380.0
-offset_top = 560.0
-offset_right = 680.0
-offset_bottom = 610.0
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+offset_left = 340.0
+offset_top = 580.0
+offset_right = 760.0
+offset_bottom = 635.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 26
-text = "+100 XP"
+text = "-100 HP! CRITICAL SPELL!"
 horizontal_alignment = 1
 
+[node name="ScreenFlash" type="ColorRect" parent="."]
+visible = false
+offset_right = 1080.0
+offset_bottom = 970.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)

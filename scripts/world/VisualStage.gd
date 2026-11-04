@@ -8,107 +8,301 @@ extends Node2D
 @onready var pywizard_sprite: Sprite2D = $PyWizard/Sprite2D
 @onready var float_label: Label = $FloatingLabel
 
-var alex_start_pos: Vector2 = Vector2(280, 680)
-var chest_pos: Vector2 = Vector2(780, 680)
+var alex_start_pos: Vector2 = Vector2(280, 725)
+var boss_start_pos: Vector2 = Vector2(720, 725)
+var wizard_base_y: float = 515.0
+var boss_max_hp: int = 500
+var boss_hp: int = 500
+var hero_hp: int = 100
+var boss_anim_state: String = "idle" # "idle", "walk", "attack", "hurt", "dead"
+var idle_timer: float = 0.0
 
 func _ready() -> void:
-	if alex:
-		alex.position = alex_start_pos
-		alex.can_move = false
-		if alex.has_node("Camera2D"):
-			alex.get_node("Camera2D").enabled = false
-		alex.play_anim("side_idle")
-		alex.face_direction(false) # Face right towards chest
-	
-	if chest:
-		chest.frame = 0
+	reset_stage()
+
+func _process(delta: float) -> void:
+	idle_timer += delta
+	if pywizard_sprite and pywizard_sprite.hframes >= 6:
+		pywizard_sprite.frame = int(idle_timer * 5.0) % 6
+	if pywizard:
+		pywizard.position.y = wizard_base_y + sin(idle_timer * 2.5) * 6.0
 		
-	if float_label:
-		float_label.visible = false
+	var b_left = get_node_or_null("DungeonEnvironment/BrazierLeft") as Sprite2D
+	var b_right = get_node_or_null("DungeonEnvironment/BrazierRight") as Sprite2D
+	if b_left and b_left.hframes >= 4:
+		b_left.frame = int(idle_timer * 7.0) % 4
+	if b_right and b_right.hframes >= 4:
+		b_right.frame = (int(idle_timer * 7.0) + 2) % 4
+		
+	var boss_sprite = get_node_or_null("BossGolem/BossSprite") as Sprite2D
+	if boss_sprite and boss_sprite.hframes >= 6 and boss_sprite.vframes >= 10:
+		if boss_anim_state == "idle":
+			# Row 1: side_idle (frames 6..11)
+			boss_sprite.frame = 6 + (int(idle_timer * 5.0) % 6)
+		elif boss_anim_state == "walk":
+			# Row 4: side_walk (frames 24..29)
+			boss_sprite.frame = 24 + (int(idle_timer * 8.0) % 6)
 
-	if chest_particles:
-		chest_particles.emitting = false
+func _trigger_screen_flash(flash_col: Color) -> void:
+	var flash = get_node_or_null("ScreenFlash") as ColorRect
+	if not flash:
+		return
+	flash.visible = true
+	flash.color = flash_col
+	var tw = create_tween()
+	tw.tween_property(flash, "color:a", 0.0, 0.28)
+	tw.tween_callback(func(): flash.visible = false)
 
-# Live animation when player submits correct Python code
+func _shake_arena(intensity: float = 10.0) -> void:
+	var env = get_node_or_null("DungeonEnvironment") as Node2D
+	if not env:
+		return
+	var stw = create_tween()
+	stw.tween_property(env, "position", Vector2(intensity, -intensity * 0.6), 0.04)
+	stw.tween_property(env, "position", Vector2(-intensity, intensity * 0.6), 0.04)
+	stw.tween_property(env, "position", Vector2(intensity * 0.5, 0), 0.04)
+	stw.tween_property(env, "position", Vector2.ZERO, 0.05)
+
+func _update_arena_bars() -> void:
+	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
+	var b_name = "Chronos-If" if cur_lvl == 2 else "NullByte"
+	var hp_label = get_node_or_null("DungeonEnvironment/BossHUD/VBox/HeaderHBox/BossHPLabel") as Label
+	var hp_bar = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossHPBar") as ProgressBar
+	var status_lbl = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossStatusLabel") as Label
+	if hp_label:
+		hp_label.text = "%d / %d HP" % [max(0, boss_hp), boss_max_hp]
+	if hp_bar:
+		var tw = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tw.tween_property(hp_bar, "value", float(max(0, boss_hp)), 0.35)
+	if status_lbl:
+		if hero_hp <= 0:
+			status_lbl.text = "💀 ADVENTURER FALLEN! %s's Curse shattered Alex's shield!" % b_name
+		elif boss_hp <= 0:
+			status_lbl.text = "🏆 BOSS DEFEATED! %s has fallen and the Grand Relic Chest is unsealed!" % b_name
+		elif boss_hp <= 100:
+			status_lbl.text = "🔥 FINAL PHASE: %s is down to 100 HP! Unleash the Final Spell Combo!" % b_name
+		else:
+			status_lbl.text = "⚡ SANCTUM SEAL ACTIVE: Execute valid Python spells to shatter %s's armor!" % b_name
+
+	var hero_lbl = get_node_or_null("HeroHUDPanel/HeroHUD/HeroNameLabel") as Label
+	var hero_bar = get_node_or_null("HeroHUDPanel/HeroHUD/HeroHPBar") as ProgressBar
+	if hero_lbl:
+		if hero_hp <= 0:
+			hero_lbl.text = "💀 Adventurer Alex • 0/100 HP (DEFEATED)"
+		else:
+			hero_lbl.text = "🛡️ Adventurer Alex • %d/100 HP" % max(0, hero_hp)
+	if hero_bar:
+		hero_bar.value = float(max(0, hero_hp))
+
+func is_hero_dead() -> bool:
+	return hero_hp <= 0
+
+# Live Boss Battle animation when player submits correct Python code
 func play_correct_action(action_type: String, score_val: int, xp_val: int) -> void:
-	# 1. Alex steps forward toward chest
+	var boss_node = get_node_or_null("BossGolem") as Node2D
+	var boss_sprite = get_node_or_null("BossGolem/BossSprite") as Sprite2D
+	var hit_particles = get_node_or_null("BossGolem/HitParticles") as CPUParticles2D
+	var spell_proj = get_node_or_null("SpellProjectile") as Sprite2D
+	var chest_label = get_node_or_null("TreasureChest/ChestLabel") as Label
+
+	# 1. Alex steps forward on the runic stage and casts a Python spell
 	if alex:
 		alex.play_anim("side_walk")
 		var walk_tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		walk_tween.tween_property(alex, "position:x", alex_start_pos.x + 180.0, 0.6)
+		walk_tween.tween_property(alex, "position:x", alex_start_pos.x + 120.0, 0.35)
 		await walk_tween.finished
-		
-		# 2. Alex casts spell / attacks lock
 		alex.play_anim("side_attack")
+
+	# 2. Launch Arcane Python Fireball Projectile toward NullByte
+	if spell_proj:
+		spell_proj.position = Vector2(alex_start_pos.x + 160.0, alex_start_pos.y + 15.0)
+		spell_proj.visible = true
+		spell_proj.scale = Vector2(1.4, 1.4)
+		var proj_tw = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		proj_tw.tween_property(spell_proj, "position", Vector2(boss_start_pos.x - 15.0, boss_start_pos.y + 15.0), 0.32)
+		proj_tw.parallel().tween_property(spell_proj, "scale", Vector2(2.8, 2.8), 0.32)
+		await proj_tw.finished
+		spell_proj.visible = false
+
+	# 3. Impact on Boss NullByte! (-100 HP)
+	boss_hp = max(0, boss_hp - 100)
+	_update_arena_bars()
+	_trigger_screen_flash(Color(0.35, 0.9, 1.0, 0.32))
+	_shake_arena(12.0)
+
+	if hit_particles:
+		hit_particles.restart()
+		hit_particles.emitting = true
+
+	if boss_sprite and boss_node:
+		boss_anim_state = "hurt"
+		boss_sprite.frame = 54 # First recoil frame of row 9
+		boss_sprite.modulate = Color(2.4, 0.6, 0.9, 1.0)
+		var hit_tw = create_tween()
+		hit_tw.tween_property(boss_node, "position:x", boss_start_pos.x + 30.0, 0.07)
+		hit_tw.tween_property(boss_node, "position:x", boss_start_pos.x - 18.0, 0.07)
+		hit_tw.tween_property(boss_node, "position:x", boss_start_pos.x, 0.08)
+		await hit_tw.finished
+		boss_sprite.modulate = Color.WHITE
+
+	show_floating_text("💥 -100 BOSS HP!  (+%d Score  +%d XP)" % [score_val, xp_val], Color("#FBBF24"))
+
+	# 4. If Boss is defeated (0 HP) or final finisher triggered, play 3-frame death animation & open Relic Chest!
+	if boss_hp <= 0 or action_type == "boss_finisher":
+		boss_hp = 0
+		_update_arena_bars()
+		boss_anim_state = "dead"
+		if boss_sprite:
+			boss_sprite.frame = 54
+			await get_tree().create_timer(0.18).timeout
+			boss_sprite.frame = 55
+			await get_tree().create_timer(0.18).timeout
+			boss_sprite.frame = 56
+		if chest:
+			chest.frame = 1
+			await get_tree().create_timer(0.12).timeout
+			chest.frame = 2
+			await get_tree().create_timer(0.12).timeout
+			chest.frame = 3
+		if chest_label:
+			chest_label.text = "✨ Relic Chest Unlocked!"
+		if chest_particles:
+			chest_particles.restart()
+			chest_particles.emitting = true
+	else:
+		boss_anim_state = "idle"
 		await get_tree().create_timer(0.35).timeout
 
-	# 3. Chest unlocks and pops open
-	if chest:
-		chest.frame = 1
-		await get_tree().create_timer(0.15).timeout
-		chest.frame = 2
-		await get_tree().create_timer(0.15).timeout
-		chest.frame = 3 # Glowing open chest
-
-	if chest_particles:
-		chest_particles.restart()
-		chest_particles.emitting = true
-
-	# 4. Floating XP / Score reward animation
-	show_floating_text("+%d Score  +%d XP" % [score_val, xp_val], Color("#FBBF24"))
-	
-	# 5. Alex returns to idle position
-	await get_tree().create_timer(0.6).timeout
+	# 5. Alex returns to his runic battle platform
 	if alex:
 		alex.play_anim("side_walk")
 		alex.face_direction(true)
 		var return_tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		return_tween.tween_property(alex, "position:x", alex_start_pos.x, 0.5)
+		return_tween.tween_property(alex, "position:x", alex_start_pos.x, 0.35)
 		await return_tween.finished
 		alex.face_direction(false)
 		alex.play_anim("side_idle")
 
-# Live feedback when code has error
+# Live Boss Counterattack when code has a Syntax Error (Walks & Slashes with Corrupt Syntax Blade!)
 func play_incorrect_action() -> void:
-	# Chest sparks with failure
-	if chest:
-		var chest_tween = create_tween()
-		chest_tween.tween_property(chest, "modulate", Color(2.0, 0.3, 0.3), 0.1)
-		chest_tween.tween_property(chest, "modulate", Color.WHITE, 0.2)
+	var boss_node = get_node_or_null("BossGolem") as Node2D
+	var boss_sprite = get_node_or_null("BossGolem/BossSprite") as Sprite2D
 
-	# Alex recoils
-	if alex and alex.has_method("perform_recoil"):
-		alex.perform_recoil()
+	if boss_sprite and boss_node:
+		# 1. Boss walks left across the runic bridge toward Alex
+		boss_sprite.flip_h = true
+		boss_anim_state = "walk"
+		var lunge_tw = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		lunge_tw.tween_property(boss_node, "position:x", alex_start_pos.x + 105.0, 0.45)
+		await lunge_tw.finished
+		
+		# 2. Boss swings Corrupt Syntax Blade (Row 7: side_attack frames 42..45)
+		boss_anim_state = "attack"
+		_trigger_screen_flash(Color(1.0, 0.15, 0.35, 0.38))
+		_shake_arena(15.0)
+		for atk_f in [42, 43, 44, 45]:
+			boss_sprite.frame = atk_f
+			await get_tree().create_timer(0.08).timeout
 
-	show_floating_text("⚡ Syntax Error!", Color("#EF4444"))
+	hero_hp = max(0, hero_hp - 35)
+	_update_arena_bars()
+
+	if hero_hp <= 0:
+		show_floating_text("💀 ALEX DEFEATED! (0 / 100 HP)", Color("#EF4444"))
+		if alex and alex.has_method("perform_death"):
+			await alex.perform_death()
+	else:
+		# Alex recoils
+		if alex and alex.has_method("perform_recoil"):
+			alex.perform_recoil()
+		show_floating_text("⚡ BOSS SLASH! -35 Shield HP (%d/100 HP)" % hero_hp, Color("#EF4444"))
+
+	# 3. Boss walks back to his platform
+	if boss_sprite and boss_node:
+		boss_sprite.flip_h = false
+		boss_anim_state = "walk"
+		var back_tw = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		back_tw.tween_property(boss_node, "position:x", boss_start_pos.x, 0.45)
+		await back_tw.finished
+		boss_sprite.flip_h = true
+		boss_anim_state = "idle"
 
 func show_pywizard_hint() -> void:
 	if pywizard:
 		var tween = create_tween().set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 		tween.tween_property(pywizard, "scale", Vector2(1.2, 1.2), 0.2)
 		tween.tween_property(pywizard, "scale", Vector2(1.0, 1.0), 0.3)
-	show_floating_text("🧙 PyWizard: Wisdom Shared!", Color("#60A5FA"))
+	show_floating_text("🧙 PyWizard: Spell Formula Revealed!", Color("#60A5FA"))
 
 func show_floating_text(msg: String, color: Color) -> void:
 	if not float_label:
 		return
 	float_label.text = msg
 	float_label.visible = true
-	float_label.position = Vector2(alex_start_pos.x + 100, alex_start_pos.y - 120)
+	float_label.position = Vector2(310, 560)
 	float_label.modulate = color
 	float_label.modulate.a = 1.0
 
 	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(float_label, "position:y", alex_start_pos.y - 200, 1.2)
+	tween.parallel().tween_property(float_label, "position:y", 480.0, 1.2)
 	tween.parallel().tween_property(float_label, "modulate:a", 0.0, 1.2)
 	await tween.finished
 	float_label.visible = false
 
 func reset_stage() -> void:
+	boss_hp = boss_max_hp
+	hero_hp = 100
+	boss_anim_state = "idle"
+	_update_arena_bars()
+
+	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
+	var boss_node = get_node_or_null("BossGolem") as Node2D
+	var boss_sprite = get_node_or_null("BossGolem/BossSprite") as Sprite2D
+	var boss_tag = get_node_or_null("BossGolem/BossTag") as Label
+	var boss_title = get_node_or_null("DungeonEnvironment/BossHUD/VBox/HeaderHBox/BossTitleLabel") as Label
+
+	if cur_lvl == 2:
+		if boss_sprite:
+			boss_sprite.texture = load("res://assets/sprites/custom/boss_warden_sheet.png")
+		if boss_tag:
+			boss_tag.text = "⏳ Chronos-If [Boss]"
+		if boss_title:
+			boss_title.text = "⏳ WORLD 2 BOSS: CHRONOS-IF, THE INFINITE LOOP WARDEN"
+	else:
+		if boss_sprite:
+			boss_sprite.texture = load("res://assets/sprites/custom/boss_golem_sheet.png")
+		if boss_tag:
+			boss_tag.text = "⚔️ NullByte [Boss]"
+		if boss_title:
+			boss_title.text = "👾 WORLD 1 BOSS: NULLBYTE, THE DARK SYNTAX KNIGHT"
+
+	if boss_node:
+		boss_node.position = boss_start_pos
+		boss_node.scale = Vector2.ONE
+		boss_node.modulate = Color.WHITE
+	if boss_sprite:
+		boss_sprite.flip_h = true
+		boss_sprite.modulate = Color.WHITE
+		boss_sprite.frame = 6
+
+	var chest_label = get_node_or_null("TreasureChest/ChestLabel") as Label
+	if chest_label:
+		chest_label.text = "🔒 Grand Relic Chest"
+
 	if chest:
 		chest.frame = 0
 	if alex:
 		alex.position = alex_start_pos
+		alex.can_move = false
+		if "stage_controlled" in alex:
+			alex.stage_controlled = true
+		if alex.has_method("revive"):
+			alex.revive()
+		if alex.has_node("Camera2D"):
+			alex.get_node("Camera2D").enabled = false
 		alex.face_direction(false)
 		alex.play_anim("side_idle")
-
+	if float_label:
+		float_label.visible = false
+	if chest_particles:
+		chest_particles.emitting = false

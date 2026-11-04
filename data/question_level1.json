@@ -1,60 +1,74 @@
 {
   "level_id": 1,
-  "level_title": "Level 1: Variable Valley",
-  "topic": "Variables & Basic Data Types",
+  "level_title": "Boss Trial: NullByte the Variable Golem",
+  "topic": "Variables, Data Types & Syntax",
+  "boss_name": "NullByte, The Glitched Variable Golem",
+  "boss_max_hp": 500,
   "questions": [
 	{
 	  "id": 1,
 	  "type": "multiple_choice",
-	  "title": "Chamber Entrance: Pedestal Lock",
-	  "prompt": "The ancient pedestal lock demands energy. Assign 50 gold coins to the variable 'gold' to activate the mechanism.",
-	  "code_snippet": "# Store 50 gold coins in the variable 'gold'\ngold = ____",
-	  "options": ["50", "\"50\"", "int(50.0)", "gold(50)"],
+	  "title": "Boss Phase 1/5: Charging Integer Mana",
+	  "prompt": "NullByte raises a stone barrier! Assign the integer value 100 to the variable 'spell_power' to charge Alex's opening strike!",
+	  "code_snippet": "# Charge Alex's staff with 100 integer power\nspell_power = ____",
+	  "options": ["100", "\"100\"", "int == 100", "spell_power(100)"],
 	  "correct_index": 0,
-	  "correct_answer": "50",
-	  "action_trigger": "activate_pedestal",
-	  "explanation": "In Python, assigning a whole number without quotes creates an integer (int). You do not need to declare types like in C++ or Java.",
-	  "hint": "Master PyWizard: Simply assign the raw numeric value: '50'. No quotation marks or type keywords are needed!"
+	  "correct_answer": "100",
+	  "action_trigger": "strike_phase_1",
+	  "explanation": "Assigning a whole number without quotes (100) creates an integer (int) in Python and charges 100 spell damage!",
+	  "hint": "Master PyWizard: Simply pick the raw number '100' without quotes or extra keywords!"
 	},
 	{
 	  "id": 2,
 	  "type": "code_completion",
-	  "title": "Altar of Transmutation: Key Type",
-	  "prompt": "To forge the key that fits the chest's keyhole, assign the string 'Gold' to the variable 'key_type'.",
-	  "code_snippet": "# Complete the assignment with string 'Gold'\nkey_type = ____",
-	  "options": ["'Gold'", "Gold", "str(Gold)", "<Gold>"],
-	  "correct_answer": "'Gold'",
-	  "action_trigger": "forge_key",
-	  "explanation": "Text values in Python are strings (str) and must be enclosed in single or double quotes, e.g. 'Gold'.",
-	  "hint": "Master PyWizard: Any text without quotes is treated as a variable name. Wrap 'Gold' in quotes!"
+	  "title": "Boss Phase 2/5: The String Incantation",
+	  "prompt": "NullByte's armor is weak to fire! Complete the code by assigning the string 'Ignis' to the variable 'spell_element'.",
+	  "code_snippet": "# Bind the fire element string to 'spell_element'\nspell_element = ____\nprint(\"Casting \" + spell_element)",
+	  "options": ["'Ignis'", "Ignis", "str(Ignis)", "<Ignis>"],
+	  "correct_answer": "'Ignis'",
+	  "action_trigger": "strike_phase_2",
+	  "explanation": "Text in Python is a string (str) and must be enclosed in quotes ('Ignis') so Python doesn't mistake it for an undefined variable!",
+	  "hint": "Master PyWizard: Always wrap text in quotes—choose 'Ignis'!"
 	},
 	{
 	  "id": 3,
 	  "type": "multiple_choice",
-	  "title": "Rune of Identification: Gem Weight",
-	  "prompt": "Alex inspects a glowing gem on the pedestal: 'gem_weight = 3.75'. What data type is returned by type(gem_weight)?",
-	  "code_snippet": "gem_weight = 3.75\nprint(type(gem_weight))",
+	  "title": "Boss Phase 3/5: Floating-Point Precision",
+	  "prompt": "Alex scans NullByte's core frequency: 'core_freq = 3.75'. What data type does type(core_freq) return?",
+	  "code_snippet": "core_freq = 3.75\nprint(type(core_freq))",
 	  "options": ["<class 'float'>", "<class 'int'>", "<class 'double'>", "<class 'str'>"],
 	  "correct_index": 0,
 	  "correct_answer": "<class 'float'>",
-	  "action_trigger": "inspect_gem",
-	  "explanation": "In Python, numbers with decimal places are stored as 'float' (floating-point). Python has no separate 'double' type.",
-	  "hint": "Master PyWizard: Notice the decimal in 3.75. In Python, decimal numbers belong to the 'float' type!"
+	  "action_trigger": "strike_phase_3",
+	  "explanation": "Any number with a decimal point in Python is stored as a 'float' (floating-point number)!",
+	  "hint": "Master PyWizard: Notice the decimal point in 3.75—decimal numbers in Python are always 'float'!"
 	},
 	{
 	  "id": 4,
+	  "type": "code_completion",
+	  "title": "Boss Phase 4/5: Variable Combo Multiplier",
+	  "prompt": "NullByte is staggering! Multiply 'base_dmg' by 'combo' using the multiplication operator to calculate 'final_strike'!",
+	  "code_snippet": "base_dmg = 50\ncombo = 2\nfinal_strike = base_dmg ____ combo",
+	  "options": ["*", "x", "+", "=="],
+	  "correct_answer": "*",
+	  "action_trigger": "strike_phase_4",
+	  "explanation": "In Python, the asterisk (*) operator multiplies two numeric variables together (50 * 2 = 100)!",
+	  "hint": "Master PyWizard: Python uses the asterisk '*' for multiplication, not 'x'!"
+	},
+	{
+	  "id": 5,
 	  "type": "syntax_ordering",
-	  "title": "The Vault Gate: Opening the Chest",
-	  "prompt": "Arrange the code blocks in proper order to set the chest state to True, check the condition, and command Alex to open it!",
+	  "title": "Final Phase 5/5: Ultimate Boolean Finisher!",
+	  "prompt": "NullByte is at 100 HP! Arrange the code blocks in order to set 'core_exposed' to True, check the condition, and unleash the ultimate spell!",
 	  "blocks": [
-		"chest_unlocked = True",
-		"if chest_unlocked:",
-        "    alex.open_chest()"
+		"core_exposed = True",
+		"if core_exposed:",
+		"    alex.cast_ultimate_beam()"
 	  ],
 	  "correct_sequence": [0, 1, 2],
-	  "action_trigger": "open_chest",
-	  "explanation": "In Python, booleans must be capitalized (True / False). We assign the boolean variable first, evaluate it with 'if', and execute the indented block.",
-	  "hint": "Master PyWizard: State the boolean variable first ('True'), then the 'if' condition, followed by the indented action!"
+	  "action_trigger": "boss_finisher",
+	  "explanation": "Booleans must be capitalized (True). We declare the variable first, check it with 'if', and execute the indented action to shatter NullByte!",
+	  "hint": "Master PyWizard: First assign 'core_exposed = True', then check 'if core_exposed:', and finally call the indented function!"
 	}
   ]
 }

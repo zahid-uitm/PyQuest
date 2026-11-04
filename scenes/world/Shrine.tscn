@@ -1,0 +1,79 @@
+[gd_scene format=3 uid="uid://cx6r1g1g1e6h"]
+
+[ext_resource type="Script" uid="uid://dpshrine0001" path="res://scripts/world/Shrine.gd" id="1_shrine_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/shrine_altar.png" id="2_shrine_altar"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/rune_orb.png" id="3_rune_orb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/magic_sparkle.png" id="4_sparkle"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_shrine"]
+radius = 46.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+bg_color = Color(0.08, 0.12, 0.2, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.96, 0.62, 0.04, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="Curve" id="Curve_shrine_particles"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="Shrine" type="Area2D"]
+script = ExtResource("1_shrine_script")
+
+[node name="BasePedestal" type="Sprite2D" parent="."]
+position = Vector2(0, -16)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("2_shrine_altar")
+
+[node name="RuneGlow" type="Sprite2D" parent="."]
+position = Vector2(0, -54)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("3_rune_orb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -8)
+shape = SubResource("CircleShape2D_shrine")
+
+[node name="Particles" type="CPUParticles2D" parent="."]
+position = Vector2(0, -54)
+emitting = false
+amount = 12
+lifetime = 1.6
+texture = ExtResource("4_sparkle")
+emission_shape = 1
+emission_sphere_radius = 16.0
+direction = Vector2(0, -1)
+spread = 45.0
+gravity = Vector2(0, -25)
+initial_velocity_min = 20.0
+initial_velocity_max = 45.0
+scale_amount_min = 0.25
+scale_amount_max = 0.6
+scale_amount_curve = SubResource("Curve_shrine_particles")
+
+[node name="TitleLabel" type="Label" parent="."]
+offset_left = -90.0
+offset_top = -90.0
+offset_right = 90.0
+offset_bottom = -70.0
+theme_override_font_sizes/font_size = 12
+text = "✦ Ancient Shrine"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="."]
+visible = false
+offset_left = -75.0
+offset_top = 18.0
+offset_right = 75.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_prompt")
+text = "[E / Tap] Attune Shrine"
+horizontal_alignment = 1

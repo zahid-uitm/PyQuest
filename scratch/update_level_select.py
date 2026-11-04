@@ -1,0 +1,482 @@
+import os
+
+level_select_tscn = """[gd_scene format=3 uid="uid://lkja00kuu2yj"]
+
+[ext_resource type="Script" uid="uid://dfsyfhtils70x" path="res://scripts/ui/LevelSelectUI.gd" id="1_2fnwa"]
+[ext_resource type="Texture2D" uid="uid://ancient_treasure_map_1080p" path="res://assets/maps/ancient_treasure_map_1080p.jpg" id="2_map_bg"]
+[ext_resource type="Texture2D" uid="uid://cttr42i4yy84f" path="res://assets/sprites/particles/magic_star.png" id="3_star_part"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+content_margin_left = 24.0
+content_margin_top = 10.0
+content_margin_right = 24.0
+content_margin_bottom = 10.0
+bg_color = Color(0.20, 0.12, 0.07, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.85, 0.65, 0.28, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.7)
+shadow_size = 10
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_back_btn"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.32, 0.19, 0.11, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 3
+border_color = Color(0.65, 0.45, 0.22, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_back_btn_hover"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.44, 0.27, 0.16, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 3
+border_color = Color(0.95, 0.75, 0.35, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.8)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_card"]
+content_margin_left = 36.0
+content_margin_top = 30.0
+content_margin_right = 36.0
+content_margin_bottom = 30.0
+bg_color = Color(0.14, 0.09, 0.05, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 5
+border_color = Color(0.92, 0.72, 0.25, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.85)
+shadow_size = 28
+shadow_offset = Vector2(0, 12)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats_box"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.08, 0.05, 0.03, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.32, 0.18, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_travel_btn"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.16, 0.55, 0.30, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.55, 0.90, 0.60, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_travel_btn_hover"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.20, 0.70, 0.38, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.85, 1.0, 0.80, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.8)
+shadow_size = 12
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_close_btn"]
+content_margin_left = 20.0
+content_margin_top = 12.0
+content_margin_right = 20.0
+content_margin_bottom = 12.0
+bg_color = Color(0.28, 0.18, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 3
+border_color = Color(0.55, 0.38, 0.22, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="Curve" id="Curve_map_stars"]
+_data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.3, 0.8), 0.0, 0.0, 0, 0, Vector2(0.7, 0.4), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="Gradient" id="Gradient_map_stars"]
+offsets = PackedFloat32Array(0, 0.4, 0.8, 1)
+colors = PackedColorArray(1, 0.9, 0.6, 0, 1, 0.85, 0.3, 0.9, 0.9, 0.6, 0.2, 0.7, 1, 1, 1, 0)
+
+[node name="LevelSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2fnwa")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_map_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="MapDecorGrid" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.07, 0.03, 0.15)
+
+[node name="AmbientParticles" type="CPUParticles2D" parent="."]
+position = Vector2(960, 540)
+amount = 35
+texture = ExtResource("3_star_part")
+lifetime = 6.0
+preprocess = 3.0
+emission_shape = 3
+emission_rect_extents = Vector2(960, 540)
+direction = Vector2(0, -1)
+gravity = Vector2(0, -12)
+initial_velocity_min = 10.0
+initial_velocity_max = 30.0
+angular_velocity_min = -25.0
+angular_velocity_max = 25.0
+scale_amount_min = 0.3
+scale_amount_max = 0.6
+scale_amount_curve = SubResource("Curve_map_stars")
+color_ramp = SubResource("Gradient_map_stars")
+
+[node name="MapArea" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 88.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MapCanvas" type="Control" parent="MapArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BiomeCanvas" type="Control" parent="MapArea/MapCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PathDrawer" type="Control" parent="MapArea/MapCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NodesContainer" type="Control" parent="MapArea/MapCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FogCanvas" type="Control" parent="MapArea/MapCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AlexTokenLayer" type="Control" parent="MapArea/MapCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HeaderPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 40.0
+offset_top = 14.0
+offset_right = -40.0
+offset_bottom = 90.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="Header" type="HBoxContainer" parent="HeaderPanel"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="BackButton" type="Button" parent="HeaderPanel/Header"]
+custom_minimum_size = Vector2(160, 46)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.95, 0.88, 0.75, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_back_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_back_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_back_btn")
+text = "◀ MAIN MENU"
+
+[node name="TitleBox" type="VBoxContainer" parent="HeaderPanel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="HeaderPanel/Header/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.85, 0.40, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 21
+text = "🗺 REALM EXPEDITION • ANCIENT WORLD MAP"
+vertical_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="HeaderPanel/Header/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.74, 0.60, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 13
+text = "Select a realm landmark to embark on coding trials"
+vertical_alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="HeaderPanel/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.94, 0.68, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 17
+text = "World 1 of 5"
+vertical_alignment = 1
+
+[node name="StarsTotalLabel" type="Label" parent="HeaderPanel/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.85, 0.25, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "⭐ 0 / 15 Stars"
+vertical_alignment = 1
+
+[node name="ModalOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.03, 0.02, 0.82)
+
+[node name="Center" type="CenterContainer" parent="ModalOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Card" type="PanelContainer" parent="ModalOverlay/Center"]
+custom_minimum_size = Vector2(580, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="VBox" type="VBoxContainer" parent="ModalOverlay/Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="HeaderHBox" type="HBoxContainer" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="IconLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "🌿"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleVBox" type="VBoxContainer" parent="ModalOverlay/Center/Card/VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="ChapterLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.70, 0.25, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+text = "CHAPTER 1"
+
+[node name="TitleLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.94, 0.88, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 24
+text = "Variable Valley"
+
+[node name="TopicLabel" type="Label" parent="ModalOverlay/Center/Card/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.94, 0.68, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+text = "Core Subject: Variables & Data Types"
+
+[node name="DescLabel" type="Label" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.82, 0.72, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/line_spacing = 4
+theme_override_font_sizes/font_size = 15
+text = "Explore the lush valley of Pythonia. Meet Master PyWizard, unlock ancient rune chests, and master Python variable declarations."
+autowrap_mode = 3
+
+[node name="StatsBox" type="PanelContainer" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stats_box")
+
+[node name="StatsHBox" type="HBoxContainer" parent="ModalOverlay/Center/Card/VBox/StatsBox"]
+layout_mode = 2
+
+[node name="StarsTitle" type="Label" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.40, 1)
+theme_override_font_sizes/font_size = 14
+text = "MASTERY:"
+
+[node name="StarsValue" type="Label" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.85, 0.25, 1)
+theme_override_font_sizes/font_size = 15
+text = "★★★ (3 / 3 Stars)"
+
+[node name="Spacer" type="Control" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StatusValue" type="Label" parent="ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.94, 0.68, 1)
+theme_override_font_sizes/font_size = 14
+text = "Unlocked • Ready for Quest"
+
+[node name="ButtonHBox" type="HBoxContainer" parent="ModalOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 2
+
+[node name="CloseButton" type="Button" parent="ModalOverlay/Center/Card/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.85, 0.75, 0.65, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_modal_close_btn")
+text = "DISMISS"
+
+[node name="TravelButton" type="Button" parent="ModalOverlay/Center/Card/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(230, 48)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_travel_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_travel_btn_hover")
+text = "⚔️ Travel to Variable Valley"
+"""
+
+with open("c:/Users/zahid/Documents/py-quest/scenes/ui/LevelSelect.tscn", "w", encoding="utf-8") as f:
+    f.write(level_select_tscn)
+
+print("SUCCESS: Updated scenes/ui/LevelSelect.tscn")
+

@@ -1,76 +1,52 @@
 [gd_scene format=3 uid="uid://bg7armliwfv1t"]
 
 [ext_resource type="Script" uid="uid://c8wvwyiruqmsy" path="res://scripts/world/QuestNPC.gd" id="1_rxnkq"]
-[ext_resource type="Texture2D" uid="uid://8jg40l1a5gxb" path="res://assets/sprites/characters/skeleton.png" id="2_npctex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/pywizard_sheet.png" id="2_npctex"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_gcf03"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_f0"]
 atlas = ExtResource("2_npctex")
 region = Rect2(0, 0, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_8mrf1"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_f1"]
 atlas = ExtResource("2_npctex")
 region = Rect2(48, 0, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_qv8b2"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_f2"]
 atlas = ExtResource("2_npctex")
 region = Rect2(96, 0, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_p7xxm"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_f3"]
 atlas = ExtResource("2_npctex")
 region = Rect2(144, 0, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_be52e"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4"]
 atlas = ExtResource("2_npctex")
 region = Rect2(192, 0, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ujjaq"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_f5"]
 atlas = ExtResource("2_npctex")
 region = Rect2(240, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_iukpy"]
-atlas = ExtResource("2_npctex")
-region = Rect2(0, 48, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_832ys"]
-atlas = ExtResource("2_npctex")
-region = Rect2(48, 48, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1jjv3"]
-atlas = ExtResource("2_npctex")
-region = Rect2(96, 48, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_m7huf"]
-atlas = ExtResource("2_npctex")
-region = Rect2(144, 48, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_cgqhx"]
-atlas = ExtResource("2_npctex")
-region = Rect2(192, 48, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0acsp"]
-atlas = ExtResource("2_npctex")
-region = Rect2(240, 48, 48, 48)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_iukpy"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_gcf03")
+"texture": SubResource("AtlasTexture_f0")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_8mrf1")
+"texture": SubResource("AtlasTexture_f1")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_qv8b2")
+"texture": SubResource("AtlasTexture_f2")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p7xxm")
+"texture": SubResource("AtlasTexture_f3")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_be52e")
+"texture": SubResource("AtlasTexture_f4")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ujjaq")
+"texture": SubResource("AtlasTexture_f5")
 }],
 "loop": true,
 "name": &"front_idle",
@@ -78,22 +54,22 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_iukpy")
+"texture": SubResource("AtlasTexture_f0")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_832ys")
+"texture": SubResource("AtlasTexture_f1")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_1jjv3")
+"texture": SubResource("AtlasTexture_f2")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_m7huf")
+"texture": SubResource("AtlasTexture_f3")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_cgqhx")
+"texture": SubResource("AtlasTexture_f4")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_0acsp")
+"texture": SubResource("AtlasTexture_f5")
 }],
 "loop": true,
 "name": &"side_idle",
@@ -101,15 +77,15 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_m7n1a"]
-radius = 31.257
+radius = 38.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
-bg_color = Color(0.08, 0.12, 0.2, 0.9)
+bg_color = Color(0.08, 0.12, 0.2, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.96, 0.62, 0.04, 0.8)
+border_color = Color(0.96, 0.62, 0.04, 0.85)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -119,18 +95,20 @@ corner_radius_bottom_left = 6
 script = ExtResource("1_rxnkq")
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=563516010]
+texture_filter = 1
+scale = Vector2(1.6, 1.6)
 sprite_frames = SubResource("SpriteFrames_iukpy")
 animation = &"side_idle"
-frame_progress = 0.5356304
+autoplay = "side_idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1408817616]
 shape = SubResource("CircleShape2D_m7n1a")
 
 [node name="NameLabel" type="Label" parent="." unique_id=93939165]
-offset_left = -70.0
-offset_top = -46.0
-offset_right = 70.0
-offset_bottom = -26.0
+offset_left = -75.0
+offset_top = -44.0
+offset_right = 75.0
+offset_bottom = -24.0
 theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
 theme_override_font_sizes/font_size = 12
 text = "🧙 Master PyWizard"
@@ -138,9 +116,9 @@ horizontal_alignment = 1
 
 [node name="InteractionPrompt" type="Label" parent="." unique_id=663227170]
 offset_left = -65.0
-offset_top = -24.0
+offset_top = -66.0
 offset_right = 65.0
-offset_bottom = -2.0
+offset_bottom = -44.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_prompt")
