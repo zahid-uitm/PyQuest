@@ -1,0 +1,116 @@
+{
+	"level_id": 5,
+	"level_title": "Final Raid: Ignis-Py, The Guardian of Pythonia",
+	"topic": "Grand Synthesis (Variables, Loops, Functions & Lists)",
+	"questions": [
+		{
+			"id": "w5_boss_q1",
+			"title": "Stage I • Phase 1: Forging the Obsidian Ward (Variables & Type Casting)",
+			"type": "code_completion",
+			"prompt": "[STAGE I: THE OBSIDIAN SHIELD] Ignis-Py hurls a wave of Molten Syntax! Convert the string mana scroll \"450\" into an integer so it can be added to your base shield of 550!",
+			"code_snippet": "mana_scroll = \"450\"\nbase_shield = 550\ntotal_ward = base_shield + ____(mana_scroll)",
+			"options": [
+				"int",
+				"str",
+				"len",
+				"list"
+			],
+			"correct_answer": "int",
+			"action_trigger": "boss_hit_1",
+			"hint": "Master PyWizard says: To add a numeric string like \"450\" to an integer, wrap it in Python's 'int()' type-casting function!",
+			"explanation": "Shield forged! 'int(\"450\")' converts the string \"450\" into the integer 450, so 550 + 450 = 1000 Ward Power!"
+		},
+		{
+			"id": "w5_boss_q2",
+			"title": "Stage I • Phase 2: Piercing the Magma Scales (Conditionals & Lists)",
+			"type": "multiple_choice",
+			"prompt": "[STAGE I: THE OBSIDIAN SHIELD] Ignis-Py shifts his elemental scales! What value is stored in 'spell' after this conditional check runs on the 'scales' list?",
+			"code_snippet": "scales = [\"magma\", \"obsidian\", \"ember\"]\nif \"obsidian\" in scales and len(scales) == 3:\n    spell = \"glacier_lance\"\nelse:\n    spell = \"spark\"",
+			"options": [
+				"\"glacier_lance\"",
+				"\"spark\"",
+				"True",
+				"IndexError"
+			],
+			"correct_index": 0,
+			"action_trigger": "boss_hit_2",
+			"hint": "Archivist Venn says: Check both sides of 'and': '\"obsidian\" in scales' is True, and 'len(scales) == 3' is also True!",
+			"explanation": "Direct hit! Because \"obsidian\" is inside the 'scales' list AND its length is 3, the 'if' branch executes and assigns \"glacier_lance\"!"
+		},
+		{
+			"id": "w5_boss_q3",
+			"title": "Stage II • Phase 3: [DEBUG MODE] Defusing the Corrupted Loop Curse!",
+			"type": "bug_hunt",
+			"prompt": "[STAGE II: OVERDRIVE & CORRUPTION] Ignis-Py corrupted your spell-charging loop with a bug! Click the ONE line of code that contains the error preventing 'total_dmg' from accumulating each hit!",
+			"code_snippet": "# BUG HUNT: Find the corrupted line in this loop!\ndamages = [20, 30, 50]\ntotal_dmg = 0\nfor hit in damages:\n    total_dmg = hit\nfire_beam(total_dmg)",
+			"bug_lines": [
+				"damages = [20, 30, 50]",
+				"total_dmg = 0",
+				"for hit in damages:",
+				"    total_dmg = hit    # <-- Overwrites instead of += !"
+			],
+			"correct_line": 3,
+			"fixed_line": "    total_dmg += hit",
+			"action_trigger": "boss_hit_3",
+			"hint": "Master PyWizard says: Look inside the 'for' loop body—using '=' overwrites 'total_dmg' each iteration instead of adding to it with '+='!",
+			"explanation": "Curse defused! Changing 'total_dmg = hit' to 'total_dmg += hit' accumulates 20 + 30 + 50 = 100 damage instead of overwriting it!"
+		},
+		{
+			"id": "w5_boss_q4",
+			"title": "Stage II • Phase 4: Invoking Weaver Sera's Relic Function (def & return)",
+			"type": "code_completion",
+			"prompt": "[STAGE II: OVERDRIVE & CORRUPTION] Weaver Sera lends her Arcane Obelisk! Complete the keyword inside 'forge_lance' so the function sends the computed damage back to the caller.",
+			"code_snippet": "def forge_lance(base, mult):\n    power = base * mult\n    ____ power\n\nstrike = forge_lance(125, 2)",
+			"options": [
+				"return",
+				"print",
+				"yield",
+				"break"
+			],
+			"correct_answer": "return",
+			"action_trigger": "boss_hit_4",
+			"hint": "Weaver Sera says: A Python function uses the 'return' keyword to output its result back to the variable that called it!",
+			"explanation": "Obelisk beam fired! 'return power' sends 250 back to 'strike', shattering Ignis-Py's volcanic wing armor!"
+		},
+		{
+			"id": "w5_boss_q5",
+			"title": "Stage II • Phase 5: [DEBUG MODE] Fixing the Guardian's Matrix Trap!",
+			"type": "bug_hunt",
+			"prompt": "[STAGE II: OVERDRIVE & CORRUPTION] Scribe Kael warns you: Ignis-Py planted an off-by-one IndexError trap in your targeting script! Click the line that causes an IndexError or logic bug!",
+			"code_snippet": "# BUG HUNT: Target the FIRST and LAST cores in the 3-item list!\ncores = [\"ruby\", \"topaz\", \"diamond\"]\nfirst_core = cores[0]\nlast_core = cores[3]\nshatter(first_core, last_core)",
+			"bug_lines": [
+				"cores = [\"ruby\", \"topaz\", \"diamond\"]",
+				"first_core = cores[0]",
+				"last_core = cores[3]    # <-- Index 3 is out of range!",
+				"shatter(first_core, last_core)"
+			],
+			"correct_line": 2,
+			"fixed_line": "last_core = cores[-1]   # or cores[2]",
+			"action_trigger": "boss_hit_5",
+			"hint": "Scribe Kael says: A 3-element list only has indices 0, 1, and 2 (or -1 for the last item). Accessing 'cores[3]' triggers an IndexError!",
+			"explanation": "Trap shattered! In a 3-item list, valid indices are 0, 1, 2 (or -1). Replacing 'cores[3]' with 'cores[-1]' safely locks onto \"diamond\"!"
+		},
+		{
+			"id": "w5_boss_q6",
+			"title": "Stage III • Final Phase: The Grandmaster Synthesis Finisher!",
+			"type": "syntax_ordering",
+			"prompt": "[STAGE III: GRAND SYNTHESIS] All 4 Mentors channel their power into your staff! Arrange the Python blocks to define 'grand_finisher(runes)', loop over the list, and return the combined power!",
+			"code_snippet": "# Assemble the Complete Python Function, For-Loop, and Return Statement",
+			"blocks": [
+				"def grand_finisher(runes):",
+				"    power = 0\n    for r in runes:",
+				"        if r > 0:\n            power += r",
+				"    return power"
+			],
+			"correct_sequence": [
+				0,
+				1,
+				2,
+				3
+			],
+			"action_trigger": "boss_finisher",
+			"hint": "Master PyWizard says: Start with 'def grand_finisher(runes):', initialize 'power = 0' and start the 'for' loop, check 'if r > 0:', and finally 'return power'!",
+			"explanation": "GRANDMASTER VICTORY! You synthesized Variables, Conditionals, Loops, Functions, and Lists to vanquish Ignis-Py and become the Grand Champion of Pythonia!"
+		}
+	]
+}

@@ -97,4 +97,3 @@ func _play_open_animation() -> void:
 	tween.tween_callback(func(): sprite.frame = 2)
 	tween.tween_interval(0.12)
 	tween.tween_callback(func(): sprite.frame = 3)
-

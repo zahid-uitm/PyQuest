@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://cys88hmrsl7h1" path="res://assets/sprites/custom/laser_barrier.png" id="23_laser_barrier"]
 [ext_resource type="Texture2D" uid="uid://dr3skanephncq" path="res://assets/sprites/custom/condition_trap_sheet.png" id="24_trap_sheet"]
 [ext_resource type="Texture2D" uid="uid://c82xhaibdg245" path="res://assets/sprites/portraits/portrait_pywizard.png" id="portrait_pywizard_res"]
+[ext_resource type="PackedScene" uid="uid://cpausemodal01" path="res://scenes/ui/PauseModal.tscn" id="25_pause_modal"]
 
 [sub_resource type="Shader" id="Shader_chasm_flow"]
 code = "shader_type canvas_item;
@@ -792,7 +793,7 @@ focus_mode = 0
 theme_override_colors/font_color = Color(0.55, 0.92, 1, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
-text = "◀ Map"
+text = "⏸ Pause"
 
 [node name="AreaTitleLabel" type="Label" parent="UILayer/TopHUD/HBox" unique_id=1929663052]
 unique_name_in_owner = true
@@ -1112,3 +1113,6 @@ theme_override_colors/font_color = Color(0.1, 0.08, 0.02, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_accept_btn")
 text = "Continue Journey"
+
+[node name="PauseModal" parent="UILayer" unique_id=184910294 instance=ExtResource("25_pause_modal")]
+unique_name_in_owner = true

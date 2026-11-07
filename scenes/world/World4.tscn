@@ -25,6 +25,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/index_trap_sheet.png" id="24_trap_sheet"]
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/crypt_key_relic.png" id="25_key_relic"]
 [ext_resource type="Texture2D" path="res://assets/sprites/portraits/portrait_pywizard.png" id="portrait_pywizard_res"]
+[ext_resource type="PackedScene" uid="uid://cpausemodal01" path="res://scenes/ui/PauseModal.tscn" id="26_pause_modal"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
 content_margin_left = 6.0
@@ -884,7 +885,7 @@ focus_mode = 0
 theme_override_colors/font_color = Color(0.45, 0.98, 0.75, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
-text = "◀ Map"
+text = "⏸ Pause"
 
 [node name="AreaTitleLabel" type="Label" parent="UILayer/TopHUD/HBox"]
 unique_name_in_owner = true
@@ -1204,4 +1205,7 @@ theme_override_colors/font_color = Color(0.1, 0.08, 0.02, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_accept_btn")
 text = "Continue Journey"
+
+[node name="PauseModal" parent="UILayer" instance=ExtResource("26_pause_modal")]
+unique_name_in_owner = true
 

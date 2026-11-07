@@ -145,6 +145,15 @@ const BADGES_DATA: Dictionary = {
 	# -------------------------------------------------------------------------
 	# 4. MILESTONES & GROWTH BADGES
 	# -------------------------------------------------------------------------
+	"first_steps": {
+		"title": "First Steps",
+		"description": "Embark upon the PyQuest adventure as a newcomer or brave guest.",
+		"category": "progression",
+		"tier": "bronze",
+		"xp_reward": 50,
+		"icon_path": "res://assets/sprites/badges/badge_first_steps.png",
+		"max_progress": 1
+	},
 	"rising_apprentice": {
 		"title": "Rising Apprentice",
 		"description": "Attain Player Level 3 on your coding quest.",
@@ -180,8 +189,6 @@ var _active_tween: Tween
 
 func _ready() -> void:
 	_create_badge_popup_ui()
-	# Check immediately upon startup in case existing save matches badges
-	call_deferred("check_all_badges")
 
 # -----------------------------------------------------------------------------
 # BADGE UNLOCK TOAST POPUP UI SETUP
@@ -298,20 +305,33 @@ func _create_badge_popup_ui() -> void:
 # CORE BADGE MANAGEMENT API
 # -----------------------------------------------------------------------------
 func is_badge_unlocked(badge_id: String) -> bool:
-	var unlocked: Array = SaveManager.user_profile.get("badges", [])
-	return badge_id in unlocked
+	var unlocked = SaveManager.user_profile.get("badges", [])
+	if typeof(unlocked) == TYPE_ARRAY:
+		return badge_id in unlocked
+	elif typeof(unlocked) == TYPE_DICTIONARY:
+		return unlocked.has(badge_id) or badge_id in unlocked.values()
+	return false
 
 func get_unlocked_count() -> int:
-	var unlocked: Array = SaveManager.user_profile.get("badges", [])
-	return unlocked.size()
+	var unlocked = SaveManager.user_profile.get("badges", [])
+	if typeof(unlocked) == TYPE_ARRAY:
+		return unlocked.size()
+	elif typeof(unlocked) == TYPE_DICTIONARY:
+		return unlocked.size()
+	return 0
 
 func get_total_badges() -> int:
 	return BADGES_DATA.size()
 
 func get_total_xp_earned() -> int:
 	var total = 0
-	var unlocked: Array = SaveManager.user_profile.get("badges", [])
-	for b_id in unlocked:
+	var unlocked = SaveManager.user_profile.get("badges", [])
+	var list: Array = []
+	if typeof(unlocked) == TYPE_ARRAY:
+		list = unlocked
+	elif typeof(unlocked) == TYPE_DICTIONARY:
+		list = unlocked.values()
+	for b_id in list:
 		if BADGES_DATA.has(b_id):
 			total += int(BADGES_DATA[b_id].get("xp_reward", 0))
 	return total
@@ -325,12 +345,18 @@ func unlock_badge(badge_id: String) -> bool:
 	var data = BADGES_DATA[badge_id]
 	
 	# Register into player profile
-	var badges: Array = SaveManager.user_profile.get("badges", [])
+	var raw_badges = SaveManager.user_profile.get("badges", [])
+	var badges: Array = []
+	if typeof(raw_badges) == TYPE_ARRAY:
+		badges = raw_badges
+	elif typeof(raw_badges) == TYPE_DICTIONARY:
+		badges = raw_badges.values()
 	badges.append(badge_id)
 	SaveManager.user_profile["badges"] = badges
 
 	# Timestamp
-	var times: Dictionary = SaveManager.user_profile.get("badges_unlocked_at", {})
+	var raw_times = SaveManager.user_profile.get("badges_unlocked_at", {})
+	var times: Dictionary = raw_times if typeof(raw_times) == TYPE_DICTIONARY else {}
 	times[badge_id] = Time.get_datetime_string_from_system()
 	SaveManager.user_profile["badges_unlocked_at"] = times
 
@@ -338,7 +364,7 @@ func unlock_badge(badge_id: String) -> bool:
 	var xp_bonus = int(data.get("xp_reward", 0))
 	var cur_xp = int(SaveManager.user_profile.get("xp", 0)) + xp_bonus
 	SaveManager.user_profile["xp"] = cur_xp
-	SaveManager.user_profile["player_level"] = max(1, int(cur_xp / 500) + 1)
+	SaveManager.user_profile["player_level"] = max(1, int(cur_xp / 500.0) + 1)
 
 	# Save profile locally and sync to Firebase
 	SaveManager.save_local_profile()
@@ -401,25 +427,50 @@ func _process_next_popup() -> void:
 	_badge_icon.scale = Vector2(0.2, 0.2)
 	_badge_icon.rotation_degrees = -25.0
 
-	# 1. Slide down smoothly with back ease
-	_active_tween.parallel().tween_property(_popup_banner, "offset_top", 24.0, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# 1. Slide down smoothly with back ease (Step 1)
+	_active_tween.tween_property(_popup_banner, "offset_top", 24.0, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_active_tween.parallel().tween_property(_popup_banner, "offset_bottom", 102.0, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
-	# 2. Hero Badge icon pops in with glorious bounce and straightens
+	# 2. Hero Badge icon pops in with glorious bounce and straightens (parallel with Step 1)
 	_active_tween.parallel().tween_property(_badge_icon, "scale", Vector2.ONE, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_active_tween.parallel().tween_property(_badge_icon, "rotation_degrees", 0.0, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-	# 3. Hold banner on-screen for 5.0 seconds so player has ample time to admire the badge
-	_active_tween.tween_interval(5.0)
+	# 3. Hold banner on-screen for 5.0+ seconds (Step 2 — sequential after slide-in)
+	_active_tween.chain().tween_interval(5.2)
 
-	# 4. Slide back up out of screen
-	_active_tween.parallel().tween_property(_popup_banner, "offset_top", -120.0, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	_active_tween.parallel().tween_property(_popup_banner, "offset_bottom", -42.0, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	# 4. Slide back up out of screen (Step 3 — sequential AFTER the 5.2s interval finishes)
+	_active_tween.chain().tween_property(_popup_banner, "offset_top", -120.0, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_active_tween.parallel().tween_property(_popup_banner, "offset_bottom", -42.0, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	_active_tween.parallel().tween_property(_badge_icon, "scale", Vector2(0.4, 0.4), 0.35)
 
-	_active_tween.tween_callback(func():
+	# 5. Process next queued badge after slide-out completes
+	_active_tween.chain().tween_callback(func():
 		_process_next_popup()
 	)
+
+# Helper to safely determine container size (handles null, Array, and Dictionary)
+func _safe_list_size(val) -> int:
+	if val == null:
+		return 0
+	if typeof(val) == TYPE_ARRAY or typeof(val) == TYPE_DICTIONARY:
+		return val.size()
+	return 0
+
+# Helper to normalize level_stars into a Dictionary with String keys regardless of incoming type
+func _get_safe_stars_dict(prof: Dictionary) -> Dictionary:
+	var raw = prof.get("level_stars", {})
+	var result: Dictionary = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+	if typeof(raw) == TYPE_DICTIONARY:
+		for k in raw.keys():
+			result[str(k)] = int(raw[k])
+	elif typeof(raw) == TYPE_ARRAY:
+		var arr: Array = raw
+		var is_one_indexed: bool = arr.size() > 0 and arr[0] == null
+		for idx in range(arr.size()):
+			if arr[idx] != null:
+				var k = str(idx) if is_one_indexed else str(idx + 1)
+				result[k] = int(arr[idx])
+	return result
 
 # -----------------------------------------------------------------------------
 # REAL-TIME PROGRESS CALCULATION
@@ -428,19 +479,19 @@ func get_badge_progress(badge_id: String) -> Dictionary:
 	var prof = SaveManager.user_profile
 	var cur = 0
 	var max_v = BADGES_DATA[badge_id]["max_progress"]
-	var stars_dict = prof.get("level_stars", {})
+	var stars_dict = _get_safe_stars_dict(prof)
 
 	match badge_id:
 		"variable_pioneer":
-			cur = prof.get("w1_shrines", []).size()
+			cur = _safe_list_size(prof.get("w1_shrines"))
 		"logic_architect":
-			cur = prof.get("w2_shrines", []).size()
+			cur = _safe_list_size(prof.get("w2_shrines"))
 		"modular_sorcerer":
-			cur = prof.get("w3_shrines", []).size()
+			cur = _safe_list_size(prof.get("w3_shrines"))
 		"sequence_master":
-			cur = prof.get("w4_shrines", []).size()
+			cur = _safe_list_size(prof.get("w4_shrines"))
 		"grandmaster":
-			cur = prof.get("w1_shrines", []).size() + prof.get("w2_shrines", []).size() + prof.get("w3_shrines", []).size() + prof.get("w4_shrines", []).size()
+			cur = _safe_list_size(prof.get("w1_shrines")) + _safe_list_size(prof.get("w2_shrines")) + _safe_list_size(prof.get("w3_shrines")) + _safe_list_size(prof.get("w4_shrines"))
 		"first_blood":
 			cur = 1 if int(stars_dict.get("1", 0)) > 0 else 0
 		"flawless_syntax":
@@ -461,11 +512,13 @@ func get_badge_progress(badge_id: String) -> Dictionary:
 		"realm_explorer":
 			cur = int(prof.get("unlocked_level", 1))
 		"town_benefactor":
-			cur = prof.get("w1_npcs", []).size() + prof.get("w2_npcs_helped", []).size() + prof.get("w3_npcs_helped", []).size() + prof.get("w4_npcs_helped", []).size()
+			cur = _safe_list_size(prof.get("w1_npcs")) + _safe_list_size(prof.get("w2_npcs_helped")) + _safe_list_size(prof.get("w3_npcs_helped")) + _safe_list_size(prof.get("w4_npcs_helped"))
 		"pathfinder":
-			cur = prof.get("w2_bridges", []).size() + prof.get("w3_seals", []).size() + prof.get("w4_gates", []).size()
+			cur = _safe_list_size(prof.get("w2_bridges")) + _safe_list_size(prof.get("w3_seals")) + _safe_list_size(prof.get("w4_gates"))
 		"treasure_hunter":
-			cur = prof.get("chests_opened", []).size()
+			cur = _safe_list_size(prof.get("chests_opened"))
+		"first_steps":
+			cur = 1 if is_badge_unlocked("first_steps") or not prof.is_empty() else 0
 		"rising_apprentice":
 			cur = int(prof.get("player_level", 1))
 		"archmage":
@@ -486,28 +539,28 @@ func check_all_badges(context: Dictionary = {}) -> void:
 	var prof = SaveManager.user_profile
 
 	# 1. Variable Pioneer (W1 Shrines >= 3)
-	if prof.get("w1_shrines", []).size() >= 3:
+	if _safe_list_size(prof.get("w1_shrines")) >= 3:
 		unlock_badge("variable_pioneer")
 
 	# 2. Logic Architect (W2 Shrines >= 3)
-	if prof.get("w2_shrines", []).size() >= 3:
+	if _safe_list_size(prof.get("w2_shrines")) >= 3:
 		unlock_badge("logic_architect")
 
 	# 3. Modular Sorcerer (W3 Shrines >= 3)
-	if prof.get("w3_shrines", []).size() >= 3:
+	if _safe_list_size(prof.get("w3_shrines")) >= 3:
 		unlock_badge("modular_sorcerer")
 
 	# 4. Sequence Master (W4 Shrines >= 3)
-	if prof.get("w4_shrines", []).size() >= 3:
+	if _safe_list_size(prof.get("w4_shrines")) >= 3:
 		unlock_badge("sequence_master")
 
 	# 5. Grandmaster (All 12 shrines)
-	var total_shrines = prof.get("w1_shrines", []).size() + prof.get("w2_shrines", []).size() + prof.get("w3_shrines", []).size() + prof.get("w4_shrines", []).size()
+	var total_shrines = _safe_list_size(prof.get("w1_shrines")) + _safe_list_size(prof.get("w2_shrines")) + _safe_list_size(prof.get("w3_shrines")) + _safe_list_size(prof.get("w4_shrines"))
 	if total_shrines >= 12:
 		unlock_badge("grandmaster")
 
 	# 6. First Blood (Beat World 1 Boss)
-	var stars = prof.get("level_stars", {})
+	var stars = _get_safe_stars_dict(prof)
 	if int(stars.get("1", 0)) > 0:
 		unlock_badge("first_blood")
 
@@ -539,23 +592,27 @@ func check_all_badges(context: Dictionary = {}) -> void:
 		unlock_badge("realm_explorer")
 
 	# 12. Town Benefactor (12 NPCs helped)
-	var total_npcs = prof.get("w1_npcs", []).size() + prof.get("w2_npcs_helped", []).size() + prof.get("w3_npcs_helped", []).size() + prof.get("w4_npcs_helped", []).size()
+	var total_npcs = _safe_list_size(prof.get("w1_npcs")) + _safe_list_size(prof.get("w2_npcs_helped")) + _safe_list_size(prof.get("w3_npcs_helped")) + _safe_list_size(prof.get("w4_npcs_helped"))
 	if total_npcs >= 12:
 		unlock_badge("town_benefactor")
 
 	# 13. Pathfinder (2 bridges + 2 seals + 2 gates = 6)
-	var barriers = prof.get("w2_bridges", []).size() + prof.get("w3_seals", []).size() + prof.get("w4_gates", []).size()
+	var barriers = _safe_list_size(prof.get("w2_bridges")) + _safe_list_size(prof.get("w3_seals")) + _safe_list_size(prof.get("w4_gates"))
 	if barriers >= 6:
 		unlock_badge("pathfinder")
 
 	# 14. Treasure Hunter (>= 3 chests opened)
-	if prof.get("chests_opened", []).size() >= 3:
+	if _safe_list_size(prof.get("chests_opened")) >= 3:
 		unlock_badge("treasure_hunter")
 
-	# 15. Rising Apprentice (Level >= 3)
+	# 15. First Steps (Awarded to any player embarking on their quest, guest or logged in)
+	if not prof.is_empty():
+		unlock_badge("first_steps")
+
+	# 16. Rising Apprentice (Level >= 3)
 	if int(prof.get("player_level", 1)) >= 3:
 		unlock_badge("rising_apprentice")
 
-	# 16. Archmage of Code (Level >= 10)
+	# 17. Archmage of Code (Level >= 10)
 	if int(prof.get("player_level", 1)) >= 10:
 		unlock_badge("archmage")

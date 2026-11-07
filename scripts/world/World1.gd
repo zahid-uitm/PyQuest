@@ -8,7 +8,10 @@ extends Node2D
 @onready var accept_btn: Button = get_node_or_null("%AcceptButton")
 @onready var decline_btn: Button = get_node_or_null("%DeclineButton")
 @onready var hud_back_btn: Button = %BackToSelectButton
+@onready var pause_modal: ColorRect = get_node_or_null("%PauseModal")
 @onready var area_title_label: Label = %AreaTitleLabel
+
+var spawn_position: Vector2 = Vector2.ZERO
 
 # Shrine & Codex UI Nodes
 @onready var shrine_tracker_label: Label = %ShrineTrackerLabel
@@ -278,8 +281,22 @@ func _ready() -> void:
 		accept_btn.pressed.connect(_on_accept_quest)
 	if decline_btn and not decline_btn.pressed.is_connected(_on_close_quest_dialog):
 		decline_btn.pressed.connect(_on_close_quest_dialog)
-	if hud_back_btn and not hud_back_btn.pressed.is_connected(_on_back_to_select):
-		hud_back_btn.pressed.connect(_on_back_to_select)
+	if player:
+		spawn_position = player.global_position
+
+	if not pause_modal:
+		var pm_scene = load("res://scenes/ui/PauseModal.tscn")
+		if pm_scene:
+			pause_modal = pm_scene.instantiate()
+			$UILayer.add_child(pause_modal)
+
+	if hud_back_btn and not hud_back_btn.pressed.is_connected(_on_pause_pressed):
+		hud_back_btn.pressed.connect(_on_pause_pressed)
+	if pause_modal:
+		if not pause_modal.resumed.is_connected(_on_pause_resumed):
+			pause_modal.resumed.connect(_on_pause_resumed)
+		if not pause_modal.respawn_requested.is_connected(_on_pause_respawn):
+			pause_modal.respawn_requested.connect(_on_pause_respawn)
 		
 	if shrine_close_btn and not shrine_close_btn.pressed.is_connected(_on_close_shrine_modal):
 		shrine_close_btn.pressed.connect(_on_close_shrine_modal)
@@ -731,8 +748,12 @@ func open_quest_dialog() -> void:
 		if quest_text:
 			quest_text.text = "Halt, young coder! Beyond this gate lies NULLBYTE, THE GLITCHED VARIABLE GOLEM.\n\nThe Final Boss Shrine is sealed by ancient syntax magic (%d/3 Runes Awakened). You must complete all 4 trial questions at each of the remaining shrines to break the seal:\n%s" % [cleared.size(), "\n".join(missing)]
 		if accept_btn:
-			accept_btn.text = "🔒 Sealed (%d/3 Shrines Awakened)" % cleared.size()
-			accept_btn.disabled = true
+			if SaveManager.is_dev_mode():
+				accept_btn.text = "🛠️ Dev: Bypass Seal & Fight NullByte!"
+				accept_btn.disabled = false
+			else:
+				accept_btn.text = "🔒 Sealed (%d/3 Shrines Awakened)" % cleared.size()
+				accept_btn.disabled = true
 
 	if quest_dialog:
 		AudioManager.play_npc_chat()
@@ -774,8 +795,52 @@ func _on_close_quest_dialog() -> void:
 	if joystick:
 		joystick.visible = true
 
+func _on_pause_pressed() -> void:
+	if pause_modal:
+		pause_modal.open_pause()
+	if player:
+		player.can_move = false
+	if joystick:
+		joystick.visible = false
+
+func _on_pause_resumed() -> void:
+	if player:
+		player.can_move = true
+	if joystick:
+		joystick.visible = bool(SaveManager.get_setting("show_joystick", true))
+
+func _on_pause_respawn() -> void:
+	_on_pause_resumed()
+	if player and spawn_position != Vector2.ZERO:
+		player.global_position = spawn_position
+
 func _on_back_to_select() -> void:
 	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+
+func dev_unseal_and_teleport_boss() -> void:
+	SaveManager.user_profile["w1_shrines"] = ["shrine_numbers", "shrine_strings", "shrine_booleans"]
+	_refresh_all_shrine_states()
+	if player:
+		player.global_position = Vector2(760, 175)
+	show_toast("🛠️ Dev Mode: All World 1 Shrines Awakened & Teleported to Boss Gate!")
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		if quest_dialog and quest_dialog.visible:
+			_on_close_quest_dialog()
+			get_viewport().set_input_as_handled()
+		elif shrine_modal and shrine_modal.visible:
+			_on_close_shrine_modal()
+			get_viewport().set_input_as_handled()
+		elif lore_modal and lore_modal.visible:
+			_on_close_lore_modal()
+			get_viewport().set_input_as_handled()
+		elif pause_modal:
+			if pause_modal.is_paused():
+				pause_modal.close_pause()
+			else:
+				_on_pause_pressed()
+			get_viewport().set_input_as_handled()
 
 func _animate_card_pop(node: Control) -> void:
 	if not node:

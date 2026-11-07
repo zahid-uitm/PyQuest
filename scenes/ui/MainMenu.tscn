@@ -7,6 +7,12 @@
 [ext_resource type="Texture2D" uid="uid://csooakka1irwg" path="res://pyquest_title2.png" id="4_xpiny"]
 [ext_resource type="PackedScene" uid="uid://s2dcku70dvam" path="res://scenes/ui/SettingsModal.tscn" id="5_settings"]
 [ext_resource type="PackedScene" path="res://scenes/ui/BadgesModal.tscn" id="6_badges"]
+[ext_resource type="PackedScene" uid="uid://b23xlmwmypuuq" path="res://scenes/ui/LeaderboardModal.tscn" id="7_leaderboard"]
+[ext_resource type="Texture2D" uid="uid://bjiehxtq7yihd" path="res://assets/sprites/ui/stone_semicircle_drawer.png" id="8_drawer_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/medallion_badge.png" id="9_med_badge"]
+[ext_resource type="Texture2D" uid="uid://bupk7s16d2o4m" path="res://assets/sprites/ui/medallion_leaderboard.png" id="10_med_leader"]
+[ext_resource type="Texture2D" uid="uid://cyofxjphuwucv" path="res://assets/sprites/ui/medallion_settings.png" id="11_med_settings"]
+[ext_resource type="Texture2D" uid="uid://b7ethtvythlae" path="res://assets/sprites/ui/stone_drawer_tab.png" id="12_drawer_tab"]
 
 [sub_resource type="Curve" id="Curve_menu_stars"]
 _data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.25, 0.7), 0.0, 0.0, 0, 0, Vector2(0.5, 0.35), 0.0, 0.0, 0, 0, Vector2(0.75, 1.1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
@@ -151,7 +157,7 @@ shadow_color = Color(0.2, 0.6, 0.9, 0.5)
 shadow_size = 18
 shadow_offset = Vector2(0, 6)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slab_logout_normal"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slab_exit_normal"]
 content_margin_left = 28.0
 content_margin_right = 28.0
 bg_color = Color(0.1, 0.11, 0.14, 0.85)
@@ -167,7 +173,7 @@ corner_radius_bottom_left = 12
 shadow_size = 8
 shadow_offset = Vector2(0, 4)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slab_logout_pressed"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slab_exit_pressed"]
 content_margin_left = 28.0
 content_margin_right = 28.0
 bg_color = Color(0.09, 0.07, 0.09, 0.95)
@@ -184,7 +190,7 @@ shadow_color = Color(0, 0, 0, 0.4)
 shadow_size = 4
 shadow_offset = Vector2(0, 2)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slab_logout_hover"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slab_exit_hover"]
 content_margin_left = 28.0
 content_margin_right = 28.0
 bg_color = Color(0.2, 0.12, 0.15, 0.95)
@@ -331,6 +337,79 @@ offset_right = 550.0
 offset_bottom = 420.0
 grow_vertical = 2
 
+[node name="StoneDrawer" type="Control" parent="StoneMonolith" unique_id=1482930184]
+anchors_preset = 0
+offset_left = 240.0
+offset_top = 8.0
+offset_right = 630.0
+offset_bottom = 568.0
+mouse_filter = 2
+
+[node name="DrawerBg" type="TextureRect" parent="StoneMonolith/StoneDrawer" unique_id=1482930185]
+layout_mode = 0
+offset_right = 290.0
+offset_bottom = 560.0
+mouse_filter = 2
+texture = ExtResource("8_drawer_bg")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BadgeIconBtn" type="TextureButton" parent="StoneMonolith/StoneDrawer" unique_id=1482930186]
+layout_mode = 0
+offset_left = 68.8
+offset_top = 117.9
+offset_right = 156.8
+offset_bottom = 205.9
+pivot_offset = Vector2(44, 44)
+tooltip_text = "Badges & Achievements"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_med_badge")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="LeaderboardIconBtn" type="TextureButton" parent="StoneMonolith/StoneDrawer" unique_id=1482930188]
+layout_mode = 0
+offset_left = 121.2
+offset_top = 232.0
+offset_right = 209.2
+offset_bottom = 320.0
+pivot_offset = Vector2(44, 44)
+tooltip_text = "Hall of Fame Leaderboard"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("10_med_leader")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="SettingsIconBtn" type="TextureButton" parent="StoneMonolith/StoneDrawer" unique_id=1482930190]
+layout_mode = 0
+offset_left = 68.6
+offset_top = 341.9
+offset_right = 156.6
+offset_bottom = 429.9
+pivot_offset = Vector2(44, 44)
+tooltip_text = "Settings & Audio"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("11_med_settings")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="DrawerHandleBtn" type="TextureButton" parent="StoneMonolith/StoneDrawer" unique_id=1482930192]
+layout_mode = 0
+offset_left = 290.0
+offset_top = 226.0
+offset_right = 376.0
+offset_bottom = 334.0
+pivot_offset = Vector2(43, 54)
+tooltip_text = "Click or Drag to Expand / Retract Stone Drawer"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("12_drawer_tab")
+ignore_texture_size = true
+stretch_mode = 5
+
 [node name="SlabImage" type="TextureRect" parent="StoneMonolith" unique_id=1125553424]
 layout_mode = 1
 anchors_preset = 15
@@ -353,12 +432,12 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 156.0
-offset_top = -18.0
+offset_top = -36.0
 offset_right = -9.0
-offset_bottom = -105.0
+offset_bottom = -155.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 24
 alignment = 1
 
 [node name="MonolithHeader" type="HBoxContainer" parent="StoneMonolith/MonolithVBox" unique_id=1858227120]
@@ -376,11 +455,11 @@ text = "⚔️ QUEST MONOLITH ⚔️"
 horizontal_alignment = 1
 
 [node name="ContinueQuestButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=589264127]
-custom_minimum_size = Vector2(0, 78)
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.98, 0.85, 0.4, 1)
-theme_override_font_sizes/font_size = 23
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_slab_adventure_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_adventure_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_slab_adventure_hover")
@@ -391,44 +470,22 @@ custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.85, 0.93, 1, 1)
-theme_override_font_sizes/font_size = 21
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_slab_level_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_level_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_slab_level_hover")
 text = "SELECT LEVEL"
 
-[node name="BadgesButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=293847582]
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-focus_mode = 0
-theme_override_colors/font_color = Color(0.98, 0.88, 0.42, 1)
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_slab_level_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_level_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slab_level_hover")
-text = "TROPHY ROOM"
-
-[node name="SettingsButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=1948572110]
-custom_minimum_size = Vector2(0, 64)
-layout_mode = 2
-focus_mode = 0
-theme_override_colors/font_color = Color(0.85, 0.9, 0.98, 1)
-theme_override_font_sizes/font_size = 19
-theme_override_styles/normal = SubResource("StyleBoxFlat_slab_level_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_level_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slab_level_hover")
-text = "SETTINGS"
-
-[node name="LogoutButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=268582563]
-custom_minimum_size = Vector2(0, 58)
+[node name="ExitButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=268582563]
+custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.92, 0.65, 0.65, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_slab_logout_normal")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_logout_pressed")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slab_logout_hover")
-text = "LOG OUT"
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_slab_exit_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_exit_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slab_exit_hover")
+text = "EXIT GAME"
 
 [node name="SettingsModal" parent="." unique_id=459375467 instance=ExtResource("5_settings")]
 visible = false
@@ -438,8 +495,14 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
+[node name="LeaderboardModal" parent="." unique_id=984729184 instance=ExtResource("7_leaderboard")]
+layout_mode = 1
+
+[connection signal="pressed" from="StoneMonolith/StoneDrawer/BadgeIconBtn" to="." method="_on_badges_button_pressed"]
+[connection signal="pressed" from="StoneMonolith/StoneDrawer/LeaderboardIconBtn" to="." method="_on_leaderboard_button_pressed"]
+[connection signal="pressed" from="StoneMonolith/StoneDrawer/SettingsIconBtn" to="." method="_on_settings_button_pressed"]
+[connection signal="gui_input" from="StoneMonolith/StoneDrawer/DrawerHandleBtn" to="." method="_on_drawer_handle_gui_input"]
+[connection signal="pressed" from="StoneMonolith/StoneDrawer/DrawerHandleBtn" to="." method="_on_drawer_handle_pressed"]
 [connection signal="pressed" from="StoneMonolith/MonolithVBox/ContinueQuestButton" to="." method="_on_continue_quest_button_pressed"]
 [connection signal="pressed" from="StoneMonolith/MonolithVBox/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
-[connection signal="pressed" from="StoneMonolith/MonolithVBox/BadgesButton" to="." method="_on_badges_button_pressed"]
-[connection signal="pressed" from="StoneMonolith/MonolithVBox/SettingsButton" to="." method="_on_settings_button_pressed"]
-[connection signal="pressed" from="StoneMonolith/MonolithVBox/LogoutButton" to="." method="_on_logout_button_pressed"]
+[connection signal="pressed" from="StoneMonolith/MonolithVBox/ExitButton" to="." method="_on_exit_button_pressed"]

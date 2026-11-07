@@ -137,7 +137,7 @@ func _render_badges() -> void:
 		var card = _build_badge_card(badge_id, data, is_unlocked, progress)
 		cards_grid.add_child(card)
 
-func _build_badge_card(badge_id: String, data: Dictionary, is_unlocked: bool, progress: Dictionary) -> Control:
+func _build_badge_card(_badge_id: String, data: Dictionary, is_unlocked: bool, progress: Dictionary) -> Control:
 	var tier = data.get("tier", "bronze")
 	var tier_color: Color
 	match tier:

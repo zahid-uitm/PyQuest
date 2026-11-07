@@ -85,22 +85,6 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_max_btn"]
-content_margin_left = 18.0
-content_margin_top = 8.0
-content_margin_right = 18.0
-content_margin_bottom = 8.0
-bg_color = Color(0.16, 0.32, 0.18, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.4, 0.85, 0.45, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
 [node name="SettingsModal" type="ColorRect"]
 process_mode = 3
 anchors_preset = 15
@@ -380,29 +364,42 @@ theme_override_font_sizes/font_size = 14
 button_pressed = true
 text = "Show On-Screen Touch Joystick (Mobile)"
 
+[node name="CheckDevMode" type="CheckBox" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.98, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "🛠️ Developer Testing Mode (Unlock All Worlds & Dev Bar) [F12]"
+
 [node name="AccountBox" type="PanelContainer" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_preview_box")
 
-[node name="AccountStatusLabel" type="Label" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls/AccountBox"]
+[node name="AccountHBox" type="HBoxContainer" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls/AccountBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AccountStatusLabel" type="Label" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls/AccountBox/AccountHBox"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
 text = "⚔️ Guest Adventurer (Local Device Storage)"
 
-[node name="ResetBox" type="HBoxContainer" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="MaxProgressBtn" type="Button" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls/ResetBox"]
+[node name="LogoutBtn" type="Button" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls/AccountBox/AccountHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
-theme_override_colors/font_color = Color(0.85, 1.0, 0.85, 1)
+theme_override_colors/font_color = Color(1, 0.75, 0.75, 1)
 theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_max_btn")
-text = "⚡ Max Out Account (5000 XP & All Unlocked)"
+theme_override_styles/normal = SubResource("StyleBoxFlat_danger_btn")
+text = "Log Out"
+
+[node name="ResetBox" type="HBoxContainer" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls"]
+layout_mode = 2
+theme_override_constants/separation = 14
 
 [node name="ResetProgressBtn" type="Button" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls/ResetBox"]
 unique_name_in_owner = true
@@ -417,7 +414,7 @@ text = "⚠️ Reset Progress"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.68, 0.78, 1)
 theme_override_font_sizes/font_size = 12
-text = "Testing tools for quest progress."
+text = "Resets quest progress and unlocked stages."
 
 [node name="VersionLabel" type="Label" parent="Center/SettingsCard/VBox/TabContentContainer/PanelControls"]
 layout_mode = 2

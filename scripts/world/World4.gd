@@ -8,7 +8,10 @@ extends Node2D
 @onready var accept_btn: Button = get_node_or_null("%AcceptButton")
 @onready var decline_btn: Button = get_node_or_null("%DeclineButton")
 @onready var hud_back_btn: Button = %BackToSelectButton
+@onready var pause_modal: ColorRect = get_node_or_null("%PauseModal")
 @onready var area_title_label: Label = %AreaTitleLabel
+
+var spawn_position: Vector2 = Vector2.ZERO
 
 # Shrine & Codex UI Nodes
 @onready var shrine_tracker_label: Label = %ShrineTrackerLabel
@@ -366,8 +369,22 @@ func _ready() -> void:
 		accept_btn.pressed.connect(_on_accept_quest)
 	if decline_btn and not decline_btn.pressed.is_connected(_on_close_quest_dialog):
 		decline_btn.pressed.connect(_on_close_quest_dialog)
-	if hud_back_btn and not hud_back_btn.pressed.is_connected(_on_back_to_select):
-		hud_back_btn.pressed.connect(_on_back_to_select)
+	if player:
+		spawn_position = player.global_position
+
+	if not pause_modal:
+		var pm_scene = load("res://scenes/ui/PauseModal.tscn")
+		if pm_scene:
+			pause_modal = pm_scene.instantiate()
+			$UILayer.add_child(pause_modal)
+
+	if hud_back_btn and not hud_back_btn.pressed.is_connected(_on_pause_pressed):
+		hud_back_btn.pressed.connect(_on_pause_pressed)
+	if pause_modal:
+		if not pause_modal.resumed.is_connected(_on_pause_resumed):
+			pause_modal.resumed.connect(_on_pause_resumed)
+		if not pause_modal.respawn_requested.is_connected(_on_pause_respawn):
+			pause_modal.respawn_requested.connect(_on_pause_respawn)
 
 	if shrine_close_btn and not shrine_close_btn.pressed.is_connected(_on_close_shrine_modal):
 		shrine_close_btn.pressed.connect(_on_close_shrine_modal)
@@ -428,7 +445,24 @@ func _process(delta: float) -> void:
 		_check_player_in_armed_trap()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if quest_dialog.visible or shrine_modal.visible or lore_modal.visible:
+	if event.is_action_pressed("ui_cancel"):
+		if quest_dialog and quest_dialog.visible:
+			_on_close_quest_dialog()
+			get_viewport().set_input_as_handled()
+		elif shrine_modal and shrine_modal.visible:
+			_on_close_shrine_modal()
+			get_viewport().set_input_as_handled()
+		elif lore_modal and lore_modal.visible:
+			_on_close_lore_modal()
+			get_viewport().set_input_as_handled()
+		elif pause_modal:
+			if pause_modal.is_paused():
+				pause_modal.close_pause()
+			else:
+				_on_pause_pressed()
+			get_viewport().set_input_as_handled()
+		return
+	if (quest_dialog and quest_dialog.visible) or (shrine_modal and shrine_modal.visible) or (lore_modal and lore_modal.visible) or (pause_modal and pause_modal.is_paused()):
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E or event.is_action_pressed("ui_accept"):
@@ -1053,8 +1087,12 @@ func open_quest_dialog() -> void:
 		if quest_text:
 			quest_text.text = "Halt, young coder! The Necropolis Sanctum of Vektor-Zero is sealed by 3 Ancient Sequence Runes (%d/3 Awakened).\n\nUnlock the West & East Matrix Portcullises and awaken the remaining Shrines:\n%s" % [count, "\n".join(missing)]
 		if accept_btn:
-			accept_btn.text = "🔒 Sealed (%d/3 Runes)" % count
-			accept_btn.disabled = true
+			if SaveManager.is_dev_mode():
+				accept_btn.text = "🛠️ Dev: Bypass Seal & Fight Vektor-Zero!"
+				accept_btn.disabled = false
+			else:
+				accept_btn.text = "🔒 Sealed (%d/3 Runes)" % count
+				accept_btn.disabled = true
 		if decline_btn:
 			decline_btn.text = "Explore Catacombs"
 
@@ -1078,7 +1116,7 @@ func _on_accept_quest() -> void:
 		_on_close_quest_dialog()
 		return
 
-	if _get_cleared_shrines().size() < 3:
+	if _get_cleared_shrines().size() < 3 and not SaveManager.is_dev_mode():
 		show_toast("🔒 Awaken all 3 Shrines first to unseal the Boss Battle!")
 		return
 	SaveManager.user_profile["current_level"] = 4
@@ -1094,8 +1132,36 @@ func _on_close_quest_dialog() -> void:
 func start_quiz(_json_path: String) -> void:
 	open_quest_dialog()
 
+func _on_pause_pressed() -> void:
+	if pause_modal:
+		pause_modal.open_pause()
+	if player:
+		player.can_move = false
+	if joystick:
+		joystick.visible = false
+
+func _on_pause_resumed() -> void:
+	if player:
+		player.can_move = true
+	if joystick:
+		joystick.visible = bool(SaveManager.get_setting("show_joystick", true))
+
+func _on_pause_respawn() -> void:
+	_on_pause_resumed()
+	if player and spawn_position != Vector2.ZERO:
+		player.global_position = spawn_position
+
 func _on_back_to_select() -> void:
 	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+
+func dev_unseal_and_teleport_boss() -> void:
+	SaveManager.user_profile["w4_gates"] = ["gate_west", "gate_east"]
+	SaveManager.user_profile["w4_shrines"] = ["shrine_indexing", "shrine_mutation", "shrine_sequences"]
+	_refresh_gate_states()
+	_refresh_all_shrine_states()
+	if player:
+		player.global_position = Vector2(1200, 235)
+	show_toast("🛠️ Dev Mode: All World 4 Portcullises & Shrines Unsealed + Teleported to Boss Gate!")
 
 # ---------------------------------------------------------
 # Toast Notification Helper

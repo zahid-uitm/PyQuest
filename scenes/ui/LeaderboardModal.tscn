@@ -1,0 +1,295 @@
+[gd_scene format=3 uid="uid://b23xlmwmypuuq"]
+
+[ext_resource type="Script" path="res://scripts/ui/LeaderboardModal.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_bg"]
+bg_color = Color(0.06, 0.08, 0.12, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.96, 0.72, 0.15, 0.85)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.8)
+shadow_size = 28
+shadow_offset = Vector2(0, 10)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_btn"]
+bg_color = Color(0.85, 0.25, 0.3, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_standing_card"]
+bg_color = Color(0.08, 0.16, 0.14, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.85, 0.55, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_guest_card"]
+bg_color = Color(0.09, 0.11, 0.16, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.65, 0.25, 0.7)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 32.0
+content_margin_top = 28.0
+content_margin_right = 32.0
+content_margin_bottom = 28.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_action_btn"]
+bg_color = Color(0.96, 0.65, 0.15, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(1, 0.9, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 24.0
+content_margin_top = 10.0
+content_margin_right = 24.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cancel_btn"]
+bg_color = Color(0.18, 0.2, 0.28, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.45, 0.6, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+
+[node name="LeaderboardModal" type="ColorRect"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.05, 0.82)
+script = ExtResource("1_script")
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ModalCard" type="PanelContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(940, 660)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_bg")
+
+[node name="Margin" type="MarginContainer" parent="Center/ModalCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="Center/ModalCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderHBox" type="HBoxContainer" parent="Center/ModalCard/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="Center/ModalCard/Margin/VBox/HeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.88, 0.35, 1)
+theme_override_font_sizes/font_size = 22
+text = "👑 HALL OF FAME & LEADERBOARD"
+
+[node name="HeaderSummaryLabel" type="Label" parent="Center/ModalCard/Margin/VBox/HeaderHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.72, 0.82, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+text = "Live Cloud Rankings"
+horizontal_alignment = 2
+
+[node name="CloseBtn" type="Button" parent="Center/ModalCard/Margin/VBox/HeaderHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 38)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_close_btn")
+text = "✕"
+
+[node name="TabsHBox" type="HBoxContainer" parent="Center/ModalCard/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TabXPBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "🏆 Total XP & Level"
+
+[node name="TabStarsBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "⭐ Boss Stars"
+
+[node name="TabBadgesBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "🏅 Badges Unlocked"
+
+[node name="GuestBox" type="VBoxContainer" parent="Center/ModalCard/Margin/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="GuestCenter" type="CenterContainer" parent="Center/ModalCard/Margin/VBox/GuestBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GuestCard" type="PanelContainer" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_guest_card")
+
+[node name="VBox" type="VBoxContainer" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter/GuestCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="LockIcon" type="Label" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter/GuestCard/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "🔒"
+horizontal_alignment = 1
+
+[node name="GuestTitle" type="Label" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter/GuestCard/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.45, 1)
+theme_override_font_sizes/font_size = 20
+text = "Adventurer Account Required"
+horizontal_alignment = 1
+
+[node name="GuestDesc" type="Label" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter/GuestCard/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.85, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+text = "The PyQuest Hall of Fame records the achievements of registered adventurers worldwide.
+
+Log in or create a free account to record your XP, unlock cloud rankings, and see where you stand among fellow PyWizards!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnHBox" type="HBoxContainer" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter/GuestCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="GuestCancelBtn" type="Button" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter/GuestCard/VBox/BtnHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_cancel_btn")
+text = "Back to Menu"
+
+[node name="GuestLoginBtn" type="Button" parent="Center/ModalCard/Margin/VBox/GuestBox/GuestCenter/GuestCard/VBox/BtnHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.1, 0.08, 0.02, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
+text = "✨ Log In / Register Now"
+
+[node name="ContentBox" type="VBoxContainer" parent="Center/ModalCard/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="YourStandingCard" type="PanelContainer" parent="Center/ModalCard/Margin/VBox/ContentBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_standing_card")
+
+[node name="YourStandingLabel" type="Label" parent="Center/ModalCard/Margin/VBox/ContentBox/YourStandingCard"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "📍 Your Standing: Rank #1  •  Adventurer Alex  •  Level 1  •  0 XP"
+horizontal_alignment = 1
+
+[node name="LoadingBox" type="VBoxContainer" parent="Center/ModalCard/Margin/VBox/ContentBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="LoadingLabel" type="Label" parent="Center/ModalCard/Margin/VBox/ContentBox/LoadingBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.95, 1)
+theme_override_font_sizes/font_size = 16
+text = "⏳ Communicating with PyQuest cloud database..."
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Center/ModalCard/Margin/VBox/ContentBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RankingsVBox" type="VBoxContainer" parent="Center/ModalCard/Margin/VBox/ContentBox/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8

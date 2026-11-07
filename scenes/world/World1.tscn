@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://cly67ln41eilt" path="res://assets/sprites/custom/npc_blacksmith_torin_sheet.png" id="21_torin_sheet"]
 [ext_resource type="Texture2D" uid="uid://b8dxfaw3csqqj" path="res://assets/sprites/custom/boss_golem_sheet.png" id="22_boss_golem"]
 [ext_resource type="Texture2D" path="res://assets/sprites/portraits/portrait_pywizard.png" id="portrait_pywizard_res"]
+[ext_resource type="PackedScene" uid="uid://cpausemodal01" path="res://scenes/ui/PauseModal.tscn" id="24_pause_modal"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
 content_margin_left = 6.0
@@ -617,7 +618,7 @@ focus_mode = 0
 theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_hud_btn")
-text = "◀ Map"
+text = "⏸ Pause"
 
 [node name="AreaTitleLabel" type="Label" parent="UILayer/TopHUD/HBox" unique_id=1534833323]
 unique_name_in_owner = true
@@ -937,3 +938,6 @@ theme_override_colors/font_color = Color(0.1, 0.08, 0.02, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_accept_btn")
 text = "Continue Journey"
+
+[node name="PauseModal" parent="UILayer" unique_id=284910394 instance=ExtResource("24_pause_modal")]
+unique_name_in_owner = true

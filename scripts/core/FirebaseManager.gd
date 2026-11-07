@@ -4,6 +4,8 @@ extends Node
 signal auth_success(user_data: Dictionary)
 signal auth_failed(error_msg: String)
 signal db_write_complete(success: bool)
+signal leaderboard_loaded(users_data: Dictionary)
+signal leaderboard_failed(error_msg: String)
 
 const API_KEY: String = "AIzaSyAefjAz8cKAfSJPRVhf-IKctdl1csVit1M"
 const DB_URL: String = "https://pyquest-8ad56-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -17,18 +19,22 @@ var id_token: String = ""
 var http_auth: HTTPRequest
 var http_db_read: HTTPRequest
 var http_db_write: HTTPRequest
+var http_leaderboard: HTTPRequest
 
 func _ready() -> void:
 	http_auth = HTTPRequest.new()
 	http_db_read = HTTPRequest.new()
 	http_db_write = HTTPRequest.new()
+	http_leaderboard = HTTPRequest.new()
 	add_child(http_auth)
 	add_child(http_db_read)
 	add_child(http_db_write)
+	add_child(http_leaderboard)
 	
 	http_auth.request_completed.connect(_on_auth_request_completed)
 	http_db_read.request_completed.connect(_on_db_read_completed)
 	http_db_write.request_completed.connect(_on_db_write_completed)
+	http_leaderboard.request_completed.connect(_on_leaderboard_request_completed)
 
 func is_authenticated() -> bool:
 	return not id_token.is_empty()
@@ -57,7 +63,10 @@ func login_user(email: String, password: String) -> void:
 func logout() -> void:
 	current_user_id = ""
 	id_token = ""
-	SaveManager.clear_profile()
+	# Switch back to clean guest profile so next session doesn't inherit logged-out user data
+	SaveManager.user_profile = SaveManager.get_default_profile(true)
+	if FileAccess.file_exists(SaveManager.GUEST_SAVE_PATH):
+		SaveManager.load_local_profile(SaveManager.GUEST_SAVE_PATH)
 
 func write_player_profile(profile_data: Dictionary) -> void:
 	if not is_authenticated():
@@ -77,6 +86,30 @@ func fetch_player_profile() -> void:
 	var url = "%s/users/%s.json?auth=%s" % [DB_URL, current_user_id, id_token]
 	var err = http_db_read.request(url, [], HTTPClient.METHOD_GET)
 	print("⚡ [FirebaseManager] Reading user profile from RTDB (error_code: %d)" % err)
+
+func fetch_leaderboard() -> void:
+	if not is_authenticated():
+		leaderboard_failed.emit("AUTHENTICATION_REQUIRED")
+		return
+	
+	var url = "%s/users.json?auth=%s" % [DB_URL, id_token]
+	var err = http_leaderboard.request(url, [], HTTPClient.METHOD_GET)
+	print("⚡ [FirebaseManager] Fetching global leaderboard from RTDB (error_code: %d)" % err)
+	if err != OK:
+		leaderboard_failed.emit("NETWORK_REQUEST_FAILED")
+
+func _on_leaderboard_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	var response_text = body.get_string_from_utf8()
+	print("⚡ [FirebaseManager] Leaderboard Response Code: %d" % response_code)
+	if response_code == 200:
+		var data = JSON.parse_string(response_text)
+		if typeof(data) == TYPE_DICTIONARY:
+			leaderboard_loaded.emit(data)
+			return
+		elif data == null:
+			leaderboard_loaded.emit({})
+			return
+	leaderboard_failed.emit("Failed to load leaderboard data from server.")
 
 func _on_auth_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	var response_text = body.get_string_from_utf8()
@@ -134,43 +167,8 @@ func _on_db_read_completed(_result: int, response_code: int, _headers: PackedStr
 		
 		if typeof(profile) == TYPE_DICTIONARY:
 			profile["is_guest"] = false
-			
-			# Auto-max profile for testing when zahid hakimi logs in
-			if current_user_id == "bcLI1yq389g4JToSxdC9rhQRFL83" or str(profile.get("full_name", "")).to_lower().contains("zahid"):
-				print("⚡ [FirebaseManager] Auto-maxing test account for Zahid Hakimi...")
-				profile["full_name"] = "zahid hakimi"
-				profile["unlocked_level"] = 4
-				profile["player_level"] = 10
-				profile["xp"] = 5000
-				profile["hint_tokens"] = 99
-				profile["current_level"] = 4
-				profile["level_stars"] = {
-					"1": 3,
-					"2": 3,
-					"3": 3,
-					"4": 3,
-					"5": 3
-				}
-				profile["w1_shrines"] = ["shrine_numbers", "shrine_strings", "shrine_booleans"]
-				profile["w1_npcs"] = ["npc_farmer_bob", "npc_blacksmith_dan", "npc_alchemist_elena"]
-				profile["w2_shrines"] = ["shrine_if_else", "shrine_for_loops", "shrine_while_loops"]
-				profile["w2_bridges"] = ["bridge_chasm_left", "bridge_chasm_right"]
-				profile["w2_npcs_helped"] = ["npc_keeper_venn", "npc_weaver_sera", "npc_sentinel_kael"]
-				profile["w3_shrines"] = ["shrine_def", "shrine_params", "shrine_return"]
-				profile["w3_seals"] = ["seal_west", "seal_east"]
-				profile["w3_npcs_helped"] = ["npc_archivist_def", "npc_artificer_param", "npc_oracle_ret"]
-				profile["w4_shrines"] = ["shrine_indexing", "shrine_mutation", "shrine_sequences"]
-				profile["w4_gates"] = ["gate_west", "gate_east"]
-				profile["w4_inventory"] = ["skull_key", "jade_urn", "soul_gem"]
-				profile["w4_npcs_helped"] = ["npc_curator_idx", "npc_warden_mut", "npc_seers_seq"]
-				
-				SaveManager.user_profile = profile
-				SaveManager.save_local_profile()
-				write_player_profile(profile)
-				auth_success.emit({"user_id": current_user_id})
-				return
-
 			SaveManager.user_profile = profile
+			SaveManager.normalize_profile_data()
 			SaveManager.save_local_profile()
 			auth_success.emit({"user_id": current_user_id})
 		elif profile == null:

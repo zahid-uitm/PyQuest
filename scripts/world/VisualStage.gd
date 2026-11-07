@@ -69,13 +69,14 @@ func _shake_arena(intensity: float = 10.0) -> void:
 
 func _update_arena_bars() -> void:
 	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
-	var b_name = "Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte"))
+	var b_name = "Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte")))
 	var hp_label = get_node_or_null("DungeonEnvironment/BossHUD/VBox/HeaderHBox/BossHPLabel") as Label
 	var hp_bar = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossHPBar") as ProgressBar
 	var status_lbl = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossStatusLabel") as Label
 	if hp_label:
 		hp_label.text = "%d / %d HP" % [max(0, boss_hp), boss_max_hp]
 	if hp_bar:
+		hp_bar.max_value = float(boss_max_hp)
 		var tw = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tw.tween_property(hp_bar, "value", float(max(0, boss_hp)), 0.35)
 	if status_lbl:
@@ -83,6 +84,13 @@ func _update_arena_bars() -> void:
 			status_lbl.text = "💀 ADVENTURER FALLEN! %s's Curse shattered Alex's shield!" % b_name
 		elif boss_hp <= 0:
 			status_lbl.text = "🏆 BOSS DEFEATED! %s has fallen and the Grand Relic Chest is unsealed!" % b_name
+		elif cur_lvl == 5:
+			if boss_hp <= 100:
+				status_lbl.text = "👑 STAGE III [GRAND SYNTHESIS]: All 4 Mentors lend their power! Unleash the Final Combo!"
+			elif boss_hp <= 400:
+				status_lbl.text = "🔥 STAGE II [OVERDRIVE & CORRUPTION]: Ignis-Py is corrupting Python code! Debug & Strike!"
+			else:
+				status_lbl.text = "🌋 STAGE I [THE OBSIDIAN SHIELD]: Shatter Ignis-Py's volcanic armor with synthesis spells!"
 		elif boss_hp <= 100:
 			status_lbl.text = "🔥 FINAL PHASE: %s is down to 100 HP! Unleash the Final Spell Combo!" % b_name
 		else:
@@ -260,12 +268,13 @@ func show_floating_text(msg: String, color: Color) -> void:
 	float_label.visible = false
 
 func reset_stage() -> void:
+	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
+	boss_max_hp = 600 if cur_lvl == 5 else 500
 	boss_hp = boss_max_hp
 	hero_hp = 100
 	boss_anim_state = "idle"
 	_update_arena_bars()
 
-	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
 	var boss_node = get_node_or_null("BossGolem") as Node2D
 	var boss_sprite = get_node_or_null("BossGolem/BossSprite") as Sprite2D
 	var boss_tag = get_node_or_null("BossGolem/BossTag") as Label
@@ -286,7 +295,23 @@ func reset_stage() -> void:
 			arena_wallpaper.texture = load("res://assets/maps/boss_arena_bg.jpg")
 
 	# 2. Configure Boss, Particles, Atmosphere, and Thematics per World
-	if cur_lvl == 4:
+	if cur_lvl == 5:
+		if boss_sprite:
+			boss_sprite.texture = load("res://assets/sprites/custom/boss_guardian_sheet.png")
+		if boss_tag:
+			boss_tag.text = "🐉 Ignis-Py [Final Boss]"
+		if boss_title:
+			boss_title.text = "🌋 FINAL BOSS: IGNIS-PY, THE GUARDIAN OF PYTHONIA"
+			boss_title.add_theme_color_override("font_color", Color("#FB7185"))
+		if vortex_particles:
+			vortex_particles.color = Color(1.0, 0.35, 0.15, 0.9)
+		if stage_embers:
+			stage_embers.color = Color(1.0, 0.78, 0.2, 0.9)
+		if brazier_left:
+			brazier_left.modulate = Color(1.0, 0.45, 0.25)
+		if brazier_right:
+			brazier_right.modulate = Color(1.0, 0.45, 0.25)
+	elif cur_lvl == 4:
 		if boss_sprite:
 			boss_sprite.texture = load("res://assets/sprites/custom/boss_index_warden_sheet.png")
 		if boss_tag:
@@ -362,7 +387,9 @@ func reset_stage() -> void:
 
 	var chest_label = get_node_or_null("TreasureChest/ChestLabel") as Label
 	if chest_label:
-		if cur_lvl == 4:
+		if cur_lvl == 5:
+			chest_label.text = "🔒 Crown of Pythonia Grand Chest"
+		elif cur_lvl == 4:
 			chest_label.text = "🔒 Pharaonic Sequence Sarcophagus"
 		elif cur_lvl == 3:
 			chest_label.text = "🔒 Vault Sovereign Arcane Chest"

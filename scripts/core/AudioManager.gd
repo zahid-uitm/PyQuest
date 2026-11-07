@@ -14,6 +14,10 @@ const SFX_RELIC_PICKUP: String = "res://assets/audio/sfx_relic_pickup.wav"
 const SFX_NPC_CHAT: String = "res://assets/audio/sfx_npc_chat.wav"
 const SFX_CHIME: String = "res://assets/audio/sfx_chime.wav"
 const SFX_BADGE_UNLOCK: String = "res://assets/audio/sfx_badge_unlock.wav"
+const SFX_FOOTSTEP_1: String = "res://assets/audio/sfx_footstep_1.wav"
+const SFX_FOOTSTEP_2: String = "res://assets/audio/sfx_footstep_2.wav"
+
+var _footstep_toggle: bool = false
 
 var bgm_player: AudioStreamPlayer
 var sfx_player: AudioStreamPlayer
@@ -46,7 +50,8 @@ func _preload_core_sfx() -> void:
 		SFX_SPELL_CAST, SFX_BOSS_HIT, SFX_PLAYER_HURT, SFX_ERROR,
 		SFX_BOSS_DEFEAT, SFX_SHRINE_AWAKEN, SFX_CHEST_OPEN,
 		SFX_BRIDGE_EXTEND, SFX_TELEPORT, SFX_RELIC_PICKUP,
-		SFX_NPC_CHAT, SFX_CHIME
+		SFX_NPC_CHAT, SFX_CHIME, SFX_BADGE_UNLOCK,
+		SFX_FOOTSTEP_1, SFX_FOOTSTEP_2
 	]
 	for p in sound_paths:
 		if ResourceLoader.exists(p):
@@ -150,6 +155,12 @@ func play_npc_chat() -> void:
 
 func play_badge_unlock() -> void:
 	play_sfx(SFX_BADGE_UNLOCK)
+
+func play_footstep() -> void:
+	_footstep_toggle = !_footstep_toggle
+	var sfx = SFX_FOOTSTEP_1 if _footstep_toggle else SFX_FOOTSTEP_2
+	var random_pitch = randf_range(0.92, 1.08)
+	play_sfx(sfx, random_pitch)
 
 ## Plays background music seamlessly. If the same track is already playing, it will NOT restart.
 ## from_pos: Starting timestamp in seconds (e.g. 0.01 to skip initial silence)

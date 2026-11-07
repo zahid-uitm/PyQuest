@@ -10,6 +10,8 @@ var can_move: bool = true
 var stage_controlled: bool = false
 var is_dead: bool = false
 var last_facing: String = "front" # Tracks "front", "back", or "side"
+var footstep_timer: float = 0.0
+const FOOTSTEP_INTERVAL: float = 0.32 # Interval between steps while walking
 
 func set_joystick(joystick_node: Node) -> void:
 	if joystick_node and joystick_node.has_signal("joystick_vector_changed"):
@@ -20,12 +22,14 @@ func set_joystick(joystick_node: Node) -> void:
 func _on_joystick_vector_changed(vector: Vector2) -> void:
 	joystick_vector = vector
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if stage_controlled or is_dead:
 		velocity = Vector2.ZERO
+		footstep_timer = 0.0
 		return
 	if not can_move:
 		velocity = Vector2.ZERO
+		footstep_timer = 0.0
 		_update_animation(Vector2.ZERO)
 		move_and_slide()
 		return
@@ -52,6 +56,15 @@ func _physics_process(_delta: float) -> void:
 
 	velocity = move_dir * speed
 	move_and_slide()
+
+	# Footstep sound effects when walking
+	if move_dir.length() > 0.1 and velocity.length() > 10.0:
+		footstep_timer -= delta
+		if footstep_timer <= 0.0:
+			AudioManager.play_footstep()
+			footstep_timer = FOOTSTEP_INTERVAL
+	else:
+		footstep_timer = 0.08
 
 	# Update sprite animations based on final movement vector
 	_update_animation(move_dir)

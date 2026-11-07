@@ -63,8 +63,8 @@ const LEVELS_DATA = [
 		"level": 5,
 		"name": "The Guardian's Lair",
 		"chapter": "CHAPTER 5",
-		"topic": "Boss Battle Integration",
-		"desc": "The volcanic summit of Pythonia: engage in a turn-based coding battle against the legendary Guardian, synthesizing all your Python fundamentals.",
+		"topic": "Grand Synthesis & Final Raid",
+		"desc": "Ascend the volcanic Obsidian Spire over molten lava, shatter the 4 Elemental Seals alongside the Council of Mentors, and challenge Ignis-Py in a 3-stage Final Boss Raid.",
 		"icon": "🌋",
 		"pos": Vector2(1645, 430),
 		"color": Color("#DC2626"),       # Molten Ruby Crimson
@@ -127,6 +127,12 @@ func _ready() -> void:
 		badges_btn.text = "🏆 Badges: %d/%d" % [unl, tot]
 
 	path_drawer.draw.connect(_on_draw_saga_road)
+	if SaveManager.has_signal("dev_mode_changed"):
+		SaveManager.dev_mode_changed.connect(func(_enabled: bool):
+			build_map()
+			if modal_overlay and modal_overlay.visible:
+				_open_level_modal(selected_level_num)
+		)
 
 	build_map()
 
@@ -161,7 +167,8 @@ func build_map() -> void:
 		for child in alex_token_layer.get_children():
 			child.queue_free()
 
-	var unlocked_level: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	var real_unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	var unlocked_level: int = 5 if SaveManager.is_dev_mode() else real_unlocked
 	var current_level: int = int(SaveManager.user_profile.get("current_level", 1))
 	if current_level > unlocked_level:
 		current_level = unlocked_level
@@ -171,7 +178,10 @@ func build_map() -> void:
 	for k in stars_dict.keys():
 		total_stars += int(stars_dict[k])
 
-	progress_label.text = "World %d of %d" % [min(unlocked_level, LEVELS_DATA.size()), LEVELS_DATA.size()]
+	if SaveManager.is_dev_mode():
+		progress_label.text = "World %d of %d (🛠️ Dev: All 5 Unlocked)" % [min(real_unlocked, LEVELS_DATA.size()), LEVELS_DATA.size()]
+	else:
+		progress_label.text = "World %d of %d" % [min(unlocked_level, LEVELS_DATA.size()), LEVELS_DATA.size()]
 	stars_total_label.text = "⭐ %d / 15 Stars" % total_stars
 
 	for info in LEVELS_DATA:
@@ -326,7 +336,7 @@ func _hop_alex_to_level(target_level_num: int) -> void:
 # DRAWING VINTAGE FANTASY MAP EXPEDITION DASHED TRAIL
 # -------------------------------------------------------------
 func _on_draw_saga_road() -> void:
-	var unlocked_level: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	var unlocked_level: int = 5 if SaveManager.is_dev_mode() else int(SaveManager.user_profile.get("unlocked_level", 1))
 
 	var p0: Vector2
 	var p3: Vector2
@@ -419,7 +429,7 @@ func _draw_dashed_curve(canvas: Control, points: Array[Vector2], color: Color, w
 # -------------------------------------------------------------
 # TACTILE MEDALLION LANDMARK BUTTONS (PVZ / KINGDOM RUSH STYLE)
 # -------------------------------------------------------------
-func _create_tactile_landmark_node(info: Dictionary, is_unlocked: bool, is_current: bool, star_count: int) -> Control:
+func _create_tactile_landmark_node(info: Dictionary, is_unlocked: bool, _is_current: bool, star_count: int) -> Control:
 	var root = Control.new()
 	root.custom_minimum_size = Vector2(80, 80)
 	root.size = Vector2(80, 80)
@@ -463,7 +473,7 @@ func _create_tactile_landmark_node(info: Dictionary, is_unlocked: bool, is_curre
 	btn.focus_mode = Control.FOCUS_NONE
 
 	var theme_col: Color = info["color"]
-	var theme_dark: Color = info["color_dark"]
+	var _theme_dark: Color = info["color_dark"]
 	var theme_light: Color = info["color_light"]
 
 	var style_normal = StyleBoxFlat.new()
@@ -555,7 +565,8 @@ func _create_tactile_landmark_node(info: Dictionary, is_unlocked: bool, is_curre
 func _open_level_modal(level_num: int) -> void:
 	selected_level_num = level_num
 	var info: Dictionary = LEVELS_DATA[level_num - 1]
-	var unlocked_level: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	var real_unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	var unlocked_level: int = 5 if SaveManager.is_dev_mode() else real_unlocked
 	var stars_dict: Dictionary = _get_stars_dict()
 	var is_unlocked: bool = level_num <= unlocked_level
 	var star_count: int = int(stars_dict.get(str(level_num), 0))
@@ -572,8 +583,12 @@ func _open_level_modal(level_num: int) -> void:
 	modal_stars.text = "%s (%d / 3 Stars)" % [stars_str, star_count]
 
 	if is_unlocked:
-		modal_status.text = "Unlocked • Ready for Quest"
-		modal_status.add_theme_color_override("font_color", Color("#10B981"))
+		if level_num > real_unlocked and SaveManager.is_dev_mode():
+			modal_status.text = "🛠️ Dev Mode Unlocked (Normal: Requires Ch. %d)" % (level_num - 1)
+			modal_status.add_theme_color_override("font_color", Color("#FBBF24"))
+		else:
+			modal_status.text = "Unlocked • Ready for Quest"
+			modal_status.add_theme_color_override("font_color", Color("#10B981"))
 		modal_travel_btn.disabled = false
 		modal_travel_btn.text = "⚔️ Travel to %s" % info["name"]
 	else:
@@ -605,6 +620,8 @@ func _on_confirm_travel() -> void:
 		SceneManager.change_scene(SceneManager.WORLD_3)
 	elif selected_level_num == 4:
 		SceneManager.change_scene(SceneManager.WORLD_4)
+	elif selected_level_num == 5:
+		SceneManager.change_scene(SceneManager.WORLD_5)
 	else:
 		SceneManager.change_scene(SceneManager.LEVEL_GAMEPLAY)
 

@@ -186,7 +186,9 @@ func update_hud() -> void:
 	var hero_hp_left = 100
 	if visual_stage and "hero_hp" in visual_stage:
 		hero_hp_left = max(0, int(visual_stage.hero_hp))
-	weapon_status_label.text = "🛡️ Alex HP: %d/100  |  👾 Boss NullByte HP: %d/%d  |  🐍 Python 3.12 Grimoire" % [hero_hp_left, boss_hp_left, total_q * 100]
+	var cur_lvl = int(level_data.get("level_id", SaveManager.user_profile.get("current_level", 1)))
+	var b_name = "Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte")))
+	weapon_status_label.text = "🛡️ Alex HP: %d/100  |  🐉 Boss %s HP: %d/%d  |  🐍 Python 3.12 Grimoire" % [hero_hp_left, b_name, boss_hp_left, total_q * 100]
 	progress_text.text = "Boss Phase: %d/%d" % [current_question_index + 1, total_q]
 	level_progress_bar.max_value = total_q
 	level_progress_bar.value = current_question_index + 1
@@ -223,6 +225,8 @@ func display_question() -> void:
 		_setup_code_completion(q)
 	elif q_type == "syntax_ordering":
 		_setup_syntax_ordering(q)
+	elif q_type == "bug_hunt":
+		_setup_bug_hunt(q)
 
 func _setup_multiple_choice(q: Dictionary) -> void:
 	var options: Array = q.get("options", [])
@@ -344,6 +348,52 @@ func _on_order_block_clicked(block_idx: int, btn: Button, q: Dictionary) -> void
 	if selected_ordering.size() == blocks.size():
 		submit_button.disabled = false
 
+func _setup_bug_hunt(q: Dictionary) -> void:
+	var bug_lines: Array = q.get("bug_lines", [])
+	var instruction = Label.new()
+	instruction.text = "🐛 LIVE CODE DEBUGGER: Click the corrupted line of Python code to patch the bug:"
+	instruction.add_theme_color_override("font_color", Color("#FCA5A5"))
+	answer_area.add_child(instruction)
+
+	var lines_vbox = VBoxContainer.new()
+	lines_vbox.add_theme_constant_override("separation", 8)
+
+	for i in range(bug_lines.size()):
+		var btn = Button.new()
+		btn.text = "Line %d:   %s" % [i + 1, str(bug_lines[i])]
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.custom_minimum_size = Vector2(0, 42)
+		btn.focus_mode = Control.FOCUS_NONE
+		_apply_option_style(btn, false)
+		btn.pressed.connect(_on_bug_line_selected.bind(i, btn, q))
+		lines_vbox.add_child(btn)
+		mcq_option_buttons.append(btn)
+
+	answer_area.add_child(lines_vbox)
+	submit_button.text = "🛠️ Patch Bug & Counter-Strike!"
+	submit_button.disabled = true
+
+func _on_bug_line_selected(line_idx: int, btn: Button, q: Dictionary) -> void:
+	current_selected_answer = line_idx
+	for b in mcq_option_buttons:
+		_apply_option_style(b, false)
+	_apply_option_style(btn, true)
+
+	var bug_lines: Array = q.get("bug_lines", [])
+	var correct_idx: int = int(q.get("correct_line", -1))
+	var fixed_line: String = str(q.get("fixed_line", ""))
+	var preview_lines: Array[String] = []
+	for i in range(bug_lines.size()):
+		if i == line_idx:
+			if i == correct_idx and not fixed_line.is_empty():
+				preview_lines.append("[color=#4ADE80]%s  # <-- PATCHED![/color]" % fixed_line)
+			else:
+				preview_lines.append("[color=#F59E0B]%s  # <-- INSPECTING LINE %d[/color]" % [str(bug_lines[i]), i + 1])
+		else:
+			preview_lines.append(str(bug_lines[i]))
+	code_label.text = "[code]%s[/code]" % "\n".join(preview_lines)
+	submit_button.disabled = false
+
 func _on_submit_pressed() -> void:
 	if is_evaluating:
 		return
@@ -371,6 +421,9 @@ func _on_submit_pressed() -> void:
 				if selected_ordering[k] != int(correct_seq[k]):
 					is_correct = false
 					break
+	elif q_type == "bug_hunt":
+		var correct_line_idx = int(q.get("correct_line", 0))
+		is_correct = (int(current_selected_answer) == correct_line_idx)
 
 	last_answer_correct = is_correct
 
@@ -416,7 +469,7 @@ func _show_feedback(is_correct: bool, q: Dictionary, earned_pts: int, earned_xp:
 		next_button.text = "Next Boss Phase ➔"
 	else:
 		var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
-		var b_name = "Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte"))
+		var b_name = "Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte")))
 		var hero_dead = visual_stage and visual_stage.has_method("is_hero_dead") and visual_stage.is_hero_dead()
 		if hero_dead:
 			is_timer_active = false
@@ -456,13 +509,13 @@ func _on_hint_pressed() -> void:
 		if visual_stage and visual_stage.has_method("show_pywizard_hint"):
 			visual_stage.show_pywizard_hint()
 
-		# Eliminate one wrong option for MCQ if possible
-		if q.get("type") == "multiple_choice" and mcq_option_buttons.size() > 1:
-			var correct_idx: int = int(q.get("correct_index", 0))
+		# Eliminate one wrong option for MCQ or Bug Hunt if possible
+		if (q.get("type") == "multiple_choice" or q.get("type") == "bug_hunt") and mcq_option_buttons.size() > 1:
+			var correct_idx: int = int(q.get("correct_line", 0)) if q.get("type") == "bug_hunt" else int(q.get("correct_index", 0))
 			for i in range(mcq_option_buttons.size()):
 				if i != correct_idx and not mcq_option_buttons[i].disabled:
 					mcq_option_buttons[i].disabled = true
-					mcq_option_buttons[i].text = "❌ " + mcq_option_buttons[i].text
+					mcq_option_buttons[i].text = "✅ [VERIFIED CLEAN] " + mcq_option_buttons[i].text if q.get("type") == "bug_hunt" else "❌ " + mcq_option_buttons[i].text
 					break
 
 		if hint_message:
@@ -519,8 +572,8 @@ func finish_level() -> void:
 	})
 
 	# Populate Victory Overlay
-	var b_upper = "VEKTOR-ZERO" if level_num == 4 else ("LAMBDA-PRIME" if level_num == 3 else ("CHRONOS-IF" if level_num == 2 else "NULLBYTE"))
-	victory_title.text = "🏆 BOSS DEFEATED: %s SHATTERED!" % b_upper
+	var b_upper = "IGNIS-PY, THE GUARDIAN OF PYTHONIA" if level_num == 5 else ("VEKTOR-ZERO" if level_num == 4 else ("LAMBDA-PRIME" if level_num == 3 else ("CHRONOS-IF" if level_num == 2 else "NULLBYTE")))
+	victory_title.text = "🏆 FINAL BOSS DEFEATED: %s!" % b_upper if level_num == 5 else "🏆 BOSS DEFEATED: %s SHATTERED!" % b_upper
 	acc_value.text = "%.1f%%" % accuracy
 	var mult: float = min(2.0, 1.0 + (max_streak * 0.1))
 	streak_value.text = "%d (x%.1f Max)" % [max_streak, mult]
@@ -582,7 +635,9 @@ func _apply_settings() -> void:
 
 func _on_quit_pressed() -> void:
 	var cur_lvl: int = int(SaveManager.user_profile.get("current_level", 1))
-	if cur_lvl == 4:
+	if cur_lvl == 5:
+		SceneManager.change_scene(SceneManager.WORLD_5)
+	elif cur_lvl == 4:
 		SceneManager.change_scene(SceneManager.WORLD_4)
 	elif cur_lvl == 3:
 		SceneManager.change_scene(SceneManager.WORLD_3)
@@ -590,3 +645,26 @@ func _on_quit_pressed() -> void:
 		SceneManager.change_scene(SceneManager.WORLD_2)
 	else:
 		SceneManager.change_scene(SceneManager.WORLD_1)
+
+func dev_auto_solve_phase() -> void:
+	if is_evaluating or victory_overlay.visible:
+		return
+	if feedback_overlay.visible:
+		_on_next_question_pressed()
+		return
+	var questions: Array = level_data.get("questions", [])
+	if current_question_index >= questions.size():
+		return
+	var q: Dictionary = questions[current_question_index]
+	var q_type: String = q.get("type", "multiple_choice")
+	if q_type == "multiple_choice":
+		current_selected_answer = int(q.get("correct_index", 0))
+	elif q_type == "code_completion":
+		current_selected_answer = str(q.get("correct_answer", ""))
+	elif q_type == "syntax_ordering":
+		selected_ordering.clear()
+		for idx in q.get("correct_sequence", []):
+			selected_ordering.append(int(idx))
+	elif q_type == "bug_hunt":
+		current_selected_answer = int(q.get("correct_line", 0))
+	_on_submit_pressed()
