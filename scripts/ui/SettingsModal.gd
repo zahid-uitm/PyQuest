@@ -33,8 +33,9 @@ signal settings_closed
 
 # Controls & Data
 @onready var check_joystick: CheckBox = %CheckJoystick
+@onready var check_dev_mode: CheckBox = get_node_or_null("%CheckDevMode")
 @onready var account_status_label: Label = %AccountStatusLabel
-@onready var max_progress_btn: Button = %MaxProgressBtn
+@onready var logout_btn: Button = %LogoutBtn
 @onready var reset_progress_btn: Button = %ResetProgressBtn
 @onready var close_btn: Button = %CloseBtn
 
@@ -74,8 +75,15 @@ func _ready() -> void:
 
 	# Connect Controls & Account
 	check_joystick.toggled.connect(_on_joystick_toggled)
-	if max_progress_btn:
-		max_progress_btn.pressed.connect(_on_max_account_pressed)
+	if check_dev_mode:
+		check_dev_mode.toggled.connect(_on_dev_mode_toggled)
+	if SaveManager.has_signal("dev_mode_changed"):
+		SaveManager.dev_mode_changed.connect(func(enabled: bool):
+			if check_dev_mode:
+				check_dev_mode.set_pressed_no_signal(enabled)
+		)
+	if logout_btn:
+		logout_btn.pressed.connect(_on_logout_pressed)
 	reset_progress_btn.pressed.connect(func(): reset_confirm_modal.visible = true)
 	cancel_reset_btn.pressed.connect(func(): reset_confirm_modal.visible = false)
 	confirm_reset_btn.pressed.connect(_on_confirm_reset)
@@ -123,15 +131,21 @@ func load_settings_into_ui() -> void:
 
 	# Controls & Account Values
 	check_joystick.button_pressed = bool(SaveManager.get_setting("show_joystick", true))
+	if check_dev_mode:
+		check_dev_mode.set_pressed_no_signal(SaveManager.is_dev_mode())
 
 	var is_guest: bool = SaveManager.is_guest()
 	var p_name: String = SaveManager.user_profile.get("full_name", "Adventurer Alex")
 	if is_guest:
 		account_status_label.text = "⚔️ Guest Adventurer: %s (Local Storage)" % p_name
 		account_status_label.modulate = Color("#FBBF24")
+		if logout_btn:
+			logout_btn.text = "🔑 Log In / Switch Account"
 	else:
 		account_status_label.text = "☁️ Cloud Synced Account: %s" % p_name
 		account_status_label.modulate = Color("#34D399")
+		if logout_btn:
+			logout_btn.text = "🚪 Log Out"
 
 func _switch_tab(tab_idx: int) -> void:
 	active_tab = tab_idx
@@ -243,33 +257,56 @@ func _on_joystick_toggled(pressed: bool) -> void:
 	if cur_scene and cur_scene.has_node("%VirtualJoystick"):
 		cur_scene.get_node("%VirtualJoystick").visible = pressed
 
-func _on_max_account_pressed() -> void:
-	SaveManager.max_out_profile()
-	account_status_label.text = "⚡ Account Maxed: Level 10 • 5000 XP • All Worlds & Stars Unlocked!"
-	account_status_label.modulate = Color("#34D399")
-	AudioManager.play_sfx()
-	var cur_scene = get_tree().current_scene
-	if cur_scene and cur_scene.has_method("update_dashboard"):
-		cur_scene.update_dashboard()
-	elif cur_scene and cur_scene.has_method("build_map"):
-		cur_scene.build_map()
+func _on_dev_mode_toggled(pressed: bool) -> void:
+	SaveManager.set_dev_mode(pressed)
+
+func _on_logout_pressed() -> void:
+	close_settings()
+	FirebaseManager.logout()
+	SceneManager.change_scene(SceneManager.LOGIN)
 
 func _on_confirm_reset() -> void:
 	reset_confirm_modal.visible = false
-	SaveManager.user_profile["unlocked_level"] = 1
-	SaveManager.user_profile["current_level"] = 1
-	SaveManager.user_profile["level_stars"] = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
-	SaveManager.user_profile["w2_shrines"] = []
-	SaveManager.user_profile["w2_bridges"] = []
-	SaveManager.user_profile["w2_npcs_helped"] = []
-	SaveManager.user_profile["w3_shrines"] = []
-	SaveManager.user_profile["w3_seals"] = []
-	SaveManager.user_profile["w3_npcs_helped"] = []
-	SaveManager.user_profile["w4_shrines"] = []
-	SaveManager.user_profile["w4_gates"] = []
-	SaveManager.user_profile["w4_inventory"] = []
-	SaveManager.user_profile["w4_npcs_helped"] = []
+	
+	# Retain current settings & account name/identity
+	var current_settings = SaveManager.user_profile.get("settings", {}).duplicate(true)
+	var is_guest_user = SaveManager.is_guest()
+	var current_name = SaveManager.user_profile.get("full_name", "Adventurer Alex" if is_guest_user else "Player")
+	
+	# Reset profile to a fresh Level 1 state (0 XP, Level 1, 5 Hint Tokens, W1 unlocked only)
+	var fresh_profile = SaveManager.get_default_profile(is_guest_user)
+	fresh_profile["full_name"] = current_name
+	fresh_profile["settings"] = current_settings
+	
+	# Explicitly wipe all quest data, world states, and chests
+	fresh_profile["xp"] = 0
+	fresh_profile["player_level"] = 1
+	fresh_profile["hint_tokens"] = 5
+	fresh_profile["unlocked_level"] = 1
+	fresh_profile["current_level"] = 1
+	fresh_profile["level_stars"] = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+	fresh_profile["chests_opened"] = []
+	fresh_profile["w1_shrines"] = []
+	fresh_profile["w1_npcs"] = []
+	fresh_profile["w2_shrines"] = []
+	fresh_profile["w2_bridges"] = []
+	fresh_profile["w2_npcs_helped"] = []
+	fresh_profile["w3_shrines"] = []
+	fresh_profile["w3_seals"] = []
+	fresh_profile["w3_npcs_helped"] = []
+	fresh_profile["w4_shrines"] = []
+	fresh_profile["w4_gates"] = []
+	fresh_profile["w4_inventory"] = []
+	fresh_profile["w4_npcs_helped"] = []
+	fresh_profile["w5_seals"] = []
+	fresh_profile["w5_npcs_helped"] = []
+	
+	SaveManager.user_profile = fresh_profile
 	SaveManager.save_local_profile()
+	
+	if not is_guest_user and FirebaseManager.is_authenticated():
+		FirebaseManager.write_player_profile(SaveManager.user_profile)
+		
 	close_settings()
 	SceneManager.change_scene(SceneManager.MAIN_MENU)
 
