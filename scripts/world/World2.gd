@@ -5,8 +5,8 @@ extends Node2D
 @onready var joystick: Control = %VirtualJoystick
 @onready var quest_dialog: Control = %QuestDialogModal
 @onready var quest_text: Label = %QuestText
-@onready var accept_btn: Button = %AcceptButton
-@onready var decline_btn: Button = %DeclineButton
+@onready var accept_btn: Button = get_node_or_null("%AcceptButton")
+@onready var decline_btn: Button = get_node_or_null("%DeclineButton")
 @onready var hud_back_btn: Button = %BackToSelectButton
 @onready var area_title_label: Label = %AreaTitleLabel
 
@@ -62,18 +62,21 @@ const NPCS_DATA: Dictionary = {
 	"npc_keeper_venn": {
 		"name": "Bridge-Keeper Venn • Conditional Engineer",
 		"icon": "🔧",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_engineer.png",
 		"xp": 50,
 		"dialog": "Careful near the chasm edge, Adventurer Alex! Welcome to the Chamber of Conditions!\n\nBoth suspension bridges across the Abyssal Chasm are locked by laser barriers. Walk up to the glowing Bridge Terminals and use Python 'if / else' checks to verify bridge safety:\n  if chasm_stable == True:\n      unlock_bridge()\n\nAlso watch the glowing Floor Rune Traps! When 'trap_armed == True' (Red), stay back; cross only when 'trap_armed == False' (Cyan)! Take this Hint Token and XP!"
 	},
 	"npc_weaver_sera": {
 		"name": "Chrono-Weaver Sera • Mistress of For-Loops",
 		"icon": "⏳",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_scholar.png",
 		"xp": 50,
 		"dialog": "Greetings across the chasm, Alex! In the Southeast Shrine of Counting Loops, we weave time using Python's 'for' loop!\n\nInstead of repeating code manually, use 'range(n)' to execute a block exactly 'n' times:\n  for step in range(4):\n      lay_bridge_plank(step)\n\nRemember: 'range(4)' counts from 0 up to 3 (0, 1, 2, 3—four steps total)! Take this Hint Token for your trials!"
 	},
 	"npc_sentinel_kael": {
 		"name": "Sentinel Kael • Guardian of While-Loops",
 		"icon": "🛡️",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_engineer.png",
 		"xp": 50,
 		"dialog": "Stand firm, coder! Ahead lies the Northeast Shrine of Sentinel Loops, and across the North Bridge waits Chronos-If, The Infinite Loop Warden!\n\nA 'while' loop keeps repeating as long as its condition remains True:\n  while shield_hp > 0:\n      defend_chasm()\n\nAlways update your variable inside a 'while' loop—or use 'break'—otherwise you'll be trapped in an Infinite Loop forever! Take this Hint Token!"
 	}
@@ -318,6 +321,8 @@ func _ready() -> void:
 		lore_modal.visible = false
 	if toast_panel:
 		toast_panel.visible = false
+	if joystick:
+		joystick.visible = bool(SaveManager.get_setting("show_joystick", true))
 
 	# Setup Player Camera bounds & controls
 	if player:
@@ -333,6 +338,11 @@ func _ready() -> void:
 			cam.position_smoothing_speed = 5.0
 
 	# Connect Button Signals
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
+
 	if accept_btn and not accept_btn.pressed.is_connected(_on_accept_quest):
 		accept_btn.pressed.connect(_on_accept_quest)
 	if decline_btn and not decline_btn.pressed.is_connected(_on_close_quest_dialog):
@@ -415,17 +425,17 @@ func _setup_bridge_terminals() -> void:
 			term_area.body_entered.connect(func(body: Node2D):
 				if body.is_in_group("Player"):
 					active_terminal_id = b_id
-					var pr = term_area.get_node_or_null("PromptLabel") as Label
-					if pr:
-						pr.visible = true
+					var pr_in = term_area.get_node_or_null("PromptLabel") as Label
+					if pr_in:
+						pr_in.visible = true
 			)
 			term_area.body_exited.connect(func(body: Node2D):
 				if body.is_in_group("Player"):
 					if active_terminal_id == b_id:
 						active_terminal_id = ""
-					var pr = term_area.get_node_or_null("PromptLabel") as Label
-					if pr:
-						pr.visible = false
+					var pr_out = term_area.get_node_or_null("PromptLabel") as Label
+					if pr_out:
+						pr_out.visible = false
 			)
 			term_area.input_event.connect(func(_vp: Node, ev: InputEvent, _idx: int):
 				if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -438,16 +448,16 @@ func _setup_bridge_terminals() -> void:
 		gate_area.body_entered.connect(func(body: Node2D):
 			if body.is_in_group("Player"):
 				player_at_boss_gate = true
-				var pr = gate_area.get_node_or_null("PromptLabel") as Label
-				if pr:
-					pr.visible = true
+				var pr_g_in = gate_area.get_node_or_null("PromptLabel") as Label
+				if pr_g_in:
+					pr_g_in.visible = true
 		)
 		gate_area.body_exited.connect(func(body: Node2D):
 			if body.is_in_group("Player"):
 				player_at_boss_gate = false
-				var pr = gate_area.get_node_or_null("PromptLabel") as Label
-				if pr:
-					pr.visible = false
+				var pr_g_out = gate_area.get_node_or_null("PromptLabel") as Label
+				if pr_g_out:
+					pr_g_out.visible = false
 		)
 		gate_area.input_event.connect(func(_vp: Node, ev: InputEvent, _idx: int):
 			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -725,22 +735,24 @@ func _on_select_shrine_option(idx: int) -> void:
 		_style_option_btn(btn, i == idx, false, false)
 
 func _on_shrine_action() -> void:
+	if not SHRINES_DATA.has(active_shrine_id):
+		return
+
+	var data: Dictionary = SHRINES_DATA[active_shrine_id]
+	var questions: Array = data.get("questions", [])
+	var total_q: int = questions.size()
+
 	if shrine_question_answered:
-		var data: Dictionary = SHRINES_DATA[active_shrine_id]
-		var questions: Array = data.get("questions", [])
-		if current_shrine_q_idx + 1 < questions.size():
+		if current_shrine_q_idx + 1 < total_q:
 			current_shrine_q_idx += 1
 			_render_current_shrine_question()
 		else:
 			_on_close_shrine_modal()
 		return
 
-	if selected_option_idx < 0 or not SHRINES_DATA.has(active_shrine_id):
+	if selected_option_idx < 0:
 		return
 
-	var data: Dictionary = SHRINES_DATA[active_shrine_id]
-	var questions: Array = data.get("questions", [])
-	var total_q: int = questions.size()
 	var q_data: Dictionary = questions[current_shrine_q_idx]
 	var correct_idx: int = q_data["correct_index"]
 	var children = shrine_options_container.get_children()
@@ -750,19 +762,22 @@ func _on_shrine_action() -> void:
 		_style_option_btn(children[selected_option_idx] as Button, true, true, false)
 
 		if current_shrine_q_idx + 1 < total_q:
+			AudioManager.play_sfx()
 			shrine_feedback_label.text = "✅ Correct! %s" % q_data["explanation"]
 			shrine_feedback_label.add_theme_color_override("font_color", Color(0.35, 1.0, 0.55))
 			shrine_action_btn.text = "Next Question (%d/%d) ➔" % [current_shrine_q_idx + 2, total_q]
 		else:
+			var reward_xp: int = data.get("xp", 100)
 			var is_bridge: bool = active_shrine_id.begins_with("bridge_")
 			if is_bridge:
+				AudioManager.play_bridge_extend()
 				var bridges = _get_unlocked_bridges()
 				if not (active_shrine_id in bridges):
 					bridges.append(active_shrine_id)
 					SaveManager.user_profile["w2_bridges"] = bridges
-					var reward_xp: int = data["xp"]
 					SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + reward_xp
 					SaveManager.save_local_profile()
+					BadgeManager.check_all_badges()
 					shrine_feedback_label.text = "🔓 Bridge Unsealed! (+%d XP) %s" % [reward_xp, q_data["explanation"]]
 					show_toast("🌉 %s Unsealed! (+%d XP)" % [data["title"], reward_xp])
 				else:
@@ -772,13 +787,14 @@ func _on_shrine_action() -> void:
 				_refresh_bridge_states()
 				_update_shrine_tracker(_get_cleared_shrines().size())
 			else:
+				AudioManager.play_shrine_awaken()
 				var cleared = _get_cleared_shrines()
 				if not (active_shrine_id in cleared):
 					cleared.append(active_shrine_id)
 					SaveManager.user_profile["w2_shrines"] = cleared
-					var reward_xp: int = data["xp"]
 					SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + reward_xp
 					SaveManager.save_local_profile()
+					BadgeManager.check_all_badges()
 					shrine_feedback_label.text = "🎉 All %d Trials Passed! +%d XP Earned! %s" % [total_q, reward_xp, q_data["explanation"]]
 					show_toast("✨ %s Awakened! (+%d XP)" % [data["title"], reward_xp])
 				else:
@@ -787,6 +803,7 @@ func _on_shrine_action() -> void:
 				shrine_action_btn.text = "Complete Trial ✨"
 				_refresh_all_shrine_states()
 	else:
+		AudioManager.play_error()
 		_style_option_btn(children[selected_option_idx] as Button, false, false, true)
 		shrine_feedback_label.text = "❌ Not quite! Review the Control Structure Lesson above and try another option."
 		shrine_feedback_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.45))
@@ -814,6 +831,23 @@ func _refresh_all_npc_states() -> void:
 		if npc.has_method("set_rewarded") and "npc_id" in npc:
 			npc.set_rewarded(npc.npc_id in helped)
 
+func _update_dialog_speaker(icon_str: String, name_str: String, portrait_path: String) -> void:
+	if not quest_dialog:
+		return
+	var s_icon = quest_dialog.find_child("SpeakerIcon", true, false) as Label
+	var s_name = quest_dialog.find_child("SpeakerName", true, false) as Label
+	var s_port = quest_dialog.find_child("SpeakerPortrait", true, false) as TextureRect
+	if s_icon:
+		s_icon.text = icon_str
+	if s_name:
+		s_name.text = name_str
+	if s_port and ResourceLoader.exists(portrait_path):
+		s_port.texture = load(portrait_path)
+		s_port.pivot_offset = Vector2(52, 52)
+		s_port.scale = Vector2(0.88, 0.88)
+		var p_tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		p_tw.tween_property(s_port, "scale", Vector2.ONE, 0.25)
+
 func open_npc_dialog(npc_id: String) -> void:
 	if not NPCS_DATA.has(npc_id):
 		return
@@ -825,24 +859,29 @@ func open_npc_dialog(npc_id: String) -> void:
 	if player:
 		player.can_move = false
 
-	var speaker_icon = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerIcon") as Label
-	var speaker_name = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerName") as Label
-	if speaker_icon:
-		speaker_icon.text = data["icon"]
-	if speaker_name:
-		speaker_name.text = data["name"]
+	_update_dialog_speaker(data["icon"], data["name"], data.get("portrait", "res://assets/sprites/portraits/portrait_npc_engineer.png"))
 
-	quest_text.text = data["dialog"]
-	decline_btn.text = "Close"
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
+
+	if quest_text:
+		quest_text.text = data["dialog"]
+	if decline_btn:
+		decline_btn.text = "Close"
 
 	if already_helped:
-		accept_btn.text = "✅ Lesson Claimed"
-		accept_btn.disabled = false
+		if accept_btn:
+			accept_btn.text = "✅ Lesson Claimed"
+			accept_btn.disabled = false
 	else:
-		accept_btn.text = "🎁 Claim +%d XP & +1 Hint" % data["xp"]
-		accept_btn.disabled = false
+		if accept_btn:
+			accept_btn.text = "🎁 Claim +%d XP & +1 Hint" % data["xp"]
+			accept_btn.disabled = false
 
 	quest_dialog.visible = true
+	AudioManager.play_npc_chat()
 
 # ---------------------------------------------------------
 # Treasure Chest Lore System
@@ -884,21 +923,26 @@ func open_quest_dialog() -> void:
 	if player:
 		player.can_move = false
 
-	var speaker_icon = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerIcon") as Label
-	var speaker_name = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerName") as Label
-	if speaker_icon:
-		speaker_icon.text = "🧙‍♂️"
-	if speaker_name:
-		speaker_name.text = "Master PyWizard • Guardian of the Final Seal"
-
 	var cleared = _get_cleared_shrines()
 	var count = cleared.size()
+	if count >= 3:
+		_update_dialog_speaker("⏳", "Chronos-If • The Infinite Loop Warden", "res://assets/sprites/portraits/portrait_chronos.png")
+	else:
+		_update_dialog_speaker("🧙‍♂️", "Master PyWizard • Guardian of the Final Seal", "res://assets/sprites/portraits/portrait_pywizard.png")
+
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
 
 	if count >= 3:
-		quest_text.text = "Magnificent work, Adventurer Alex! All 3 Control-Structure Shrines are awakened and the Chasm Bridges are unsealed!\n\nBeyond this Sanctuary waits CHRONOS-IF, THE INFINITE LOOP WARDEN (500 HP). Use your Python 'if / elif / else' conditions and 'for / while' loops to shatter his Temporal Armor!"
-		accept_btn.text = "⚔️ Fight Boss: Chronos-If"
-		accept_btn.disabled = false
-		decline_btn.text = "Prepare More"
+		if quest_text:
+			quest_text.text = "Magnificent work, Adventurer Alex! All 3 Control-Structure Shrines are awakened and the Chasm Bridges are unsealed!\n\nBeyond this Sanctuary waits CHRONOS-IF, THE INFINITE LOOP WARDEN (500 HP). Use your Python 'if / elif / else' conditions and 'for / while' loops to shatter his Temporal Armor!"
+		if accept_btn:
+			accept_btn.text = "⚔️ Fight Boss: Chronos-If"
+			accept_btn.disabled = false
+		if decline_btn:
+			decline_btn.text = "Prepare More"
 	else:
 		var missing: PackedStringArray = []
 		if not ("shrine_if_else" in cleared):
@@ -908,12 +952,16 @@ func open_quest_dialog() -> void:
 		if not ("shrine_while_loops" in cleared):
 			missing.append("• Shrine of Sentinel Loops (Northeast across Chasm — 4 Questions)")
 
-		quest_text.text = "Halt, young coder! The Boss Sanctuary of Chronos-If is sealed by 3 Ancient Logic Runes (%d/3 Awakened).\n\nUnseal the Chasm Bridges at their Terminals and awaken the remaining Shrines:\n%s" % [count, "\n".join(missing)]
-		accept_btn.text = "🔒 Sealed (%d/3 Runes)" % count
-		accept_btn.disabled = true
-		decline_btn.text = "Explore Chamber"
+		if quest_text:
+			quest_text.text = "Halt, young coder! The Boss Sanctuary of Chronos-If is sealed by 3 Ancient Logic Runes (%d/3 Awakened).\n\nUnseal the Chasm Bridges at their Terminals and awaken the remaining Shrines:\n%s" % [count, "\n".join(missing)]
+		if accept_btn:
+			accept_btn.text = "🔒 Sealed (%d/3 Runes)" % count
+			accept_btn.disabled = true
+		if decline_btn:
+			decline_btn.text = "Explore Chamber"
 
 	quest_dialog.visible = true
+	AudioManager.play_npc_chat()
 
 func _on_accept_quest() -> void:
 	if active_dialog_mode != "boss":
@@ -926,6 +974,7 @@ func _on_accept_quest() -> void:
 			SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + xp_gain
 			SaveManager.user_profile["hint_tokens"] = int(SaveManager.user_profile.get("hint_tokens", 5)) + 1
 			SaveManager.save_local_profile()
+			BadgeManager.check_all_badges()
 			_refresh_all_npc_states()
 			show_toast("🎁 +%d XP & +1 Hint Token from %s!" % [xp_gain, NPCS_DATA[npc_id]["name"].split("•")[0].strip_edges()])
 		_on_close_quest_dialog()

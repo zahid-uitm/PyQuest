@@ -35,13 +35,15 @@ extends Control
 @onready var next_button: Button = $FeedbackOverlay/Center/FeedbackCard/FeedbackVBox/NextButton
 
 @onready var hint_modal_overlay: ColorRect = $HintModalOverlay
-@onready var hint_message: Label = $HintModalOverlay/Center/HintCard/HintVBox/HintMessage
-@onready var close_hint_button: Button = $HintModalOverlay/Center/HintCard/HintVBox/CloseHintButton
+@onready var hint_message: Label = get_node_or_null("HintModalOverlay/Center/HintCard/HintHBox/HintVBox/HintMessage") as Label
+@onready var close_hint_button: Button = get_node_or_null("HintModalOverlay/Center/HintCard/HintHBox/HintVBox/CloseHintButton") as Button
 
 @onready var pause_overlay: ColorRect = $PauseMenuOverlay
 @onready var resume_button: Button = $PauseMenuOverlay/Center/PauseCard/PauseVBox/ResumeButton
 @onready var restart_button: Button = $PauseMenuOverlay/Center/PauseCard/PauseVBox/RestartButton
+@onready var settings_button: Button = get_node_or_null("PauseMenuOverlay/Center/PauseCard/PauseVBox/SettingsButton")
 @onready var quit_button: Button = $PauseMenuOverlay/Center/PauseCard/PauseVBox/QuitButton
+@onready var settings_modal: Control = get_node_or_null("SettingsModal")
 
 @onready var victory_overlay: ColorRect = $VictoryOverlay
 @onready var victory_title: Label = $VictoryOverlay/Center/VictoryCard/VictoryVBox/VictoryTitle
@@ -73,6 +75,7 @@ var selected_ordering: Array[int] = []
 var mcq_option_buttons: Array[Button] = []
 var is_evaluating: bool = false
 var last_answer_correct: bool = false
+var _hints_used_this_battle: int = 0
 
 func _ready() -> void:
 	feedback_overlay.visible = false
@@ -85,18 +88,34 @@ func _ready() -> void:
 	restart_button.pressed.connect(_on_restart_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 
-	next_button.pressed.connect(_on_next_question_pressed)
-	hint_button.pressed.connect(_on_hint_pressed)
-	ask_wizard_button.pressed.connect(_on_hint_pressed)
-	close_hint_button.pressed.connect(_on_close_hint_pressed)
+	if settings_button and settings_modal:
+		settings_button.pressed.connect(_on_settings_pressed)
+		settings_modal.settings_closed.connect(_apply_settings)
+	_apply_settings()
 
-	submit_button.pressed.connect(_on_submit_pressed)
-	replay_button.pressed.connect(_on_restart_pressed)
-	level_select_btn.pressed.connect(_on_quit_pressed)
+	if not hint_message:
+		hint_message = find_child("HintMessage", true, false) as Label
+	if not close_hint_button:
+		close_hint_button = find_child("CloseHintButton", true, false) as Button
 
-	var cur_lvl = SaveManager.user_profile.get("current_level", 1)
-	var bgm_path = "res://assets/audio/world%d_music.mp3" % clampi(int(cur_lvl), 1, 4)
-	AudioManager.play_bgm_by_path(bgm_path)
+	if next_button and not next_button.pressed.is_connected(_on_next_question_pressed):
+		next_button.pressed.connect(_on_next_question_pressed)
+	if hint_button and not hint_button.pressed.is_connected(_on_hint_pressed):
+		hint_button.pressed.connect(_on_hint_pressed)
+	if ask_wizard_button and not ask_wizard_button.pressed.is_connected(_on_hint_pressed):
+		ask_wizard_button.pressed.connect(_on_hint_pressed)
+	if close_hint_button and not close_hint_button.pressed.is_connected(_on_close_hint_pressed):
+		close_hint_button.pressed.connect(_on_close_hint_pressed)
+
+	if submit_button and not submit_button.pressed.is_connected(_on_submit_pressed):
+		submit_button.pressed.connect(_on_submit_pressed)
+	if replay_button and not replay_button.pressed.is_connected(_on_restart_pressed):
+		replay_button.pressed.connect(_on_restart_pressed)
+	if level_select_btn and not level_select_btn.pressed.is_connected(_on_quit_pressed):
+		level_select_btn.pressed.connect(_on_quit_pressed)
+
+	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
+	AudioManager.play_boss_theme(cur_lvl)
 	var path = "res://data/" + "question_level%d.json" % cur_lvl
 	if not FileAccess.file_exists(path):
 		path = "res://data/question_level1.json"
@@ -143,6 +162,9 @@ func start_level() -> void:
 
 	if visual_stage and visual_stage.has_method("reset_stage"):
 		visual_stage.reset_stage()
+
+	var cur_lvl = int(level_data.get("level_id", SaveManager.user_profile.get("current_level", 1)))
+	AudioManager.play_boss_theme(cur_lvl)
 
 	update_hud()
 	display_question()
@@ -358,6 +380,8 @@ func _on_submit_pressed() -> void:
 			first_try_correct += 1
 		streak += 1
 		max_streak = max(max_streak, streak)
+		if streak >= 5:
+			BadgeManager.check_all_badges({"code_streak": streak})
 		var mult: float = min(2.0, 1.0 + (streak * 0.1))
 		var earned_pts: int = roundi(100.0 * mult)
 		var earned_xp: int = roundi(50.0 * mult)
@@ -373,6 +397,7 @@ func _on_submit_pressed() -> void:
 	else:
 		streak = 0
 		update_hud()
+		AudioManager.play_error()
 		if visual_stage and visual_stage.has_method("play_incorrect_action"):
 			await visual_stage.play_incorrect_action()
 
@@ -418,6 +443,7 @@ func _on_next_question_pressed() -> void:
 	display_question()
 
 func _on_hint_pressed() -> void:
+	_hints_used_this_battle += 1
 	var tokens: int = int(SaveManager.user_profile.get("hint_tokens", 5))
 	var q: Dictionary = level_data.get("questions", [])[current_question_index]
 
@@ -439,11 +465,25 @@ func _on_hint_pressed() -> void:
 					mcq_option_buttons[i].text = "❌ " + mcq_option_buttons[i].text
 					break
 
-		hint_message.text = q.get("hint", "Master PyWizard says: Check your variable assignment syntax.")
+		if hint_message:
+			hint_message.text = q.get("hint", "Master PyWizard says: Check your variable assignment syntax.")
 	else:
-		hint_message.text = "You have exhausted your hint tokens for this expedition! Trust your Python instincts."
+		if hint_message:
+			hint_message.text = "You have exhausted your hint tokens for this expedition! Trust your Python instincts."
 
 	hint_modal_overlay.visible = true
+	var hint_card = hint_modal_overlay.find_child("HintCard", true, false) as Control
+	if hint_card:
+		hint_card.scale = Vector2(0.92, 0.92)
+		hint_card.pivot_offset = hint_card.size / 2.0
+		var tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(hint_card, "scale", Vector2.ONE, 0.25)
+	var wiz_port = hint_modal_overlay.find_child("SpeakerPortrait", true, false) as TextureRect
+	if wiz_port:
+		wiz_port.scale = Vector2(0.85, 0.85)
+		wiz_port.pivot_offset = wiz_port.size / 2.0
+		var p_tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		p_tw.tween_property(wiz_port, "scale", Vector2.ONE, 0.28)
 
 func _on_close_hint_pressed() -> void:
 	hint_modal_overlay.visible = false
@@ -473,6 +513,10 @@ func finish_level() -> void:
 	# Update stats in SaveManager
 	var level_num: int = int(level_data.get("level_id", 1))
 	SaveManager.record_level_completion(level_num, final_score, total_xp, stars)
+	BadgeManager.check_all_badges({
+		"no_hints_used": (_hints_used_this_battle == 0),
+		"code_streak": max_streak
+	})
 
 	# Populate Victory Overlay
 	var b_upper = "VEKTOR-ZERO" if level_num == 4 else ("LAMBDA-PRIME" if level_num == 3 else ("CHRONOS-IF" if level_num == 2 else "NULLBYTE"))
@@ -518,6 +562,23 @@ func _on_resume_pressed() -> void:
 
 func _on_restart_pressed() -> void:
 	start_level()
+
+func _on_settings_pressed() -> void:
+	if settings_modal and settings_modal.has_method("open_settings"):
+		settings_modal.open_settings()
+
+func _apply_settings() -> void:
+	var font_size_key: String = str(SaveManager.get_setting("code_font_size", "medium"))
+	var px: int = 14
+	if font_size_key == "small":
+		px = 12
+	elif font_size_key == "large":
+		px = 18
+	if code_label:
+		code_label.add_theme_font_size_override("normal_font_size", px)
+		code_label.add_theme_font_size_override("bold_font_size", px)
+		code_label.add_theme_font_size_override("italics_font_size", px)
+		code_label.add_theme_font_size_override("mono_font_size", px)
 
 func _on_quit_pressed() -> void:
 	var cur_lvl: int = int(SaveManager.user_profile.get("current_level", 1))

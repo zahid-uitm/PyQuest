@@ -79,6 +79,8 @@ const LEVELS_DATA = [
 @onready var back_button: Button = $HeaderPanel/Header/BackButton
 @onready var progress_label: Label = $HeaderPanel/Header/ProgressLabel
 @onready var stars_total_label: Label = $HeaderPanel/Header/StarsTotalLabel
+@onready var badges_btn: Button = get_node_or_null("%BadgesButton")
+@onready var badges_modal: Control = get_node_or_null("BadgesModal")
 
 # Map Canvas Nodes
 @onready var map_canvas: Control = $MapArea/MapCanvas
@@ -109,10 +111,20 @@ var is_alex_hopping: bool = false
 var energy_pulse_t: float = 0.0
 
 func _ready() -> void:
+	AudioManager.play_bgm_by_path("res://assets/audio/mainmenu_music.mp3", 0.01)
 	modal_overlay.visible = false
 	back_button.pressed.connect(_on_back_button_pressed)
 	modal_close_btn.pressed.connect(_on_close_modal)
 	modal_travel_btn.pressed.connect(_on_confirm_travel)
+
+	if badges_btn:
+		badges_btn.pressed.connect(func():
+			if badges_modal and badges_modal.has_method("open_modal"):
+				badges_modal.open_modal()
+		)
+		var unl = BadgeManager.get_unlocked_count()
+		var tot = BadgeManager.get_total_badges()
+		badges_btn.text = "🏆 Badges: %d/%d" % [unl, tot]
 
 	path_drawer.draw.connect(_on_draw_saga_road)
 
@@ -316,13 +328,19 @@ func _hop_alex_to_level(target_level_num: int) -> void:
 func _on_draw_saga_road() -> void:
 	var unlocked_level: int = int(SaveManager.user_profile.get("unlocked_level", 1))
 
+	var p0: Vector2
+	var p3: Vector2
+	var mid_x: float
+	var p1: Vector2
+	var p2: Vector2
+
 	var full_curve_points: Array[Vector2] = []
 	for i in range(LEVELS_DATA.size() - 1):
-		var p0 = LEVELS_DATA[i]["pos"]
-		var p3 = LEVELS_DATA[i + 1]["pos"]
-		var mid_x = (p0.x + p3.x) * 0.5
-		var p1 = Vector2(mid_x, p0.y)
-		var p2 = Vector2(mid_x, p3.y)
+		p0 = LEVELS_DATA[i]["pos"]
+		p3 = LEVELS_DATA[i + 1]["pos"]
+		mid_x = (p0.x + p3.x) * 0.5
+		p1 = Vector2(mid_x, p0.y)
+		p2 = Vector2(mid_x, p3.y)
 
 		var seg_points = _sample_cubic_bezier(p0, p1, p2, p3, 28)
 		if i > 0 and seg_points.size() > 0:
@@ -334,11 +352,11 @@ func _on_draw_saga_road() -> void:
 
 	# Draw each segment connecting landmarks
 	for i in range(LEVELS_DATA.size() - 1):
-		var p0 = LEVELS_DATA[i]["pos"]
-		var p3 = LEVELS_DATA[i + 1]["pos"]
-		var mid_x = (p0.x + p3.x) * 0.5
-		var p1 = Vector2(mid_x, p0.y)
-		var p2 = Vector2(mid_x, p3.y)
+		p0 = LEVELS_DATA[i]["pos"]
+		p3 = LEVELS_DATA[i + 1]["pos"]
+		mid_x = (p0.x + p3.x) * 0.5
+		p1 = Vector2(mid_x, p0.y)
+		p2 = Vector2(mid_x, p3.y)
 		var seg = _sample_cubic_bezier(p0, p1, p2, p3, 28)
 
 		var is_seg_unlocked = (i + 1) < unlocked_level
@@ -486,12 +504,12 @@ func _create_tactile_landmark_node(info: Dictionary, is_unlocked: bool, is_curre
 	btn.add_theme_stylebox_override("hover", style_hover)
 
 	btn.mouse_entered.connect(func():
-		var tween = root.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tween.tween_property(root, "scale", Vector2(1.15, 1.15), 0.2)
+		var tw_hover = root.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw_hover.tween_property(root, "scale", Vector2(1.15, 1.15), 0.2)
 	)
 	btn.mouse_exited.connect(func():
-		var tween = root.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.tween_property(root, "scale", Vector2(1.0, 1.0), 0.22)
+		var tw_exit = root.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tw_exit.tween_property(root, "scale", Vector2(1.0, 1.0), 0.22)
 	)
 
 	btn.pressed.connect(func():

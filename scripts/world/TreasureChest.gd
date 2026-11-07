@@ -58,6 +58,7 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
 func _trigger_chest() -> void:
 	if not is_opened:
 		is_opened = true
+		AudioManager.play_chest_open()
 		_play_open_animation()
 		
 		# Save opened state
@@ -67,6 +68,8 @@ func _trigger_chest() -> void:
 		if chest_id not in chests:
 			chests.append(chest_id)
 		SaveManager.user_profile["opened_chests"] = chests
+		SaveManager.user_profile["chests_opened"] = chests
+		BadgeManager.check_all_badges()
 		
 		# Award XP
 		var cur_xp = int(SaveManager.user_profile.get("xp", 0)) + xp_reward

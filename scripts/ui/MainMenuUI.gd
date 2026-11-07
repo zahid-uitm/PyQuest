@@ -6,12 +6,16 @@ extends Control
 @onready var xp_progress_bar: ProgressBar = $HangingSignboard/WoodPlank/PlankVBox/XPContainer/XPProgressBar
 @onready var hanging_signboard: Control = get_node_or_null("HangingSignboard")
 @onready var title_logo: TextureRect = get_node_or_null("TitleLogo")
+@onready var settings_modal: Control = get_node_or_null("SettingsModal")
+@onready var badges_modal: Control = get_node_or_null("BadgesModal")
 
 func _ready() -> void:
-	AudioManager.play_bgm_by_path("res://pyquest_audio_mainmenu.mp3", 0.01)
+	AudioManager.play_bgm_by_path("res://assets/audio/mainmenu_music.mp3", 0.01)
 	update_dashboard()
 	_start_hanging_sign_sway()
 	_start_title_bob()
+	if settings_modal and settings_modal.has_signal("settings_closed"):
+		settings_modal.settings_closed.connect(update_dashboard)
 
 func _start_title_bob() -> void:
 	if not title_logo:
@@ -69,6 +73,14 @@ func _on_continue_quest_button_pressed() -> void:
 
 func _on_level_select_button_pressed() -> void:
 	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+
+func _on_badges_button_pressed() -> void:
+	if badges_modal and badges_modal.has_method("open_modal"):
+		badges_modal.open_modal()
+
+func _on_settings_button_pressed() -> void:
+	if settings_modal and settings_modal.has_method("open_settings"):
+		settings_modal.open_settings()
 
 func _on_logout_button_pressed() -> void:
 	FirebaseManager.logout()

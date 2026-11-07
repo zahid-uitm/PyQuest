@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://cntgqrjq7m4q5" path="res://assets/sprites/custom/boss_warden_sheet.png" id="22_boss_warden"]
 [ext_resource type="Texture2D" uid="uid://cys88hmrsl7h1" path="res://assets/sprites/custom/laser_barrier.png" id="23_laser_barrier"]
 [ext_resource type="Texture2D" uid="uid://dr3skanephncq" path="res://assets/sprites/custom/condition_trap_sheet.png" id="24_trap_sheet"]
+[ext_resource type="Texture2D" uid="uid://c82xhaibdg245" path="res://assets/sprites/portraits/portrait_pywizard.png" id="portrait_pywizard_res"]
 
 [sub_resource type="Shader" id="Shader_chasm_flow"]
 code = "shader_type canvas_item;
@@ -87,11 +88,11 @@ size = Vector2(390, 290)
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.5, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bridge_lock"]
-size = Vector2(44, 150)
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_terminal"]
 radius = 52.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bridge_lock"]
+size = Vector2(44, 150)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_btn"]
 content_margin_left = 14.0
@@ -170,6 +171,24 @@ corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 shadow_size = 12
 shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.08, 0.16, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96, 0.62, 0.04, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_decline_btn"]
 content_margin_left = 20.0
@@ -408,13 +427,13 @@ theme_override_font_sizes/font_size = 14
 text = "⛩️ Chronos-If's Temporal Sanctuary"
 horizontal_alignment = 1
 
-[node name="GateArea" type="Area2D" parent="YSortEntities/TrialGate"]
+[node name="GateArea" type="Area2D" parent="YSortEntities/TrialGate" unique_id=1604122561]
 collision_layer = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/TrialGate/GateArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSortEntities/TrialGate/GateArea" unique_id=146152125]
 shape = SubResource("CircleShape2D_terminal")
 
-[node name="PromptLabel" type="Label" parent="YSortEntities/TrialGate/GateArea"]
+[node name="PromptLabel" type="Label" parent="YSortEntities/TrialGate/GateArea" unique_id=1865084751]
 visible = false
 offset_left = -125.0
 offset_top = 42.0
@@ -630,14 +649,18 @@ rune_color = Color(0.98, 0.78, 0.25, 1)
 [node name="Chest1" parent="YSortEntities/Chests" unique_id=441421559 instance=ExtResource("11_chest")]
 position = Vector2(275, 535)
 chest_id = "w2_chest_indent"
+xp_reward = null
 lore_title = "The Law of Indentation"
 lore_text = "Ancient Rule of Python: Unlike other languages that use curly braces {}, Python uses 4 spaces of indentation to define every code block inside an 'if', 'elif', 'else', 'for', or 'while' statement!"
+is_opened = null
 
 [node name="Chest2" parent="YSortEntities/Chests" unique_id=863322852 instance=ExtResource("11_chest")]
 position = Vector2(1690, 1135)
 chest_id = "w2_chest_logic"
+xp_reward = null
 lore_title = "Logical Operators: and, or, not"
 lore_text = "Ancient Rule of Python: Combine conditions with 'and' (both True), 'or' (at least one True), and 'not' (inverts True/False) to build powerful multi-condition checks!"
+is_opened = null
 
 [node name="Slimes" type="Node2D" parent="YSortEntities" unique_id=1779041116]
 
@@ -839,30 +862,48 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="DialogCard" type="PanelContainer" parent="UILayer/QuestDialogModal/Center" unique_id=1312380264]
-custom_minimum_size = Vector2(580, 0)
+custom_minimum_size = Vector2(660, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_dialog_card")
 
-[node name="DialogVBox" type="VBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard" unique_id=1134708892]
+[node name="DialogHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard" unique_id=572982306]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="PortraitFrame" type="PanelContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox" unique_id=567917159]
+custom_minimum_size = Vector2(116, 116)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="SpeakerPortrait" type="TextureRect" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/PortraitFrame" unique_id=146827333]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+texture = ExtResource("portrait_pywizard_res")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialogVBox" type="VBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox" unique_id=1134708892]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="SpeakerHeader" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox" unique_id=1206662587]
+[node name="SpeakerHeader" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox" unique_id=1206662587]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="SpeakerIcon" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader" unique_id=107436002]
+[node name="SpeakerIcon" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/SpeakerHeader" unique_id=107436002]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "🧙‍♂️"
 
-[node name="SpeakerName" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader" unique_id=455854228]
+[node name="SpeakerName" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/SpeakerHeader" unique_id=455854228]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.88, 1, 1)
 theme_override_font_sizes/font_size = 18
 text = "Master PyWizard"
 
-[node name="QuestText" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox" unique_id=1082091126]
+[node name="QuestText" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox" unique_id=1082091126]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 0.98, 1)
@@ -870,12 +911,12 @@ theme_override_font_sizes/font_size = 15
 text = "Greetings, Adventurer Alex!..."
 autowrap_mode = 2
 
-[node name="ButtonsHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox" unique_id=681335481]
+[node name="ButtonsHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox" unique_id=681335481]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 2
 
-[node name="DeclineButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox" unique_id=2045063235]
+[node name="DeclineButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/ButtonsHBox" unique_id=2045063235]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(130, 44)
 layout_mode = 2
@@ -885,7 +926,7 @@ theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_decline_btn")
 text = "Explore More"
 
-[node name="AcceptButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox" unique_id=1542478677]
+[node name="AcceptButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/ButtonsHBox" unique_id=1542478677]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 2

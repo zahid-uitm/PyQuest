@@ -18,6 +18,15 @@ var user_profile: Dictionary = {
 		"3": 0,
 		"4": 0,
 		"5": 0
+	},
+	"settings": {
+		"master_volume": 1.0,
+		"music_volume": 0.8,
+		"sfx_volume": 1.0,
+		"code_font_size": "medium",
+		"screen_shake": true,
+		"screen_flash": true,
+		"show_joystick": true
 	}
 }
 
@@ -49,6 +58,15 @@ func get_default_profile(is_guest_account: bool = true) -> Dictionary:
 			"3": 0,
 			"4": 0,
 			"5": 0
+		},
+		"settings": {
+			"master_volume": 1.0,
+			"music_volume": 0.8,
+			"sfx_volume": 1.0,
+			"code_font_size": "medium",
+			"screen_shake": true,
+			"screen_flash": true,
+			"show_joystick": true
 		}
 	}
 
@@ -138,8 +156,64 @@ func record_level_completion(level_num: int, added_score: int, added_xp: int, st
 	if not is_guest() and FirebaseManager.is_authenticated():
 		FirebaseManager.write_player_profile(user_profile)
 
+	if Engine.has_singleton("BadgeManager") or get_node_or_null("/root/BadgeManager"):
+		get_node("/root/BadgeManager").check_all_badges()
+
 # Clears local cache
 func clear_profile() -> void:
 	user_profile = get_default_profile(true)
 	if FileAccess.file_exists(SAVE_PATH):
 		DirAccess.remove_absolute(SAVE_PATH)
+
+# Sets all stats to maximum: all 4 levels unlocked, 3 stars each, level 10, 5000 XP, 99 hint tokens, all shrines awakened and all bosses playable
+func max_out_profile() -> void:
+	user_profile["unlocked_level"] = 4
+	user_profile["player_level"] = 10
+	user_profile["xp"] = 5000
+	user_profile["hint_tokens"] = 99
+	user_profile["current_level"] = 4
+	user_profile["level_stars"] = {
+		"1": 3,
+		"2": 3,
+		"3": 3,
+		"4": 3,
+		"5": 3
+	}
+
+	# World 1: All Shrines Awakened & All NPCs Consulted
+	user_profile["w1_shrines"] = ["shrine_numbers", "shrine_strings", "shrine_booleans"]
+	user_profile["w1_npcs"] = ["npc_farmer_bob", "npc_blacksmith_dan", "npc_alchemist_elena"]
+
+	# World 2: All Shrines Awakened, All Chasm Bridges Unsealed, All NPCs Consulted
+	user_profile["w2_shrines"] = ["shrine_if_else", "shrine_for_loops", "shrine_while_loops"]
+	user_profile["w2_bridges"] = ["bridge_chasm_left", "bridge_chasm_right"]
+	user_profile["w2_npcs_helped"] = ["npc_keeper_venn", "npc_weaver_sera", "npc_sentinel_kael"]
+
+	# World 3: All Shrines Awakened, All Vault Seals Broken, All NPCs Consulted
+	user_profile["w3_shrines"] = ["shrine_def", "shrine_params", "shrine_return"]
+	user_profile["w3_seals"] = ["seal_west", "seal_east"]
+	user_profile["w3_npcs_helped"] = ["npc_archivist_def", "npc_artificer_param", "npc_oracle_ret"]
+
+	# World 4: All Shrines Awakened, All Crypt Portcullis Gates Raised, All Relics Collected, All NPCs Consulted
+	user_profile["w4_shrines"] = ["shrine_indexing", "shrine_mutation", "shrine_sequences"]
+	user_profile["w4_gates"] = ["gate_west", "gate_east"]
+	user_profile["w4_inventory"] = ["skull_key", "jade_urn", "soul_gem"]
+	user_profile["w4_npcs_helped"] = ["npc_curator_idx", "npc_warden_mut", "npc_seers_seq"]
+
+	save_local_profile()
+	if not is_guest() and FirebaseManager.is_authenticated():
+		FirebaseManager.write_player_profile(user_profile)
+
+func get_setting(key: String, fallback = null):
+	var settings = user_profile.get("settings", {})
+	if typeof(settings) == TYPE_DICTIONARY and settings.has(key):
+		return settings[key]
+	return fallback
+
+func set_setting(key: String, val) -> void:
+	var settings = user_profile.get("settings", {})
+	if typeof(settings) != TYPE_DICTIONARY:
+		settings = {}
+	settings[key] = val
+	user_profile["settings"] = settings
+	save_local_profile()

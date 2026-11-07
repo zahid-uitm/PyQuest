@@ -5,8 +5,8 @@ extends Node2D
 @onready var joystick: Control = %VirtualJoystick
 @onready var quest_dialog: Control = %QuestDialogModal
 @onready var quest_text: Label = %QuestText
-@onready var accept_btn: Button = %AcceptButton
-@onready var decline_btn: Button = %DeclineButton
+@onready var accept_btn: Button = get_node_or_null("%AcceptButton")
+@onready var decline_btn: Button = get_node_or_null("%DeclineButton")
 @onready var hud_back_btn: Button = %BackToSelectButton
 @onready var area_title_label: Label = %AreaTitleLabel
 
@@ -57,18 +57,21 @@ const NPCS_DATA: Dictionary = {
 	"npc_farmer_bob": {
 		"name": "Farmer Bob • Harvest Variable Keeper",
 		"icon": "🌾",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_farmer.png",
 		"xp": 40,
 		"dialog": "Howdy, Adventurer Alex! Welcome to Variable Valley!\n\nOut here on the farm, I store my harvest counts inside Python variables like:\n  wheat_bushels = 120\n  apple_price = 2.50\n\nRemember my golden rule: Variable names can use letters, numbers, and underscores (_), but they can NEVER start with a number or have spaces! Take this Hint Token and XP for the road!"
 	},
 	"npc_scout_lyra": {
 		"name": "Scout Lyra • Royal String Pathfinder",
 		"icon": "🏹",
+		"portrait": "res://assets/sprites/portraits/portrait_alex.png",
 		"xp": 40,
 		"dialog": "Well met by the river, Alex! I've been charting the Southeast Shrine of Words.\n\nWhenever you store text in Python—called a 'str' (string)—you MUST wrap it in single or double quotes:\n  realm = 'Pythonia'\n  print(realm)\n\nIf you forget the quotes, Python thinks the word is another variable name and throws a NameError! Here, take a Hint Token for your journey!"
 	},
 	"npc_blacksmith_torin": {
 		"name": "Runesmith Torin • Master of Boolean Logic",
 		"icon": "🔨",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_engineer.png",
 		"xp": 40,
 		"dialog": "Hail, young coder! Hear the ring of my anvil? In the Northeast Shrine of Truth, only pure Boolean logic survives!\n\nA 'bool' variable holds only two states: True or False—and their first letter MUST be capitalized!\nComparisons forge booleans automatically:\n  shield_power = 80\n  is_strong = shield_power > 50  # Evaluates to True!\n\nAwaken all 3 Shrines to unseal the Northern Boss Gate, where NullByte the Golem awaits!"
 	}
@@ -249,6 +252,8 @@ func _ready() -> void:
 		lore_modal.visible = false
 	if toast_panel:
 		toast_panel.visible = false
+	if joystick:
+		joystick.visible = bool(SaveManager.get_setting("show_joystick", true))
 		
 	# Setup Player Camera bounds & controls
 	if player:
@@ -264,6 +269,11 @@ func _ready() -> void:
 			cam.position_smoothing_speed = 5.0
 			
 	# Connect Button Signals
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
+
 	if accept_btn and not accept_btn.pressed.is_connected(_on_accept_quest):
 		accept_btn.pressed.connect(_on_accept_quest)
 	if decline_btn and not decline_btn.pressed.is_connected(_on_close_quest_dialog):
@@ -501,10 +511,12 @@ func _on_shrine_action() -> void:
 		shrine_feedback_label.modulate = Color(0.3, 1.0, 0.5)
 		
 		if current_shrine_q_idx < total_q - 1:
+			AudioManager.play_sfx()
 			shrine_action_btn.text = "Next Question (%d/%d) ➔" % [current_shrine_q_idx + 2, total_q]
 			shrine_action_btn.disabled = false
 		else:
 			# Final question of the shrine completed!
+			AudioManager.play_shrine_awaken()
 			shrine_action_btn.text = "✓ Complete Shrine"
 			shrine_action_btn.disabled = false
 			
@@ -518,6 +530,7 @@ func _on_shrine_action() -> void:
 				SaveManager.user_profile["xp"] = cur_xp
 				SaveManager.user_profile["player_level"] = max(1, int(cur_xp / 500) + 1)
 				SaveManager.save_local_profile()
+				BadgeManager.check_all_badges()
 				
 				_refresh_all_shrine_states()
 				if cleared.size() >= 3:
@@ -525,6 +538,7 @@ func _on_shrine_action() -> void:
 				else:
 					show_toast("✦ %s Awakened! (%d/3 Runes) +%d XP" % [s_data["title"], cleared.size(), earned_xp])
 	else:
+		AudioManager.play_error()
 		shrine_feedback_label.text = "❌ Not quite! " + q_data["explanation"]
 		shrine_feedback_label.modulate = Color(1.0, 0.4, 0.4)
 
@@ -554,6 +568,23 @@ func _refresh_all_npc_states() -> void:
 		if npc.has_method("set_rewarded") and "npc_id" in npc:
 			npc.set_rewarded(npc.npc_id in talked)
 
+func _update_dialog_speaker(icon_str: String, name_str: String, portrait_path: String) -> void:
+	if not quest_dialog:
+		return
+	var s_icon = quest_dialog.find_child("SpeakerIcon", true, false) as Label
+	var s_name = quest_dialog.find_child("SpeakerName", true, false) as Label
+	var s_port = quest_dialog.find_child("SpeakerPortrait", true, false) as TextureRect
+	if s_icon:
+		s_icon.text = icon_str
+	if s_name:
+		s_name.text = name_str
+	if s_port and ResourceLoader.exists(portrait_path):
+		s_port.texture = load(portrait_path)
+		s_port.pivot_offset = Vector2(52, 52)
+		s_port.scale = Vector2(0.88, 0.88)
+		var p_tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		p_tw.tween_property(s_port, "scale", Vector2.ONE, 0.25)
+
 func open_npc_dialog(npc_id: String) -> void:
 	if not NPCS_DATA.has(npc_id):
 		return
@@ -567,24 +598,24 @@ func open_npc_dialog(npc_id: String) -> void:
 	if joystick:
 		joystick.visible = false
 		
-	var speaker_icon = quest_dialog.get_node_or_null("Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerIcon") as Label
-	var speaker_name = quest_dialog.get_node_or_null("Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerName") as Label
-	if speaker_icon:
-		speaker_icon.text = n_data["icon"]
-	if speaker_name:
-		speaker_name.text = n_data["name"]
+	_update_dialog_speaker(n_data["icon"], n_data["name"], n_data.get("portrait", "res://assets/sprites/portraits/portrait_npc_scholar.png"))
 		
-	quest_text.text = n_data["dialog"]
-	decline_btn.text = "Close"
+	if quest_text:
+		quest_text.text = n_data["dialog"]
+	if decline_btn:
+		decline_btn.text = "Close"
 	
 	if already_claimed:
-		accept_btn.text = "✓ Wisdom Claimed"
-		accept_btn.disabled = true
+		if accept_btn:
+			accept_btn.text = "✓ Wisdom Claimed"
+			accept_btn.disabled = true
 	else:
-		accept_btn.text = "🎁 Claim +%d XP & +1 Hint" % int(n_data["xp"])
-		accept_btn.disabled = false
+		if accept_btn:
+			accept_btn.text = "🎁 Claim +%d XP & +1 Hint" % int(n_data["xp"])
+			accept_btn.disabled = false
 		
 	if quest_dialog:
+		AudioManager.play_npc_chat()
 		quest_dialog.visible = true
 		var card = quest_dialog.get_node_or_null("Center/DialogCard")
 		if card:
@@ -652,13 +683,6 @@ func open_quest_dialog() -> void:
 	if joystick:
 		joystick.visible = false
 		
-	var speaker_icon = quest_dialog.get_node_or_null("Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerIcon") as Label
-	var speaker_name = quest_dialog.get_node_or_null("Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerName") as Label
-	if speaker_icon:
-		speaker_icon.text = "🧙‍♂️"
-	if speaker_name:
-		speaker_name.text = "Master PyWizard • Guardian of the Final Shrine"
-		
 	var cleared = _get_cleared_shrines()
 	var raw_stars = SaveManager.user_profile.get("level_stars", {})
 	var stars: int = 0
@@ -666,20 +690,35 @@ func open_quest_dialog() -> void:
 		stars = int(raw_stars.get("1", 0))
 	elif typeof(raw_stars) == TYPE_ARRAY and raw_stars.size() > 0:
 		stars = int(raw_stars[0])
+
+	if stars > 0 or cleared.size() >= 3:
+		_update_dialog_speaker("👾", "NullByte • The Glitched Obsidian Golem", "res://assets/sprites/portraits/portrait_nullbyte.png")
+	else:
+		_update_dialog_speaker("🧙‍♂️", "Master PyWizard • Guardian of the Final Shrine", "res://assets/sprites/portraits/portrait_pywizard.png")
 		
-	decline_btn.text = "Return to Valley"
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
+
+	if decline_btn:
+		decline_btn.text = "Return to Valley"
 	
 	if stars > 0:
 		var stars_str = ""
 		for s in range(3):
 			stars_str += "★" if s < stars else "☆"
-		quest_text.text = "Hail, Champion Alex!\nYou have defeated NullByte, the Glitched Variable Golem (Rating: %s)!\n\nWould you like to re-enter the Final Boss Shrine to sharpen your Python spells and achieve a higher score?" % stars_str
-		accept_btn.text = "⚔️ Rematch Boss: NullByte"
-		accept_btn.disabled = false
+		if quest_text:
+			quest_text.text = "Hail, Champion Alex!\nYou have defeated NullByte, the Glitched Variable Golem (Rating: %s)!\n\nWould you like to re-enter the Final Boss Shrine to sharpen your Python spells and achieve a higher score?" % stars_str
+		if accept_btn:
+			accept_btn.text = "⚔️ Rematch Boss: NullByte"
+			accept_btn.disabled = false
 	elif cleared.size() >= 3:
-		quest_text.text = "Magnificent work, Adventurer Alex!\n\nAll 3 Elemental Shrines (Numbers, Words, and Truth) have been awakened! Their runes have shattered the barrier sealing the Final Shrine!\n\nInside awaits NULLBYTE, THE GLITCHED VARIABLE GOLEM. Cast your Python code spells to deplete its HP and unlock Chapter 2!"
-		accept_btn.text = "⚔️ Fight Boss: NullByte Golem!"
-		accept_btn.disabled = false
+		if quest_text:
+			quest_text.text = "Magnificent work, Adventurer Alex!\n\nAll 3 Elemental Shrines (Numbers, Words, and Truth) have been awakened! Their runes have shattered the barrier sealing the Final Shrine!\n\nInside awaits NULLBYTE, THE GLITCHED VARIABLE GOLEM. Cast your Python code spells to deplete its HP and unlock Chapter 2!"
+		if accept_btn:
+			accept_btn.text = "⚔️ Fight Boss: NullByte Golem!"
+			accept_btn.disabled = false
 	else:
 		var missing: Array = []
 		if "shrine_numbers" not in cleared:
@@ -689,11 +728,14 @@ func open_quest_dialog() -> void:
 		if "shrine_booleans" not in cleared:
 			missing.append("• 🟣 Shrine of Truth (Northeast Across Upper Bridge)")
 			
-		quest_text.text = "Halt, young coder! Beyond this gate lies NULLBYTE, THE GLITCHED VARIABLE GOLEM.\n\nThe Final Boss Shrine is sealed by ancient syntax magic (%d/3 Runes Awakened). You must complete all 4 trial questions at each of the remaining shrines to break the seal:\n%s" % [cleared.size(), "\n".join(missing)]
-		accept_btn.text = "🔒 Sealed (%d/3 Shrines Awakened)" % cleared.size()
-		accept_btn.disabled = true
+		if quest_text:
+			quest_text.text = "Halt, young coder! Beyond this gate lies NULLBYTE, THE GLITCHED VARIABLE GOLEM.\n\nThe Final Boss Shrine is sealed by ancient syntax magic (%d/3 Runes Awakened). You must complete all 4 trial questions at each of the remaining shrines to break the seal:\n%s" % [cleared.size(), "\n".join(missing)]
+		if accept_btn:
+			accept_btn.text = "🔒 Sealed (%d/3 Shrines Awakened)" % cleared.size()
+			accept_btn.disabled = true
 
 	if quest_dialog:
+		AudioManager.play_npc_chat()
 		quest_dialog.visible = true
 		var card = quest_dialog.get_node_or_null("Center/DialogCard")
 		if card:
@@ -713,6 +755,7 @@ func _on_accept_quest() -> void:
 				SaveManager.user_profile["player_level"] = max(1, int(cur_xp / 500) + 1)
 				SaveManager.user_profile["hint_tokens"] = int(SaveManager.user_profile.get("hint_tokens", 5)) + 1
 				SaveManager.save_local_profile()
+				BadgeManager.check_all_badges()
 				_refresh_all_npc_states()
 				show_toast("🎁 +%d XP & +1 Hint Token from %s!" % [xp_gain, NPCS_DATA[active_dialog_mode]["name"].split("•")[0].strip_edges()])
 		_on_close_quest_dialog()

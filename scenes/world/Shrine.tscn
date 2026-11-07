@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cx6r1g1g1e6h"]
 
-[ext_resource type="Script" uid="uid://dpshrine0001" path="res://scripts/world/Shrine.gd" id="1_shrine_script"]
+[ext_resource type="Script" uid="uid://bgr20i58op6am" path="res://scripts/world/Shrine.gd" id="1_shrine_script"]
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/shrine_altar.png" id="2_shrine_altar"]
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/rune_orb.png" id="3_rune_orb"]
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/magic_sparkle.png" id="4_sparkle"]

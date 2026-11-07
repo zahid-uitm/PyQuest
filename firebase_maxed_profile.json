@@ -1,0 +1,100 @@
+{
+  "current_level": 4,
+  "full_name": "zahid hakimi",
+  "hint_tokens": 99,
+  "is_guest": false,
+  "level_stars": {
+    "1": 3,
+    "2": 3,
+    "3": 3,
+    "4": 3,
+    "5": 3
+  },
+  "player_level": 10,
+  "unlocked_level": 4,
+  "xp": 5000,
+  "w1_shrines": [
+    "shrine_numbers",
+    "shrine_strings",
+    "shrine_booleans"
+  ],
+  "w1_npcs": [
+    "npc_farmer_bob",
+    "npc_blacksmith_dan",
+    "npc_alchemist_elena"
+  ],
+  "w2_shrines": [
+    "shrine_if_else",
+    "shrine_for_loops",
+    "shrine_while_loops"
+  ],
+  "w2_bridges": [
+    "bridge_chasm_left",
+    "bridge_chasm_right"
+  ],
+  "w2_npcs_helped": [
+    "npc_keeper_venn",
+    "npc_weaver_sera",
+    "npc_sentinel_kael"
+  ],
+  "w3_shrines": [
+    "shrine_def",
+    "shrine_params",
+    "shrine_return"
+  ],
+  "w3_seals": [
+    "seal_west",
+    "seal_east"
+  ],
+  "w3_npcs_helped": [
+    "npc_archivist_def",
+    "npc_artificer_param",
+    "npc_oracle_ret"
+  ],
+  "w4_shrines": [
+    "shrine_indexing",
+    "shrine_mutation",
+    "shrine_sequences"
+  ],
+  "w4_gates": [
+    "gate_west",
+    "gate_east"
+  ],
+  "w4_inventory": [
+    "skull_key",
+    "jade_urn",
+    "soul_gem"
+  ],
+  "w4_npcs_helped": [
+    "npc_curator_idx",
+    "npc_warden_mut",
+    "npc_seers_seq"
+  ],
+  "badges": [
+    "variable_pioneer",
+    "logic_architect",
+    "modular_sorcerer",
+    "sequence_master",
+    "grandmaster",
+    "first_blood",
+    "flawless_syntax",
+    "pure_instinct",
+    "boss_slayer",
+    "code_streak",
+    "realm_explorer",
+    "town_benefactor",
+    "pathfinder",
+    "treasure_hunter",
+    "rising_apprentice",
+    "archmage"
+  ],
+  "settings": {
+    "code_font_size": "large",
+    "master_volume": 1.0,
+    "music_volume": 1.0,
+    "sfx_volume": 1.0,
+    "screen_flash": true,
+    "screen_shake": true,
+    "show_joystick": true
+  }
+}

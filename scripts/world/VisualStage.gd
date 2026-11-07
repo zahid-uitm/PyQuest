@@ -44,6 +44,8 @@ func _process(delta: float) -> void:
 			boss_sprite.frame = 24 + (int(idle_timer * 8.0) % 6)
 
 func _trigger_screen_flash(flash_col: Color) -> void:
+	if not bool(SaveManager.get_setting("screen_flash", true)):
+		return
 	var flash = get_node_or_null("ScreenFlash") as ColorRect
 	if not flash:
 		return
@@ -54,6 +56,8 @@ func _trigger_screen_flash(flash_col: Color) -> void:
 	tw.tween_callback(func(): flash.visible = false)
 
 func _shake_arena(intensity: float = 10.0) -> void:
+	if not bool(SaveManager.get_setting("screen_shake", true)):
+		return
 	var env = get_node_or_null("DungeonEnvironment") as Node2D
 	if not env:
 		return
@@ -115,6 +119,7 @@ func play_correct_action(action_type: String, score_val: int, xp_val: int) -> vo
 
 	# 2. Launch Arcane Python Fireball Projectile toward NullByte
 	if spell_proj:
+		AudioManager.play_spell_cast()
 		spell_proj.position = Vector2(alex_start_pos.x + 160.0, alex_start_pos.y + 15.0)
 		spell_proj.visible = true
 		spell_proj.scale = Vector2(1.4, 1.4)
@@ -124,7 +129,8 @@ func play_correct_action(action_type: String, score_val: int, xp_val: int) -> vo
 		await proj_tw.finished
 		spell_proj.visible = false
 
-	# 3. Impact on Boss NullByte! (-100 HP)
+	# 3. Impact on Boss! (-100 HP)
+	AudioManager.play_boss_hit()
 	boss_hp = max(0, boss_hp - 100)
 	_update_arena_bars()
 	_trigger_screen_flash(Color(0.35, 0.9, 1.0, 0.32))
@@ -152,6 +158,7 @@ func play_correct_action(action_type: String, score_val: int, xp_val: int) -> vo
 		boss_hp = 0
 		_update_arena_bars()
 		boss_anim_state = "dead"
+		AudioManager.play_boss_defeat()
 		if boss_sprite:
 			boss_sprite.frame = 54
 			await get_tree().create_timer(0.18).timeout
@@ -159,6 +166,7 @@ func play_correct_action(action_type: String, score_val: int, xp_val: int) -> vo
 			await get_tree().create_timer(0.18).timeout
 			boss_sprite.frame = 56
 		if chest:
+			AudioManager.play_chest_open()
 			chest.frame = 1
 			await get_tree().create_timer(0.12).timeout
 			chest.frame = 2
@@ -198,6 +206,7 @@ func play_incorrect_action() -> void:
 		
 		# 2. Boss swings Corrupt Syntax Blade (Row 7: side_attack frames 42..45)
 		boss_anim_state = "attack"
+		AudioManager.play_player_hurt()
 		_trigger_screen_flash(Color(1.0, 0.15, 0.35, 0.38))
 		_shake_arena(15.0)
 		for atk_f in [42, 43, 44, 45]:
@@ -228,6 +237,7 @@ func play_incorrect_action() -> void:
 		boss_anim_state = "idle"
 
 func show_pywizard_hint() -> void:
+	AudioManager.play_sfx("res://assets/audio/sfx_chime.wav")
 	if pywizard:
 		var tween = create_tween().set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 		tween.tween_property(pywizard, "scale", Vector2(1.2, 1.2), 0.2)
@@ -260,7 +270,22 @@ func reset_stage() -> void:
 	var boss_sprite = get_node_or_null("BossGolem/BossSprite") as Sprite2D
 	var boss_tag = get_node_or_null("BossGolem/BossTag") as Label
 	var boss_title = get_node_or_null("DungeonEnvironment/BossHUD/VBox/HeaderHBox/BossTitleLabel") as Label
+	var arena_wallpaper = get_node_or_null("DungeonEnvironment/ArenaWallpaper") as TextureRect
+	var vortex_particles = get_node_or_null("DungeonEnvironment/VortexParticles") as CPUParticles2D
+	var stage_embers = get_node_or_null("DungeonEnvironment/StageEmbers") as CPUParticles2D
+	var brazier_left = get_node_or_null("DungeonEnvironment/BrazierLeft") as Sprite2D
+	var brazier_right = get_node_or_null("DungeonEnvironment/BrazierRight") as Sprite2D
+	var boss_hud = get_node_or_null("DungeonEnvironment/BossHUD") as PanelContainer
 
+	# 1. Dynamically apply world-specific boss arena background wallpaper
+	var bg_path = "res://assets/maps/boss_arena_world%d.jpg" % cur_lvl
+	if arena_wallpaper:
+		if FileAccess.file_exists(bg_path):
+			arena_wallpaper.texture = load(bg_path)
+		elif FileAccess.file_exists("res://assets/maps/boss_arena_bg.jpg"):
+			arena_wallpaper.texture = load("res://assets/maps/boss_arena_bg.jpg")
+
+	# 2. Configure Boss, Particles, Atmosphere, and Thematics per World
 	if cur_lvl == 4:
 		if boss_sprite:
 			boss_sprite.texture = load("res://assets/sprites/custom/boss_index_warden_sheet.png")
@@ -268,6 +293,15 @@ func reset_stage() -> void:
 			boss_tag.text = "🏺 Vektor-Zero [Boss]"
 		if boss_title:
 			boss_title.text = "🏺 WORLD 4 BOSS: VEKTOR-ZERO, THE CATACOMB SEQUENCE LICH"
+			boss_title.add_theme_color_override("font_color", Color("#F59E0B"))
+		if vortex_particles:
+			vortex_particles.color = Color(1.0, 0.75, 0.2, 0.85)
+		if stage_embers:
+			stage_embers.color = Color(0.3, 0.92, 0.55, 0.8)
+		if brazier_left:
+			brazier_left.modulate = Color(1.0, 0.9, 0.45)
+		if brazier_right:
+			brazier_right.modulate = Color(1.0, 0.9, 0.45)
 	elif cur_lvl == 3:
 		if boss_sprite:
 			boss_sprite.texture = load("res://assets/sprites/custom/boss_arbiter_sheet.png")
@@ -275,6 +309,15 @@ func reset_stage() -> void:
 			boss_tag.text = "🔮 Lambda-Prime [Boss]"
 		if boss_title:
 			boss_title.text = "🔮 WORLD 3 BOSS: LAMBDA-PRIME, THE MODULAR RELIC SOVEREIGN"
+			boss_title.add_theme_color_override("font_color", Color("#C084FC"))
+		if vortex_particles:
+			vortex_particles.color = Color(0.85, 0.4, 1.0, 0.85)
+		if stage_embers:
+			stage_embers.color = Color(0.95, 0.8, 0.3, 0.8)
+		if brazier_left:
+			brazier_left.modulate = Color(0.85, 0.55, 1.0)
+		if brazier_right:
+			brazier_right.modulate = Color(0.85, 0.55, 1.0)
 	elif cur_lvl == 2:
 		if boss_sprite:
 			boss_sprite.texture = load("res://assets/sprites/custom/boss_warden_sheet.png")
@@ -282,6 +325,15 @@ func reset_stage() -> void:
 			boss_tag.text = "⏳ Chronos-If [Boss]"
 		if boss_title:
 			boss_title.text = "⏳ WORLD 2 BOSS: CHRONOS-IF, THE INFINITE LOOP WARDEN"
+			boss_title.add_theme_color_override("font_color", Color("#38BDF8"))
+		if vortex_particles:
+			vortex_particles.color = Color(0.2, 0.82, 1.0, 0.85)
+		if stage_embers:
+			stage_embers.color = Color(0.25, 0.95, 0.85, 0.8)
+		if brazier_left:
+			brazier_left.modulate = Color(0.45, 0.9, 1.0)
+		if brazier_right:
+			brazier_right.modulate = Color(0.45, 0.9, 1.0)
 	else:
 		if boss_sprite:
 			boss_sprite.texture = load("res://assets/sprites/custom/boss_golem_sheet.png")
@@ -289,6 +341,15 @@ func reset_stage() -> void:
 			boss_tag.text = "⚔️ NullByte [Boss]"
 		if boss_title:
 			boss_title.text = "👾 WORLD 1 BOSS: NULLBYTE, THE DARK SYNTAX KNIGHT"
+			boss_title.add_theme_color_override("font_color", Color("#F43F5E"))
+		if vortex_particles:
+			vortex_particles.color = Color(0.75, 0.5, 1.0, 0.8)
+		if stage_embers:
+			stage_embers.color = Color(0.4, 0.85, 1.0, 0.75)
+		if brazier_left:
+			brazier_left.modulate = Color.WHITE
+		if brazier_right:
+			brazier_right.modulate = Color.WHITE
 
 	if boss_node:
 		boss_node.position = boss_start_pos
@@ -301,7 +362,14 @@ func reset_stage() -> void:
 
 	var chest_label = get_node_or_null("TreasureChest/ChestLabel") as Label
 	if chest_label:
-		chest_label.text = "🔒 Grand Relic Chest"
+		if cur_lvl == 4:
+			chest_label.text = "🔒 Pharaonic Sequence Sarcophagus"
+		elif cur_lvl == 3:
+			chest_label.text = "🔒 Vault Sovereign Arcane Chest"
+		elif cur_lvl == 2:
+			chest_label.text = "🔒 Chronos Chronometer Chest"
+		else:
+			chest_label.text = "🔒 Grand Syntax Relic Chest"
 
 	if chest:
 		chest.frame = 0

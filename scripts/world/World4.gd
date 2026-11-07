@@ -5,8 +5,8 @@ extends Node2D
 @onready var joystick: Control = %VirtualJoystick
 @onready var quest_dialog: Control = %QuestDialogModal
 @onready var quest_text: Label = %QuestText
-@onready var accept_btn: Button = %AcceptButton
-@onready var decline_btn: Button = %DeclineButton
+@onready var accept_btn: Button = get_node_or_null("%AcceptButton")
+@onready var decline_btn: Button = get_node_or_null("%DeclineButton")
 @onready var hud_back_btn: Button = %BackToSelectButton
 @onready var area_title_label: Label = %AreaTitleLabel
 
@@ -81,18 +81,21 @@ const NPCS_DATA: Dictionary = {
 	"npc_curator_idx": {
 		"name": "Tomb Curator Indexa • Keeper of Zero-Based Indexing",
 		"icon": "🗝️",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_scholar.png",
 		"xp": 50,
 		"dialog": "Tread carefully on the numbered crypt tiles, Adventurer Alex! Welcome to The Catacombs!\n\nIn Python, a List stores an ordered sequence of items inside square brackets '[]', and indexing ALWAYS starts at 0:\n  relics = ['skull_key', 'jade_urn', 'soul_gem']\n  first = relics[0]   # 'skull_key'\n  last  = relics[-1]  # 'soul_gem'\n\nTry picking up the glowing Crypt Relics around the Catacombs to '.append()' them to your live inventory list! Take this Hint Token and XP!"
 	},
 	"npc_warden_mut": {
 		"name": "Ossuary Warden Appendo • Master of List Mutation",
 		"icon": "🏺",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_engineer.png",
 		"xp": 50,
 		"dialog": "Well done unlocking the West Ossuary Portcullis, Alex! Unlike strings, Python Lists are MUTABLE—you can change, add, or remove items at any time!\n\n• 'bag.append(item)' adds an item to the END of the list.\n• 'bag.pop()' removes and returns the LAST item.\n• 'bag[0] = \"new_item\"' replaces the item at index 0!\n\nWatch out for red 'IndexError' floor tiles when exploring! Take this Hint Token!"
 	},
 	"npc_seers_seq": {
 		"name": "Crypt Seer Slicia • Weaver of Slices & Search",
 		"icon": "🔮",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_scholar.png",
 		"xp": 50,
 		"dialog": "Greetings, seeker of sequences! In the Eastern Crypt Wing, we master 'len()', membership search 'in', and List Slicing!\n\n• 'len(urns)' counts how many elements are in the list.\n• '\"key\" in urns' returns True if 'key' is inside the list.\n• 'urns[1:3]' slices elements from index 1 up to (but NOT including) index 3!\n\nTake this Hint Token for your final battle against Vektor-Zero!"
 	}
@@ -337,6 +340,8 @@ func _ready() -> void:
 		lore_modal.visible = false
 	if toast_panel:
 		toast_panel.visible = false
+	if joystick:
+		joystick.visible = bool(SaveManager.get_setting("show_joystick", true))
 
 	# Setup Player Camera bounds & controls
 	if player:
@@ -352,6 +357,11 @@ func _ready() -> void:
 			cam.position_smoothing_speed = 5.0
 
 	# Connect Button Signals
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
+
 	if accept_btn and not accept_btn.pressed.is_connected(_on_accept_quest):
 		accept_btn.pressed.connect(_on_accept_quest)
 	if decline_btn and not decline_btn.pressed.is_connected(_on_close_quest_dialog):
@@ -448,17 +458,17 @@ func _setup_collectible_relics() -> void:
 			relic.body_entered.connect(func(body: Node2D):
 				if body.is_in_group("Player") and not (r_id in _get_collected_relics()):
 					active_relic_id = r_id
-					var pr = relic.get_node_or_null("PromptLabel") as Label
-					if pr:
-						pr.visible = true
+					var pr_r_in = relic.get_node_or_null("PromptLabel") as Label
+					if pr_r_in:
+						pr_r_in.visible = true
 			)
 			relic.body_exited.connect(func(body: Node2D):
 				if body.is_in_group("Player"):
 					if active_relic_id == r_id:
 						active_relic_id = ""
-					var pr = relic.get_node_or_null("PromptLabel") as Label
-					if pr:
-						pr.visible = false
+					var pr_r_out = relic.get_node_or_null("PromptLabel") as Label
+					if pr_r_out:
+						pr_r_out.visible = false
 			)
 			relic.input_event.connect(func(_vp: Node, ev: InputEvent, _idx: int):
 				if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -479,6 +489,7 @@ func _collect_crypt_relic(r_id: String) -> void:
 	SaveManager.save_local_profile()
 
 	active_relic_id = ""
+	AudioManager.play_relic_pickup()
 	_refresh_relic_nodes()
 	_update_shrine_tracker(_get_cleared_shrines().size())
 	show_toast("🏺 inventory.append('%s') ➔ %s (+%d XP!)" % [r_id, str(inv), xp_gain])
@@ -514,17 +525,17 @@ func _setup_matrix_gates() -> void:
 			term_area.body_entered.connect(func(body: Node2D):
 				if body.is_in_group("Player"):
 					active_terminal_id = g_id
-					var pr = term_area.get_node_or_null("PromptLabel") as Label
-					if pr:
-						pr.visible = true
+					var pr_in = term_area.get_node_or_null("PromptLabel") as Label
+					if pr_in:
+						pr_in.visible = true
 			)
 			term_area.body_exited.connect(func(body: Node2D):
 				if body.is_in_group("Player"):
 					if active_terminal_id == g_id:
 						active_terminal_id = ""
-					var pr = term_area.get_node_or_null("PromptLabel") as Label
-					if pr:
-						pr.visible = false
+					var pr_out = term_area.get_node_or_null("PromptLabel") as Label
+					if pr_out:
+						pr_out.visible = false
 			)
 			term_area.input_event.connect(func(_vp: Node, ev: InputEvent, _idx: int):
 				if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -537,16 +548,16 @@ func _setup_matrix_gates() -> void:
 		gate_area.body_entered.connect(func(body: Node2D):
 			if body.is_in_group("Player"):
 				player_at_boss_gate = true
-				var pr = gate_area.get_node_or_null("PromptLabel") as Label
-				if pr:
-					pr.visible = true
+				var pr_g_in = gate_area.get_node_or_null("PromptLabel") as Label
+				if pr_g_in:
+					pr_g_in.visible = true
 		)
 		gate_area.body_exited.connect(func(body: Node2D):
 			if body.is_in_group("Player"):
 				player_at_boss_gate = false
-				var pr = gate_area.get_node_or_null("PromptLabel") as Label
-				if pr:
-					pr.visible = false
+				var pr_g_out = gate_area.get_node_or_null("PromptLabel") as Label
+				if pr_g_out:
+					pr_g_out.visible = false
 		)
 		gate_area.input_event.connect(func(_vp: Node, ev: InputEvent, _idx: int):
 			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -824,22 +835,24 @@ func _on_select_shrine_option(idx: int) -> void:
 		_style_option_btn(btn, i == idx, false, false)
 
 func _on_shrine_action() -> void:
+	if not SHRINES_DATA.has(active_shrine_id):
+		return
+
+	var data: Dictionary = SHRINES_DATA[active_shrine_id]
+	var questions: Array = data.get("questions", [])
+	var total_q: int = questions.size()
+
 	if shrine_question_answered:
-		var data: Dictionary = SHRINES_DATA[active_shrine_id]
-		var questions: Array = data.get("questions", [])
-		if current_shrine_q_idx + 1 < questions.size():
+		if current_shrine_q_idx + 1 < total_q:
 			current_shrine_q_idx += 1
 			_render_current_shrine_question()
 		else:
 			_on_close_shrine_modal()
 		return
 
-	if selected_option_idx < 0 or not SHRINES_DATA.has(active_shrine_id):
+	if selected_option_idx < 0:
 		return
 
-	var data: Dictionary = SHRINES_DATA[active_shrine_id]
-	var questions: Array = data.get("questions", [])
-	var total_q: int = questions.size()
 	var q_data: Dictionary = questions[current_shrine_q_idx]
 	var correct_idx: int = q_data["correct_index"]
 	var children = shrine_options_container.get_children()
@@ -849,19 +862,22 @@ func _on_shrine_action() -> void:
 		_style_option_btn(children[selected_option_idx] as Button, true, true, false)
 
 		if current_shrine_q_idx + 1 < total_q:
+			AudioManager.play_sfx()
 			shrine_feedback_label.text = "✅ Correct! %s" % q_data["explanation"]
 			shrine_feedback_label.add_theme_color_override("font_color", Color(0.35, 1.0, 0.55))
 			shrine_action_btn.text = "Next Question (%d/%d) ➔" % [current_shrine_q_idx + 2, total_q]
 		else:
+			var reward_xp: int = data.get("xp", 100)
 			var is_gate: bool = active_shrine_id.begins_with("gate_")
 			if is_gate:
+				AudioManager.play_bridge_extend()
 				var gates = _get_unlocked_gates()
 				if not (active_shrine_id in gates):
 					gates.append(active_shrine_id)
 					SaveManager.user_profile["w4_gates"] = gates
-					var reward_xp: int = data["xp"]
 					SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + reward_xp
 					SaveManager.save_local_profile()
+					BadgeManager.check_all_badges()
 					shrine_feedback_label.text = "🔓 Crypt Portcullis Raised! (+%d XP) %s" % [reward_xp, q_data["explanation"]]
 					show_toast("🏺 %s Unsealed! (+%d XP)" % [data["title"], reward_xp])
 				else:
@@ -871,13 +887,14 @@ func _on_shrine_action() -> void:
 				_refresh_gate_states()
 				_update_shrine_tracker(_get_cleared_shrines().size())
 			else:
+				AudioManager.play_shrine_awaken()
 				var cleared = _get_cleared_shrines()
 				if not (active_shrine_id in cleared):
 					cleared.append(active_shrine_id)
 					SaveManager.user_profile["w4_shrines"] = cleared
-					var reward_xp: int = data["xp"]
 					SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + reward_xp
 					SaveManager.save_local_profile()
+					BadgeManager.check_all_badges()
 					shrine_feedback_label.text = "🎉 All %d Trials Passed! +%d XP Earned! %s" % [total_q, reward_xp, q_data["explanation"]]
 					show_toast("✨ %s Awakened! (+%d XP)" % [data["title"], reward_xp])
 				else:
@@ -886,6 +903,7 @@ func _on_shrine_action() -> void:
 				shrine_action_btn.text = "Complete Trial ✨"
 				_refresh_all_shrine_states()
 	else:
+		AudioManager.play_error()
 		_style_option_btn(children[selected_option_idx] as Button, false, false, true)
 		shrine_feedback_label.text = "❌ Not quite! Review the Lists & Sequences Lesson above and try another option."
 		shrine_feedback_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.45))
@@ -913,6 +931,23 @@ func _refresh_all_npc_states() -> void:
 		if npc.has_method("set_rewarded") and "npc_id" in npc:
 			npc.set_rewarded(npc.npc_id in helped)
 
+func _update_dialog_speaker(icon_str: String, name_str: String, portrait_path: String) -> void:
+	if not quest_dialog:
+		return
+	var s_icon = quest_dialog.find_child("SpeakerIcon", true, false) as Label
+	var s_name = quest_dialog.find_child("SpeakerName", true, false) as Label
+	var s_port = quest_dialog.find_child("SpeakerPortrait", true, false) as TextureRect
+	if s_icon:
+		s_icon.text = icon_str
+	if s_name:
+		s_name.text = name_str
+	if s_port and ResourceLoader.exists(portrait_path):
+		s_port.texture = load(portrait_path)
+		s_port.pivot_offset = Vector2(52, 52)
+		s_port.scale = Vector2(0.88, 0.88)
+		var p_tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		p_tw.tween_property(s_port, "scale", Vector2.ONE, 0.25)
+
 func open_npc_dialog(npc_id: String) -> void:
 	if not NPCS_DATA.has(npc_id):
 		return
@@ -924,24 +959,29 @@ func open_npc_dialog(npc_id: String) -> void:
 	if player:
 		player.can_move = false
 
-	var speaker_icon = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerIcon") as Label
-	var speaker_name = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerName") as Label
-	if speaker_icon:
-		speaker_icon.text = data["icon"]
-	if speaker_name:
-		speaker_name.text = data["name"]
+	_update_dialog_speaker(data["icon"], data["name"], data.get("portrait", "res://assets/sprites/portraits/portrait_npc_scholar.png"))
 
-	quest_text.text = data["dialog"]
-	decline_btn.text = "Close"
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
+
+	if quest_text:
+		quest_text.text = data["dialog"]
+	if decline_btn:
+		decline_btn.text = "Close"
 
 	if already_helped:
-		accept_btn.text = "✅ Lesson Claimed"
-		accept_btn.disabled = false
+		if accept_btn:
+			accept_btn.text = "✅ Lesson Claimed"
+			accept_btn.disabled = false
 	else:
-		accept_btn.text = "🎁 Claim +%d XP & +1 Hint" % data["xp"]
-		accept_btn.disabled = false
+		if accept_btn:
+			accept_btn.text = "🎁 Claim +%d XP & +1 Hint" % data["xp"]
+			accept_btn.disabled = false
 
 	quest_dialog.visible = true
+	AudioManager.play_npc_chat()
 
 # ---------------------------------------------------------
 # Treasure Chest Lore System
@@ -983,22 +1023,25 @@ func open_quest_dialog() -> void:
 	if player:
 		player.can_move = false
 
-	var speaker_icon = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerIcon") as Label
-	var speaker_name = get_node_or_null("UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader/SpeakerName") as Label
-	if speaker_icon:
-		speaker_icon.text = "🧙‍♂️"
-	if speaker_name:
-		speaker_name.text = "Master PyWizard • Guardian of the Necropolis Matrix"
-
 	var cleared = _get_cleared_shrines()
 	var count = cleared.size()
 
+	if not accept_btn:
+		accept_btn = find_child("AcceptButton", true, false) as Button
+	if not decline_btn:
+		decline_btn = find_child("DeclineButton", true, false) as Button
+
 	if count >= 3:
-		quest_text.text = "Supreme mastery of sequences, Adventurer Alex! All 3 Catacomb List Shrines are awakened!\n\nBeyond this Necropolis Altar waits VEKTOR-ZERO, THE CATACOMB SEQUENCE LICH (500 HP). Use zero-based indexing 'list[0]', negative indexing 'list[-1]', '.append()', and 'len()' to shatter his Phylactery Array!"
-		accept_btn.text = "⚔️ Fight Boss: Vektor-Zero"
-		accept_btn.disabled = false
-		decline_btn.text = "Prepare More"
+		_update_dialog_speaker("💀", "Vektor-Zero • The Catacomb Sequence Lich", "res://assets/sprites/portraits/portrait_vektor.png")
+		if quest_text:
+			quest_text.text = "Supreme mastery of sequences, Adventurer Alex! All 3 Catacomb List Shrines are awakened!\n\nBeyond this Necropolis Altar waits VEKTOR-ZERO, THE CATACOMB SEQUENCE LICH (500 HP). Use zero-based indexing 'list[0]', negative indexing 'list[-1]', '.append()', and 'len()' to shatter his Phylactery Array!"
+		if accept_btn:
+			accept_btn.text = "⚔️ Fight Boss: Vektor-Zero"
+			accept_btn.disabled = false
+		if decline_btn:
+			decline_btn.text = "Prepare More"
 	else:
+		_update_dialog_speaker("🧙‍♂️", "Master PyWizard • Guardian of the Necropolis Matrix", "res://assets/sprites/portraits/portrait_pywizard.png")
 		var missing: PackedStringArray = []
 		if not ("shrine_indexing" in cleared):
 			missing.append("• Shrine of Indexing (Southwest Crypt Alcove — 4 Questions)")
@@ -1007,12 +1050,16 @@ func open_quest_dialog() -> void:
 		if not ("shrine_sequences" in cleared):
 			missing.append("• Shrine of Sequences (East Tablet Wing via East Matrix Pedestal — 4 Questions)")
 
-		quest_text.text = "Halt, young coder! The Necropolis Sanctum of Vektor-Zero is sealed by 3 Ancient Sequence Runes (%d/3 Awakened).\n\nUnlock the West & East Matrix Portcullises and awaken the remaining Shrines:\n%s" % [count, "\n".join(missing)]
-		accept_btn.text = "🔒 Sealed (%d/3 Runes)" % count
-		accept_btn.disabled = true
-		decline_btn.text = "Explore Catacombs"
+		if quest_text:
+			quest_text.text = "Halt, young coder! The Necropolis Sanctum of Vektor-Zero is sealed by 3 Ancient Sequence Runes (%d/3 Awakened).\n\nUnlock the West & East Matrix Portcullises and awaken the remaining Shrines:\n%s" % [count, "\n".join(missing)]
+		if accept_btn:
+			accept_btn.text = "🔒 Sealed (%d/3 Runes)" % count
+			accept_btn.disabled = true
+		if decline_btn:
+			decline_btn.text = "Explore Catacombs"
 
 	quest_dialog.visible = true
+	AudioManager.play_npc_chat()
 
 func _on_accept_quest() -> void:
 	if active_dialog_mode != "boss":
@@ -1025,6 +1072,7 @@ func _on_accept_quest() -> void:
 			SaveManager.user_profile["xp"] = int(SaveManager.user_profile.get("xp", 0)) + xp_gain
 			SaveManager.user_profile["hint_tokens"] = int(SaveManager.user_profile.get("hint_tokens", 5)) + 1
 			SaveManager.save_local_profile()
+			BadgeManager.check_all_badges()
 			_refresh_all_npc_states()
 			show_toast("🎁 +%d XP & +1 Hint Token from %s!" % [xp_gain, NPCS_DATA[npc_id]["name"].split("•")[0].strip_edges()])
 		_on_close_quest_dialog()

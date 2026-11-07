@@ -24,6 +24,26 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/crypt_portcullis.png" id="23_portcullis"]
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/index_trap_sheet.png" id="24_trap_sheet"]
 [ext_resource type="Texture2D" path="res://assets/sprites/custom/crypt_key_relic.png" id="25_key_relic"]
+[ext_resource type="Texture2D" path="res://assets/sprites/portraits/portrait_pywizard.png" id="portrait_pywizard_res"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.08, 0.16, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96, 0.62, 0.04, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="Shader" id="Shader_catacombs_flow"]
 code = "shader_type canvas_item;
@@ -934,30 +954,48 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="DialogCard" type="PanelContainer" parent="UILayer/QuestDialogModal/Center"]
-custom_minimum_size = Vector2(580, 0)
+custom_minimum_size = Vector2(660, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_dialog_card")
 
-[node name="DialogVBox" type="VBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard"]
+[node name="DialogHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="PortraitFrame" type="PanelContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox"]
+custom_minimum_size = Vector2(116, 116)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="SpeakerPortrait" type="TextureRect" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/PortraitFrame"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+texture = ExtResource("portrait_pywizard_res")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialogVBox" type="VBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="SpeakerHeader" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+[node name="SpeakerHeader" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="SpeakerIcon" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader"]
+[node name="SpeakerIcon" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/SpeakerHeader"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "🧙‍♂️"
 
-[node name="SpeakerName" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/SpeakerHeader"]
+[node name="SpeakerName" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/SpeakerHeader"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.38, 0.96, 0.72, 1)
 theme_override_font_sizes/font_size = 18
 text = "Master PyWizard"
 
-[node name="QuestText" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+[node name="QuestText" type="Label" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.96, 0.94, 1)
@@ -965,12 +1003,12 @@ theme_override_font_sizes/font_size = 15
 text = "Greetings, Adventurer Alex!..."
 autowrap_mode = 2
 
-[node name="ButtonsHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox"]
+[node name="ButtonsHBox" type="HBoxContainer" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 2
 
-[node name="DeclineButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox"]
+[node name="DeclineButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/ButtonsHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(130, 44)
 layout_mode = 2
@@ -980,7 +1018,7 @@ theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_decline_btn")
 text = "Explore More"
 
-[node name="AcceptButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogVBox/ButtonsHBox"]
+[node name="AcceptButton" type="Button" parent="UILayer/QuestDialogModal/Center/DialogCard/DialogHBox/DialogVBox/ButtonsHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 2

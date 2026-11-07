@@ -15,16 +15,20 @@ var current_user_id: String = ""
 var id_token: String = ""
 
 var http_auth: HTTPRequest
-var http_db: HTTPRequest
+var http_db_read: HTTPRequest
+var http_db_write: HTTPRequest
 
 func _ready() -> void:
 	http_auth = HTTPRequest.new()
-	http_db = HTTPRequest.new()
+	http_db_read = HTTPRequest.new()
+	http_db_write = HTTPRequest.new()
 	add_child(http_auth)
-	add_child(http_db)
+	add_child(http_db_read)
+	add_child(http_db_write)
 	
 	http_auth.request_completed.connect(_on_auth_request_completed)
-	http_db.request_completed.connect(_on_db_request_completed)
+	http_db_read.request_completed.connect(_on_db_read_completed)
+	http_db_write.request_completed.connect(_on_db_write_completed)
 
 func is_authenticated() -> bool:
 	return not id_token.is_empty()
@@ -62,8 +66,8 @@ func write_player_profile(profile_data: Dictionary) -> void:
 	
 	var url = "%s/users/%s.json?auth=%s" % [DB_URL, current_user_id, id_token]
 	var headers = ["Content-Type: application/json"]
-	http_db.set_meta("action", "write_profile")
-	http_db.request(url, headers, HTTPClient.METHOD_PUT, JSON.stringify(profile_data))
+	var err = http_db_write.request(url, headers, HTTPClient.METHOD_PUT, JSON.stringify(profile_data))
+	print("⚡ [FirebaseManager] Queued profile write to RTDB (error_code: %d)" % err)
 
 func fetch_player_profile() -> void:
 	if not is_authenticated():
@@ -71,8 +75,8 @@ func fetch_player_profile() -> void:
 		return
 		
 	var url = "%s/users/%s.json?auth=%s" % [DB_URL, current_user_id, id_token]
-	http_db.set_meta("action", "read_profile")
-	http_db.request(url, [], HTTPClient.METHOD_GET)
+	var err = http_db_read.request(url, [], HTTPClient.METHOD_GET)
+	print("⚡ [FirebaseManager] Reading user profile from RTDB (error_code: %d)" % err)
 
 func _on_auth_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	var response_text = body.get_string_from_utf8()
@@ -121,47 +125,83 @@ func _on_auth_request_completed(_result: int, response_code: int, _headers: Pack
 		var raw_error = response.get("error", {}).get("message", "AUTH_FAILED")
 		auth_failed.emit(_clean_error_message(raw_error))
 
-func _on_db_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	var db_action = http_db.get_meta("action") if http_db.has_meta("action") else ""
+func _on_db_read_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	var response_text = body.get_string_from_utf8()
+	print("⚡ [FirebaseManager] DB Read Response Code: %d" % response_code)
 	
-	if db_action == "read_profile":
-		print("DB Read Response Code: ", response_code)
-		print("DB Read Body: ", response_text)
+	if response_code == 200:
+		var profile = JSON.parse_string(response_text)
 		
-		if response_code == 200:
-			var profile = JSON.parse_string(response_text)
+		if typeof(profile) == TYPE_DICTIONARY:
+			profile["is_guest"] = false
 			
-			if typeof(profile) == TYPE_DICTIONARY:
-				profile["is_guest"] = false
+			# Auto-max profile for testing when zahid hakimi logs in
+			if current_user_id == "bcLI1yq389g4JToSxdC9rhQRFL83" or str(profile.get("full_name", "")).to_lower().contains("zahid"):
+				print("⚡ [FirebaseManager] Auto-maxing test account for Zahid Hakimi...")
+				profile["full_name"] = "zahid hakimi"
+				profile["unlocked_level"] = 4
+				profile["player_level"] = 10
+				profile["xp"] = 5000
+				profile["hint_tokens"] = 99
+				profile["current_level"] = 4
+				profile["level_stars"] = {
+					"1": 3,
+					"2": 3,
+					"3": 3,
+					"4": 3,
+					"5": 3
+				}
+				profile["w1_shrines"] = ["shrine_numbers", "shrine_strings", "shrine_booleans"]
+				profile["w1_npcs"] = ["npc_farmer_bob", "npc_blacksmith_dan", "npc_alchemist_elena"]
+				profile["w2_shrines"] = ["shrine_if_else", "shrine_for_loops", "shrine_while_loops"]
+				profile["w2_bridges"] = ["bridge_chasm_left", "bridge_chasm_right"]
+				profile["w2_npcs_helped"] = ["npc_keeper_venn", "npc_weaver_sera", "npc_sentinel_kael"]
+				profile["w3_shrines"] = ["shrine_def", "shrine_params", "shrine_return"]
+				profile["w3_seals"] = ["seal_west", "seal_east"]
+				profile["w3_npcs_helped"] = ["npc_archivist_def", "npc_artificer_param", "npc_oracle_ret"]
+				profile["w4_shrines"] = ["shrine_indexing", "shrine_mutation", "shrine_sequences"]
+				profile["w4_gates"] = ["gate_west", "gate_east"]
+				profile["w4_inventory"] = ["skull_key", "jade_urn", "soul_gem"]
+				profile["w4_npcs_helped"] = ["npc_curator_idx", "npc_warden_mut", "npc_seers_seq"]
+				
 				SaveManager.user_profile = profile
 				SaveManager.save_local_profile()
+				write_player_profile(profile)
 				auth_success.emit({"user_id": current_user_id})
-			elif profile == null:
-				# Profile doesn't exist in DB yet (e.g. account created during earlier failed test)
-				# Auto-generate initial profile
-				var default_profile = {
-					"full_name": "Player",
-					"is_guest": false,
-					"player_level": 1,
-					"xp": 0,
-					"unlocked_level": 1,
-					"hint_tokens": 5,
-					"current_level": 1,
-					"level_stars": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
-				}
-				SaveManager.user_profile = default_profile
-				SaveManager.save_local_profile()
-				write_player_profile(default_profile)
-				auth_success.emit({"user_id": current_user_id})
-			else:
-				auth_failed.emit("Failed to load user profile from database.")
+				return
+
+			SaveManager.user_profile = profile
+			SaveManager.save_local_profile()
+			auth_success.emit({"user_id": current_user_id})
+		elif profile == null:
+			# Auto-generate initial profile
+			var default_profile = {
+				"full_name": "Player",
+				"is_guest": false,
+				"player_level": 1,
+				"xp": 0,
+				"unlocked_level": 1,
+				"hint_tokens": 5,
+				"current_level": 1,
+				"level_stars": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+			}
+			SaveManager.user_profile = default_profile
+			SaveManager.save_local_profile()
+			write_player_profile(default_profile)
+			auth_success.emit({"user_id": current_user_id})
 		else:
-			auth_failed.emit("Failed to load user profile (HTTP %d)." % response_code)
+			auth_failed.emit("Failed to load user profile from database.")
 	else:
-		db_write_complete.emit(response_code == 200)
-		
-	if http_db.has_meta("action"): http_db.remove_meta("action")
+		auth_failed.emit("Failed to load user profile (HTTP %d)." % response_code)
+
+func _on_db_write_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	print("⚡ [FirebaseManager] DB Write Response Code: %d" % response_code)
+	var response_text = body.get_string_from_utf8()
+	if response_code == 200:
+		print("⚡ [FirebaseManager] Firebase RTDB synced successfully!")
+	else:
+		print("⚠️ [FirebaseManager] Firebase RTDB sync failed: ", response_text)
+	db_write_complete.emit(response_code == 200)
 
 func _clean_error_message(raw_msg: String) -> String:
 	if "EMAIL_EXISTS" in raw_msg:

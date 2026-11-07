@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dfsyfhtils70x" path="res://scripts/ui/LevelSelectUI.gd" id="1_2fnwa"]
 [ext_resource type="Texture2D" uid="uid://dwtu2p3qkoeqs" path="res://assets/maps/ancient_treasure_map_1080p.jpg" id="2_map_bg"]
 [ext_resource type="Texture2D" uid="uid://cttr42i4yy84f" path="res://assets/sprites/particles/magic_star.png" id="3_star_part"]
+[ext_resource type="PackedScene" path="res://scenes/ui/BadgesModal.tscn" id="4_badges"]
 
 [sub_resource type="Curve" id="Curve_map_stars"]
 _data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.3, 0.8), 0.0, 0.0, 0, 0, Vector2(0.7, 0.4), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
@@ -335,6 +336,17 @@ theme_override_font_sizes/font_size = 18
 text = "⭐ 0 / 15 Stars"
 vertical_alignment = 1
 
+[node name="BadgesButton" type="Button" parent="HeaderPanel/Header" unique_id=184759284]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 44)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.98, 0.88, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_back_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_back_btn_hover")
+text = "🏆 Badges: 0/16"
+
 [node name="ModalOverlay" type="ColorRect" parent="." unique_id=1932016106]
 visible = false
 layout_mode = 1
@@ -465,3 +477,7 @@ theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_travel_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_travel_btn_hover")
 text = "⚔️ Travel to Variable Valley"
+
+[node name="BadgesModal" parent="." unique_id=948572819 instance=ExtResource("4_badges")]
+visible = false
+layout_mode = 1

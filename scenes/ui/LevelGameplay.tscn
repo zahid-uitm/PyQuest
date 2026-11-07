@@ -2,6 +2,27 @@
 
 [ext_resource type="Script" uid="uid://703p5hfkvv4a" path="res://scripts/ui/GameplayUI.gd" id="1_52h1o"]
 [ext_resource type="PackedScene" uid="uid://c57o6goq47u2w" path="res://scenes/world/VisualStage.tscn" id="2_visual_stage"]
+[ext_resource type="PackedScene" uid="uid://dsettingsmodal01" path="res://scenes/ui/SettingsModal.tscn" id="3_settings"]
+[ext_resource type="Texture2D" path="res://assets/sprites/portraits/portrait_pywizard.png" id="portrait_pywizard_res"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait_frame"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.08, 0.16, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.38, 0.65, 0.98, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_topbar"]
 content_margin_left = 20.0
@@ -399,37 +420,55 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="HintCard" type="PanelContainer" parent="HintModalOverlay/Center"]
-custom_minimum_size = Vector2(580, 0)
+custom_minimum_size = Vector2(660, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
 
-[node name="HintVBox" type="VBoxContainer" parent="HintModalOverlay/Center/HintCard"]
+[node name="HintHBox" type="HBoxContainer" parent="HintModalOverlay/Center/HintCard"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="PortraitFrame" type="PanelContainer" parent="HintModalOverlay/Center/HintCard/HintHBox"]
+custom_minimum_size = Vector2(116, 116)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait_frame")
+
+[node name="SpeakerPortrait" type="TextureRect" parent="HintModalOverlay/Center/HintCard/HintHBox/PortraitFrame"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+texture = ExtResource("portrait_pywizard_res")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HintVBox" type="VBoxContainer" parent="HintModalOverlay/Center/HintCard/HintHBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="WizardHeader" type="HBoxContainer" parent="HintModalOverlay/Center/HintCard/HintVBox"]
+[node name="WizardHeader" type="HBoxContainer" parent="HintModalOverlay/Center/HintCard/HintHBox/HintVBox"]
 layout_mode = 2
 alignment = 1
 
-[node name="WizardIcon" type="Label" parent="HintModalOverlay/Center/HintCard/HintVBox/WizardHeader"]
+[node name="WizardIcon" type="Label" parent="HintModalOverlay/Center/HintCard/HintHBox/HintVBox/WizardHeader"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "🧙"
 
-[node name="WizardTitle" type="Label" parent="HintModalOverlay/Center/HintCard/HintVBox/WizardHeader"]
+[node name="WizardTitle" type="Label" parent="HintModalOverlay/Center/HintCard/HintHBox/HintVBox/WizardHeader"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.380392, 0.65098, 0.980392, 1)
 theme_override_font_sizes/font_size = 22
 text = "Master PyWizard's Guidance"
 
-[node name="HintMessage" type="Label" parent="HintModalOverlay/Center/HintCard/HintVBox"]
+[node name="HintMessage" type="Label" parent="HintModalOverlay/Center/HintCard/HintHBox/HintVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
 theme_override_font_sizes/font_size = 15
 text = "Hint explanation..."
 autowrap_mode = 3
 
-[node name="CloseHintButton" type="Button" parent="HintModalOverlay/Center/HintCard/HintVBox"]
+[node name="CloseHintButton" type="Button" parent="HintModalOverlay/Center/HintCard/HintHBox/HintVBox"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
@@ -481,6 +520,12 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "↺ Restart Level"
+
+[node name="SettingsButton" type="Button" parent="PauseMenuOverlay/Center/PauseCard/PauseVBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "⚙ Settings"
 
 [node name="QuitButton" type="Button" parent="PauseMenuOverlay/Center/PauseCard/PauseVBox"]
 custom_minimum_size = Vector2(0, 46)
@@ -598,3 +643,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
 text = "🌍 Return to World"
+
+[node name="SettingsModal" parent="." instance=ExtResource("3_settings")]
+visible = false
+layout_mode = 1

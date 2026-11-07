@@ -3,15 +3,15 @@
 [ext_resource type="Script" uid="uid://ypnpbb3pln7r" path="res://scripts/world/VisualStage.gd" id="1_stage_script"]
 [ext_resource type="PackedScene" uid="uid://l07qioho22wn" path="res://scenes/components/Player.tscn" id="2_alex_node"]
 [ext_resource type="Texture2D" uid="uid://beg2kw4bcvamg" path="res://assets/sprites/objects/chest_01.png" id="3_chest_tex"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/pywizard_sheet.png" id="4_wizard_tex"]
-[ext_resource type="Texture2D" path="res://assets/maps/boss_arena_bg.jpg" id="5_arena_bg"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/shrine_altar.png" id="6_altar_tex"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/boss_golem_sheet.png" id="7_boss_sheet"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/spell_fireball.png" id="8_spell_tex"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/magic_sparkle.png" id="9_sparkle_tex"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/battle_pad_hero.png" id="10_pad_hero"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/battle_pad_boss.png" id="11_pad_boss"]
-[ext_resource type="Texture2D" path="res://assets/sprites/custom/boss_brazier_sheet.png" id="12_brazier"]
+[ext_resource type="Texture2D" uid="uid://k46b7w0hhmhg" path="res://assets/sprites/custom/pywizard_sheet.png" id="4_wizard_tex"]
+[ext_resource type="Texture2D" uid="uid://3kqcs6j6k03e" path="res://assets/maps/boss_arena_bg.jpg" id="5_arena_bg"]
+[ext_resource type="Texture2D" uid="uid://dig2w77c23pp6" path="res://assets/sprites/custom/shrine_altar.png" id="6_altar_tex"]
+[ext_resource type="Texture2D" uid="uid://b8dxfaw3csqqj" path="res://assets/sprites/custom/boss_golem_sheet.png" id="7_boss_sheet"]
+[ext_resource type="Texture2D" uid="uid://b3e552fkrwanb" path="res://assets/sprites/custom/spell_fireball.png" id="8_spell_tex"]
+[ext_resource type="Texture2D" uid="uid://bd2htud0h6ttg" path="res://assets/sprites/custom/magic_sparkle.png" id="9_sparkle_tex"]
+[ext_resource type="Texture2D" uid="uid://ci2lwg4qbs8c4" path="res://assets/sprites/custom/battle_pad_hero.png" id="10_pad_hero"]
+[ext_resource type="Texture2D" uid="uid://cdcifphovdv45" path="res://assets/sprites/custom/battle_pad_boss.png" id="11_pad_boss"]
+[ext_resource type="Texture2D" uid="uid://2jt013olm8kk" path="res://assets/sprites/custom/boss_brazier_sheet.png" id="12_brazier"]
 
 [sub_resource type="Curve" id="Curve_particles"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
@@ -78,30 +78,30 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="VisualStage" type="Node2D"]
+[node name="VisualStage" type="Node2D" unique_id=221269251]
 script = ExtResource("1_stage_script")
 
-[node name="DungeonEnvironment" type="Node2D" parent="."]
+[node name="DungeonEnvironment" type="Node2D" parent="." unique_id=1716176540]
 
-[node name="ArenaWallpaper" type="TextureRect" parent="DungeonEnvironment"]
+[node name="ArenaWallpaper" type="TextureRect" parent="DungeonEnvironment" unique_id=225536841]
 offset_right = 1080.0
 offset_bottom = 970.0
 texture = ExtResource("5_arena_bg")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="VignetteTop" type="ColorRect" parent="DungeonEnvironment"]
+[node name="VignetteTop" type="ColorRect" parent="DungeonEnvironment" unique_id=942387067]
 offset_right = 1080.0
 offset_bottom = 150.0
 color = Color(0.03, 0.02, 0.07, 0.55)
 
-[node name="VignetteBottom" type="ColorRect" parent="DungeonEnvironment"]
+[node name="VignetteBottom" type="ColorRect" parent="DungeonEnvironment" unique_id=291928963]
 offset_top = 860.0
 offset_right = 1080.0
 offset_bottom = 970.0
 color = Color(0.03, 0.02, 0.07, 0.65)
 
-[node name="VortexParticles" type="CPUParticles2D" parent="DungeonEnvironment"]
+[node name="VortexParticles" type="CPUParticles2D" parent="DungeonEnvironment" unique_id=1392653639]
 position = Vector2(540, 320)
 amount = 26
 texture = ExtResource("9_sparkle_tex")
@@ -118,7 +118,7 @@ scale_amount_max = 0.65
 scale_amount_curve = SubResource("Curve_particles")
 color = Color(0.75, 0.5, 1, 0.8)
 
-[node name="StageEmbers" type="CPUParticles2D" parent="DungeonEnvironment"]
+[node name="StageEmbers" type="CPUParticles2D" parent="DungeonEnvironment" unique_id=1931394867]
 position = Vector2(540, 780)
 amount = 22
 texture = ExtResource("9_sparkle_tex")
@@ -135,56 +135,56 @@ scale_amount_max = 0.5
 scale_amount_curve = SubResource("Curve_particles")
 color = Color(0.4, 0.85, 1, 0.75)
 
-[node name="BrazierLeft" type="Sprite2D" parent="DungeonEnvironment"]
+[node name="BrazierLeft" type="Sprite2D" parent="DungeonEnvironment" unique_id=1131845695]
 position = Vector2(140, 690)
 scale = Vector2(1.6, 1.6)
 texture = ExtResource("12_brazier")
 hframes = 4
 
-[node name="BrazierRight" type="Sprite2D" parent="DungeonEnvironment"]
+[node name="BrazierRight" type="Sprite2D" parent="DungeonEnvironment" unique_id=821958602]
 position = Vector2(960, 690)
 scale = Vector2(1.6, 1.6)
 texture = ExtResource("12_brazier")
 hframes = 4
 
-[node name="HeroPlatform" type="Sprite2D" parent="DungeonEnvironment"]
-position = Vector2(280, 790)
+[node name="HeroPlatform" type="Sprite2D" parent="DungeonEnvironment" unique_id=1390879521]
+position = Vector2(282.00003, 814)
 scale = Vector2(1.85, 1.65)
 texture = ExtResource("10_pad_hero")
 
-[node name="BossPlatform" type="Sprite2D" parent="DungeonEnvironment"]
-position = Vector2(720, 790)
+[node name="BossPlatform" type="Sprite2D" parent="DungeonEnvironment" unique_id=1378594055]
+position = Vector2(716, 819.00006)
 scale = Vector2(1.95, 1.75)
 texture = ExtResource("11_pad_boss")
 
-[node name="BossHUD" type="PanelContainer" parent="DungeonEnvironment"]
+[node name="BossHUD" type="PanelContainer" parent="DungeonEnvironment" unique_id=1651743196]
 offset_left = 110.0
 offset_top = 22.0
 offset_right = 970.0
 offset_bottom = 132.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_boss_card")
 
-[node name="VBox" type="VBoxContainer" parent="DungeonEnvironment/BossHUD"]
+[node name="VBox" type="VBoxContainer" parent="DungeonEnvironment/BossHUD" unique_id=397914444]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HeaderHBox" type="HBoxContainer" parent="DungeonEnvironment/BossHUD/VBox"]
+[node name="HeaderHBox" type="HBoxContainer" parent="DungeonEnvironment/BossHUD/VBox" unique_id=872292752]
 layout_mode = 2
 
-[node name="BossTitleLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox/HeaderHBox"]
+[node name="BossTitleLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox/HeaderHBox" unique_id=69094966]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 0.42, 0.62, 1)
 theme_override_font_sizes/font_size = 18
 text = "👾 WORLD 1 BOSS: NULLBYTE, THE DARK SYNTAX KNIGHT"
 
-[node name="BossHPLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox/HeaderHBox"]
+[node name="BossHPLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox/HeaderHBox" unique_id=720935680]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.92, 1)
 theme_override_font_sizes/font_size = 16
 text = "500 / 500 HP"
 
-[node name="BossHPBar" type="ProgressBar" parent="DungeonEnvironment/BossHUD/VBox"]
+[node name="BossHPBar" type="ProgressBar" parent="DungeonEnvironment/BossHUD/VBox" unique_id=197902070]
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
@@ -193,27 +193,27 @@ max_value = 500.0
 value = 500.0
 show_percentage = false
 
-[node name="BossStatusLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox"]
+[node name="BossStatusLabel" type="Label" parent="DungeonEnvironment/BossHUD/VBox" unique_id=1140721803]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.72, 0.98, 0.95)
 theme_override_font_sizes/font_size = 12
 text = "⚡ SANCTUM SEAL ACTIVE: Execute valid Python spells to shatter NullByte's armor!"
 horizontal_alignment = 1
 
-[node name="TreasureChest" type="Node2D" parent="."]
+[node name="TreasureChest" type="Node2D" parent="." unique_id=1419834780]
 position = Vector2(900, 725)
 
-[node name="AltarPedestal" type="Sprite2D" parent="TreasureChest"]
+[node name="AltarPedestal" type="Sprite2D" parent="TreasureChest" unique_id=107097016]
 position = Vector2(0, 36)
 scale = Vector2(1.8, 1.2)
 texture = ExtResource("6_altar_tex")
 
-[node name="Sprite2D" type="Sprite2D" parent="TreasureChest"]
+[node name="Sprite2D" type="Sprite2D" parent="TreasureChest" unique_id=342209591]
 scale = Vector2(3.2, 3.2)
 texture = ExtResource("3_chest_tex")
 hframes = 4
 
-[node name="ChestGlow" type="ColorRect" parent="TreasureChest"]
+[node name="ChestGlow" type="ColorRect" parent="TreasureChest" unique_id=1610082081]
 visible = false
 offset_left = -40.0
 offset_top = -40.0
@@ -221,11 +221,10 @@ offset_right = 40.0
 offset_bottom = 40.0
 color = Color(0.960784, 0.745098, 0.168627, 0.25)
 
-[node name="ChestParticles" type="CPUParticles2D" parent="TreasureChest"]
+[node name="ChestParticles" type="CPUParticles2D" parent="TreasureChest" unique_id=1249918619]
 emitting = false
 amount = 35
 texture = ExtResource("9_sparkle_tex")
-lifetime = 1.0
 one_shot = true
 explosiveness = 0.85
 spread = 180.0
@@ -237,7 +236,7 @@ scale_amount_max = 0.8
 scale_amount_curve = SubResource("Curve_particles")
 color = Color(0.984314, 0.74902, 0.141176, 1)
 
-[node name="ChestLabel" type="Label" parent="TreasureChest"]
+[node name="ChestLabel" type="Label" parent="TreasureChest" unique_id=2132620446]
 offset_left = -100.0
 offset_top = -62.0
 offset_right = 100.0
@@ -250,10 +249,10 @@ theme_override_font_sizes/font_size = 13
 text = "🔒 Grand Relic Chest"
 horizontal_alignment = 1
 
-[node name="BossGolem" type="Node2D" parent="."]
+[node name="BossGolem" type="Node2D" parent="." unique_id=1697997053]
 position = Vector2(720, 725)
 
-[node name="BossSprite" type="Sprite2D" parent="BossGolem"]
+[node name="BossSprite" type="Sprite2D" parent="BossGolem" unique_id=459084853]
 texture_filter = 1
 scale = Vector2(5.2, 5.2)
 texture = ExtResource("7_boss_sheet")
@@ -261,7 +260,7 @@ flip_h = true
 hframes = 6
 vframes = 10
 
-[node name="HitParticles" type="CPUParticles2D" parent="BossGolem"]
+[node name="HitParticles" type="CPUParticles2D" parent="BossGolem" unique_id=1263512453]
 position = Vector2(0, 20)
 emitting = false
 amount = 32
@@ -278,11 +277,11 @@ scale_amount_max = 0.95
 scale_amount_curve = SubResource("Curve_particles")
 color = Color(0.4, 0.95, 1, 1)
 
-[node name="BossTag" type="Label" parent="BossGolem"]
+[node name="BossTag" type="Label" parent="BossGolem" unique_id=105992167]
 offset_left = -130.0
-offset_top = -65.0
+offset_top = -128.0
 offset_right = 130.0
-offset_bottom = -40.0
+offset_bottom = -102.0
 theme_override_colors/font_color = Color(1, 0.55, 0.85, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
@@ -291,29 +290,29 @@ theme_override_font_sizes/font_size = 14
 text = "⚔️ NullByte [Boss]"
 horizontal_alignment = 1
 
-[node name="Alex" parent="." instance=ExtResource("2_alex_node")]
+[node name="Alex" parent="." unique_id=144307536 instance=ExtResource("2_alex_node")]
 position = Vector2(280, 725)
 scale = Vector2(3.4, 3.4)
 
-[node name="HeroHUDPanel" type="PanelContainer" parent="."]
-offset_left = 160.0
-offset_top = 835.0
-offset_right = 400.0
-offset_bottom = 895.0
+[node name="HeroHUDPanel" type="PanelContainer" parent="." unique_id=2090603844]
+offset_left = 167.0
+offset_top = 846.0
+offset_right = 413.0
+offset_bottom = 906.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_hero_card")
 
-[node name="HeroHUD" type="VBoxContainer" parent="HeroHUDPanel"]
+[node name="HeroHUD" type="VBoxContainer" parent="HeroHUDPanel" unique_id=1310974500]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="HeroNameLabel" type="Label" parent="HeroHUDPanel/HeroHUD"]
+[node name="HeroNameLabel" type="Label" parent="HeroHUDPanel/HeroHUD" unique_id=1429641517]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.95, 0.72, 1)
 theme_override_font_sizes/font_size = 14
 text = "🛡️ Adventurer Alex • 100/100 HP"
 horizontal_alignment = 1
 
-[node name="HeroHPBar" type="ProgressBar" parent="HeroHUDPanel/HeroHUD"]
+[node name="HeroHPBar" type="ProgressBar" parent="HeroHUDPanel/HeroHUD" unique_id=691540469]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
@@ -321,16 +320,16 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_hero_fill")
 value = 100.0
 show_percentage = false
 
-[node name="SpellProjectile" type="Sprite2D" parent="."]
+[node name="SpellProjectile" type="Sprite2D" parent="." unique_id=1646609238]
 visible = false
 position = Vector2(340, 735)
 scale = Vector2(2.4, 2.4)
 texture = ExtResource("8_spell_tex")
 
-[node name="PyWizard" type="Node2D" parent="."]
+[node name="PyWizard" type="Node2D" parent="." unique_id=365050269]
 position = Vector2(145, 515)
 
-[node name="Aura" type="ColorRect" parent="PyWizard"]
+[node name="Aura" type="ColorRect" parent="PyWizard" unique_id=1103419298]
 visible = false
 offset_left = -45.0
 offset_top = -50.0
@@ -338,13 +337,13 @@ offset_right = 45.0
 offset_bottom = 50.0
 color = Color(0.380392, 0.65098, 0.980392, 0.12)
 
-[node name="Sprite2D" type="Sprite2D" parent="PyWizard"]
+[node name="Sprite2D" type="Sprite2D" parent="PyWizard" unique_id=1090212439]
 texture_filter = 1
 scale = Vector2(4.2, 4.2)
 texture = ExtResource("4_wizard_tex")
 hframes = 6
 
-[node name="WizardName" type="Label" parent="PyWizard"]
+[node name="WizardName" type="Label" parent="PyWizard" unique_id=1449032757]
 offset_left = -95.0
 offset_top = 56.0
 offset_right = 95.0
@@ -357,7 +356,7 @@ theme_override_font_sizes/font_size = 13
 text = "🧙 Master PyWizard"
 horizontal_alignment = 1
 
-[node name="WizardRole" type="Label" parent="PyWizard"]
+[node name="WizardRole" type="Label" parent="PyWizard" unique_id=935927094]
 offset_left = -95.0
 offset_top = 74.0
 offset_right = 95.0
@@ -370,7 +369,7 @@ theme_override_font_sizes/font_size = 11
 text = "Arcane Advisor"
 horizontal_alignment = 1
 
-[node name="FloatingLabel" type="Label" parent="."]
+[node name="FloatingLabel" type="Label" parent="." unique_id=1861300080]
 visible = false
 offset_left = 340.0
 offset_top = 580.0
@@ -383,7 +382,7 @@ theme_override_font_sizes/font_size = 26
 text = "-100 HP! CRITICAL SPELL!"
 horizontal_alignment = 1
 
-[node name="ScreenFlash" type="ColorRect" parent="."]
+[node name="ScreenFlash" type="ColorRect" parent="." unique_id=329305121]
 visible = false
 offset_right = 1080.0
 offset_bottom = 970.0

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c40kpvg5xfq77"]
 
-[ext_resource type="Script" uid="uid://b00slime0001" path="res://scripts/world/SlimeCreature.gd" id="1_slime_script"]
-[ext_resource type="Texture2D" uid="uid://b453eubk20b4a" path="res://assets/sprites/characters/slime.png" id="2_slime_tex"]
+[ext_resource type="Script" uid="uid://dlxrfobiqffj" path="res://scripts/world/SlimeCreature.gd" id="1_slime_script"]
+[ext_resource type="Texture2D" uid="uid://b67pj246hiu0s" path="res://assets/sprites/characters/slime.png" id="2_slime_tex"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_i0"]
 atlas = ExtResource("2_slime_tex")
