@@ -17,10 +17,19 @@ const SFX_BADGE_UNLOCK: String = "res://assets/audio/sfx_badge_unlock.wav"
 const SFX_FOOTSTEP_1: String = "res://assets/audio/sfx_footstep_1.wav"
 const SFX_FOOTSTEP_2: String = "res://assets/audio/sfx_footstep_2.wav"
 
+const SFX_POOL_SIZE: int = 12
+
 var _footstep_toggle: bool = false
 
 var bgm_player: AudioStreamPlayer
 var sfx_player: AudioStreamPlayer
+var sfx_pool: Array[AudioStreamPlayer] = []
+var _sfx_pool_index: int = 0
+
+# Dedicated channels so high-frequency and celebratory audio never cut each other off
+var footstep_player: AudioStreamPlayer
+var badge_player: AudioStreamPlayer
+
 var current_track_path: String = ""
 var sfx_cache: Dictionary = {}
 
@@ -36,11 +45,29 @@ func _ready() -> void:
 	bgm_player.bus = "Master"
 	add_child(bgm_player)
 	
-	sfx_player = AudioStreamPlayer.new()
-	sfx_player.name = "SFXPlayer"
-	sfx_player.bus = "Master"
-	sfx_player.max_polyphony = 8
-	add_child(sfx_player)
+	# Dedicated badge & jingle player (uninterruptible by footsteps or combat effects)
+	badge_player = AudioStreamPlayer.new()
+	badge_player.name = "BadgePlayer"
+	badge_player.bus = "Master"
+	add_child(badge_player)
+	
+	# Dedicated footstep player (plays walking sounds on its own channel)
+	footstep_player = AudioStreamPlayer.new()
+	footstep_player.name = "FootstepPlayer"
+	footstep_player.bus = "Master"
+	add_child(footstep_player)
+	
+	# General SFX polyphonic pool (allows multiple sound effects to overlap naturally)
+	sfx_pool.clear()
+	for i in range(SFX_POOL_SIZE):
+		var p = AudioStreamPlayer.new()
+		p.name = "SFXPlayer_%d" % i
+		p.bus = "Master"
+		add_child(p)
+		sfx_pool.append(p)
+	
+	if sfx_pool.size() > 0:
+		sfx_player = sfx_pool[0]
 	
 	apply_initial_settings()
 	_preload_core_sfx()
@@ -101,8 +128,16 @@ func set_music_volume(vol: float) -> void:
 
 func set_sfx_volume(vol: float) -> void:
 	sfx_volume = clampf(vol, 0.0, 1.0)
+	var db = volume_to_db(sfx_volume)
 	if sfx_player:
-		sfx_player.volume_db = volume_to_db(sfx_volume)
+		sfx_player.volume_db = db
+	for p in sfx_pool:
+		if is_instance_valid(p):
+			p.volume_db = db
+	if footstep_player:
+		footstep_player.volume_db = volume_to_db(sfx_volume * 0.7)
+	if badge_player:
+		badge_player.volume_db = db
 
 func play_sfx(path: String = SFX_CHIME, pitch_scale: float = 1.0) -> void:
 	if sfx_volume <= 0.01:
@@ -113,11 +148,25 @@ func play_sfx(path: String = SFX_CHIME, pitch_scale: float = 1.0) -> void:
 		else:
 			return
 	var stream = sfx_cache.get(path)
-	if stream and sfx_player:
-		sfx_player.pitch_scale = pitch_scale
-		sfx_player.volume_db = volume_to_db(sfx_volume)
-		sfx_player.stream = stream
-		sfx_player.play()
+	if not stream:
+		return
+
+	# Find an idle player in the SFX pool, or take round-robin so SFX never cut each other off
+	var target_player: AudioStreamPlayer = null
+	for p in sfx_pool:
+		if is_instance_valid(p) and not p.playing:
+			target_player = p
+			break
+
+	if not target_player and sfx_pool.size() > 0:
+		target_player = sfx_pool[_sfx_pool_index % sfx_pool.size()]
+		_sfx_pool_index = (_sfx_pool_index + 1) % sfx_pool.size()
+
+	if target_player:
+		target_player.pitch_scale = pitch_scale
+		target_player.volume_db = volume_to_db(sfx_volume)
+		target_player.stream = stream
+		target_player.play()
 
 # Dedicated Helper Functions
 func play_spell_cast() -> void:
@@ -154,13 +203,34 @@ func play_npc_chat() -> void:
 	play_sfx(SFX_NPC_CHAT)
 
 func play_badge_unlock() -> void:
-	play_sfx(SFX_BADGE_UNLOCK)
+	if sfx_volume <= 0.01:
+		return
+	if not sfx_cache.has(SFX_BADGE_UNLOCK):
+		if ResourceLoader.exists(SFX_BADGE_UNLOCK):
+			sfx_cache[SFX_BADGE_UNLOCK] = load(SFX_BADGE_UNLOCK)
+	var stream = sfx_cache.get(SFX_BADGE_UNLOCK)
+	if stream and badge_player:
+		badge_player.pitch_scale = 1.0
+		badge_player.volume_db = volume_to_db(sfx_volume)
+		badge_player.stream = stream
+		badge_player.play()
 
 func play_footstep() -> void:
+	if sfx_volume <= 0.01:
+		return
 	_footstep_toggle = !_footstep_toggle
 	var sfx = SFX_FOOTSTEP_1 if _footstep_toggle else SFX_FOOTSTEP_2
 	var random_pitch = randf_range(0.92, 1.08)
-	play_sfx(sfx, random_pitch)
+
+	if not sfx_cache.has(sfx):
+		if ResourceLoader.exists(sfx):
+			sfx_cache[sfx] = load(sfx)
+	var stream = sfx_cache.get(sfx)
+	if stream and footstep_player:
+		footstep_player.pitch_scale = random_pitch
+		footstep_player.volume_db = volume_to_db(sfx_volume * 0.7)
+		footstep_player.stream = stream
+		footstep_player.play()
 
 ## Plays background music seamlessly. If the same track is already playing, it will NOT restart.
 ## from_pos: Starting timestamp in seconds (e.g. 0.01 to skip initial silence)
@@ -192,17 +262,17 @@ func play_bgm_by_path(path: String, from_pos: float = 0.0) -> void:
 		
 		play_bgm(stream, from_pos)
 
-## Plays the dedicated boss theme for the specified world (1 to 4).
-## Matches "res://assets/audio/world{1-4}_boss_theme.mp3".
+## Plays the dedicated boss theme for the specified world (1 to 5).
+## Matches "res://assets/audio/world{1-5}_boss_theme.mp3".
 ## Gracefully falls back to world music or world 1 boss theme if a specific track is not yet added.
 func play_boss_theme(world_num: int) -> void:
-	var boss_path: String = "res://assets/audio/world%d_boss_theme.mp3" % clampi(world_num, 1, 4)
+	var boss_path: String = "res://assets/audio/world%d_boss_theme.mp3" % clampi(world_num, 1, 5)
 	if ResourceLoader.exists(boss_path) or FileAccess.file_exists(boss_path):
 		play_bgm_by_path(boss_path)
 		return
 	
 	# Fallback if specific boss theme isn't on disk yet
-	var world_music_path: String = "res://assets/audio/world%d_music.mp3" % clampi(world_num, 1, 4)
+	var world_music_path: String = "res://assets/audio/world%d_music.mp3" % clampi(world_num, 1, 5)
 	if ResourceLoader.exists(world_music_path) or FileAccess.file_exists(world_music_path):
 		play_bgm_by_path(world_music_path)
 	else:

@@ -256,7 +256,7 @@ func _create_badge_popup_ui() -> void:
 	hbox.add_child(vbox)
 
 	_sub_label = Label.new()
-	_sub_label.text = "🏆 BADGE UNLOCKED"
+	_sub_label.text = "BADGE UNLOCKED"
 	_sub_label.add_theme_font_size_override("font_size", 12)
 	_sub_label.add_theme_color_override("font_color", Color(0.98, 0.85, 0.35))
 	vbox.add_child(_sub_label)

@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cbtgc8pt30a3n"]
 
-[ext_resource type="Script" path="res://scripts/ui/BadgesModal.gd" id="1_badges_script"]
+[ext_resource type="Script" uid="uid://cxp7ds7gul5wq" path="res://scripts/ui/BadgesModal.gd" id="1_badges_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_bg"]
 bg_color = Color(0.06, 0.08, 0.12, 0.96)
@@ -18,17 +18,17 @@ shadow_size = 28
 shadow_offset = Vector2(0, 10)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_btn"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
 bg_color = Color(0.85, 0.25, 0.3, 0.9)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-content_margin_left = 12
-content_margin_right = 12
-content_margin_top = 6
-content_margin_bottom = 6
 
-[node name="BadgesModal" type="ColorRect"]
+[node name="BadgesModal" type="ColorRect" unique_id=1524582155]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -37,7 +37,7 @@ grow_vertical = 2
 color = Color(0.02, 0.03, 0.05, 0.82)
 script = ExtResource("1_badges_script")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Center" type="CenterContainer" parent="." unique_id=1717097562]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,34 +45,34 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ModalCard" type="PanelContainer" parent="Center"]
+[node name="ModalCard" type="PanelContainer" parent="Center" unique_id=1849674888]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(980, 680)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal_bg")
 
-[node name="Margin" type="MarginContainer" parent="Center/ModalCard"]
+[node name="Margin" type="MarginContainer" parent="Center/ModalCard" unique_id=401509115]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="Center/ModalCard/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Center/ModalCard/Margin" unique_id=1515028937]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="HeaderHBox" type="HBoxContainer" parent="Center/ModalCard/Margin/VBox"]
+[node name="HeaderHBox" type="HBoxContainer" parent="Center/ModalCard/Margin/VBox" unique_id=2058730556]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="TitleLabel" type="Label" parent="Center/ModalCard/Margin/VBox/HeaderHBox"]
+[node name="TitleLabel" type="Label" parent="Center/ModalCard/Margin/VBox/HeaderHBox" unique_id=846903864]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.88, 0.35, 1)
 theme_override_font_sizes/font_size = 22
-text = "🏆 TROPHY ROOM & ACHIEVEMENTS"
+text = "🏆 BADGES ROOM & ACHIEVEMENTS"
 
-[node name="SummaryLabel" type="Label" parent="Center/ModalCard/Margin/VBox/HeaderHBox"]
+[node name="SummaryLabel" type="Label" parent="Center/ModalCard/Margin/VBox/HeaderHBox" unique_id=2087044644]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -81,7 +81,7 @@ theme_override_font_sizes/font_size = 14
 text = "0 / 16 Badges Unlocked"
 horizontal_alignment = 2
 
-[node name="CloseBtn" type="Button" parent="Center/ModalCard/Margin/VBox/HeaderHBox"]
+[node name="CloseBtn" type="Button" parent="Center/ModalCard/Margin/VBox/HeaderHBox" unique_id=1054964716]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(40, 38)
 layout_mode = 2
@@ -91,51 +91,51 @@ theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_close_btn")
 text = "✕"
 
-[node name="TabsHBox" type="HBoxContainer" parent="Center/ModalCard/Margin/VBox"]
+[node name="TabsHBox" type="HBoxContainer" parent="Center/ModalCard/Margin/VBox" unique_id=217228440]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TabAllBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+[node name="TabAllBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox" unique_id=1088968996]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 14
 text = "All Badges (16)"
 
-[node name="TabDomainBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+[node name="TabDomainBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox" unique_id=307903296]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 14
 text = "🐍 Python Knowledge (5)"
 
-[node name="TabCombatBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+[node name="TabCombatBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox" unique_id=1940175871]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 14
 text = "⚔️ Combat (5)"
 
-[node name="TabExplorationBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+[node name="TabExplorationBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox" unique_id=27298526]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 14
 text = "🗺️ Exploration (4)"
 
-[node name="TabProgressionBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox"]
+[node name="TabProgressionBtn" type="Button" parent="Center/ModalCard/Margin/VBox/TabsHBox" unique_id=1283604947]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 14
 text = "📈 Growth (2)"
 
-[node name="Scroll" type="ScrollContainer" parent="Center/ModalCard/Margin/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="Center/ModalCard/Margin/VBox" unique_id=1685705817]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="CardsGrid" type="GridContainer" parent="Center/ModalCard/Margin/VBox/Scroll"]
+[node name="CardsGrid" type="GridContainer" parent="Center/ModalCard/Margin/VBox/Scroll" unique_id=359538613]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
