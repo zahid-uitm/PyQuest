@@ -69,7 +69,7 @@ func _shake_arena(intensity: float = 10.0) -> void:
 
 func _update_arena_bars() -> void:
 	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
-	var b_name = "Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte")))
+	var b_name = "Lord SegFault" if cur_lvl == 6 else ("Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte"))))
 	var hp_label = get_node_or_null("DungeonEnvironment/BossHUD/VBox/HeaderHBox/BossHPLabel") as Label
 	var hp_bar = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossHPBar") as ProgressBar
 	var status_lbl = get_node_or_null("DungeonEnvironment/BossHUD/VBox/BossStatusLabel") as Label
@@ -83,7 +83,14 @@ func _update_arena_bars() -> void:
 		if hero_hp <= 0:
 			status_lbl.text = "💀 ADVENTURER FALLEN! %s's Curse shattered Alex's shield!" % b_name
 		elif boss_hp <= 0:
-			status_lbl.text = "🏆 BOSS DEFEATED! %s has fallen and the Grand Relic Chest is unsealed!" % b_name
+			status_lbl.text = "🏆 BOSS DEFEATED! %s has fallen and Princess Ada is freed!" % b_name if cur_lvl == 6 else "🏆 BOSS DEFEATED! %s has fallen and the Grand Relic Chest is unsealed!" % b_name
+		elif cur_lvl == 6:
+			if boss_hp <= 150:
+				status_lbl.text = "👑 FINAL PHASE [SOURCE CODE RESONANCE]: Unleash the 5 Generals' power to shatter Princess Ada's Prism!"
+			elif boss_hp <= 400:
+				status_lbl.text = "⚡ PHASE II [KERNEL CORRUPTION]: SegFault is scrambling memory! Use your General Assist Skills!"
+			else:
+				status_lbl.text = "🏰 PHASE I [THE NULL SOVEREIGN]: All 5 Awakened Generals stand with you! Strike Lord SegFault!"
 		elif cur_lvl == 5:
 			if boss_hp <= 100:
 				status_lbl.text = "👑 STAGE III [GRAND SYNTHESIS]: All 4 Mentors lend their power! Unleash the Final Combo!"
@@ -200,7 +207,7 @@ func play_correct_action(action_type: String, score_val: int, xp_val: int) -> vo
 		alex.play_anim("side_idle")
 
 # Live Boss Counterattack when code has a Syntax Error (Walks & Slashes with Corrupt Syntax Blade!)
-func play_incorrect_action() -> void:
+func play_incorrect_action(shielded: bool = false) -> void:
 	var boss_node = get_node_or_null("BossGolem") as Node2D
 	var boss_sprite = get_node_or_null("BossGolem/BossSprite") as Sprite2D
 
@@ -214,25 +221,33 @@ func play_incorrect_action() -> void:
 		
 		# 2. Boss swings Corrupt Syntax Blade (Row 7: side_attack frames 42..45)
 		boss_anim_state = "attack"
-		AudioManager.play_player_hurt()
-		_trigger_screen_flash(Color(1.0, 0.15, 0.35, 0.38))
-		_shake_arena(15.0)
+		if shielded:
+			AudioManager.play_sfx()
+			_trigger_screen_flash(Color(0.2, 0.85, 1.0, 0.4))
+			_shake_arena(8.0)
+		else:
+			AudioManager.play_player_hurt()
+			_trigger_screen_flash(Color(1.0, 0.15, 0.35, 0.38))
+			_shake_arena(15.0)
 		for atk_f in [42, 43, 44, 45]:
 			boss_sprite.frame = atk_f
 			await get_tree().create_timer(0.08).timeout
 
-	hero_hp = max(0, hero_hp - 35)
-	_update_arena_bars()
-
-	if hero_hp <= 0:
-		show_floating_text("💀 ALEX DEFEATED! (0 / 100 HP)", Color("#EF4444"))
-		if alex and alex.has_method("perform_death"):
-			await alex.perform_death()
+	if shielded:
+		show_floating_text("🛡️ CHRONOS TEMPORAL SHIELD! (0 Damage Taken!)", Color("#38BDF8"))
 	else:
-		# Alex recoils
-		if alex and alex.has_method("perform_recoil"):
-			alex.perform_recoil()
-		show_floating_text("⚡ BOSS SLASH! -35 Shield HP (%d/100 HP)" % hero_hp, Color("#EF4444"))
+		hero_hp = max(0, hero_hp - 35)
+		_update_arena_bars()
+
+		if hero_hp <= 0:
+			show_floating_text("💀 ALEX DEFEATED! (0 / 100 HP)", Color("#EF4444"))
+			if alex and alex.has_method("perform_death"):
+				await alex.perform_death()
+		else:
+			# Alex recoils
+			if alex and alex.has_method("perform_recoil"):
+				alex.perform_recoil()
+			show_floating_text("⚡ BOSS SLASH! -35 Shield HP (%d/100 HP)" % hero_hp, Color("#EF4444"))
 
 	# 3. Boss walks back to his platform
 	if boss_sprite and boss_node:
@@ -243,6 +258,22 @@ func play_incorrect_action() -> void:
 		await back_tw.finished
 		boss_sprite.flip_h = true
 		boss_anim_state = "idle"
+
+func play_general_assist_effect(msg: String, color: Color, heal_hero: int = 0, boss_dmg: int = 0) -> void:
+	AudioManager.play_spell_cast()
+	_trigger_screen_flash(Color(color.r, color.g, color.b, 0.35))
+	_shake_arena(10.0)
+	if heal_hero > 0:
+		hero_hp = min(100, hero_hp + heal_hero)
+	if boss_dmg > 0:
+		boss_hp = max(20, boss_hp - boss_dmg)
+		var hit_particles = get_node_or_null("BossGolem/HitParticles") as CPUParticles2D
+		if hit_particles:
+			hit_particles.restart()
+			hit_particles.emitting = true
+	if heal_hero > 0 or boss_dmg > 0:
+		_update_arena_bars()
+	show_floating_text(msg, color)
 
 func show_pywizard_hint() -> void:
 	AudioManager.play_sfx("res://assets/audio/sfx_chime.wav")
@@ -269,7 +300,7 @@ func show_floating_text(msg: String, color: Color) -> void:
 
 func reset_stage() -> void:
 	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
-	boss_max_hp = 600 if cur_lvl == 5 else 500
+	boss_max_hp = 600 if cur_lvl >= 5 else 500
 	boss_hp = boss_max_hp
 	hero_hp = 100
 	boss_anim_state = "idle"
@@ -295,7 +326,23 @@ func reset_stage() -> void:
 			arena_wallpaper.texture = load("res://assets/maps/boss_arena_bg.jpg")
 
 	# 2. Configure Boss, Particles, Atmosphere, and Thematics per World
-	if cur_lvl == 5:
+	if cur_lvl == 6:
+		if boss_sprite:
+			boss_sprite.texture = load("res://assets/sprites/custom/boss_segfault_sheet.png")
+		if boss_tag:
+			boss_tag.text = "👑 Lord SegFault [Null Sovereign]"
+		if boss_title:
+			boss_title.text = "👑 FINAL BOSS: LORD SEGFAULT, THE NULL SOVEREIGN"
+			boss_title.add_theme_color_override("font_color", Color("#E879F9"))
+		if vortex_particles:
+			vortex_particles.color = Color(0.95, 0.2, 0.65, 0.92)
+		if stage_embers:
+			stage_embers.color = Color(0.4, 0.9, 1.0, 0.9)
+		if brazier_left:
+			brazier_left.modulate = Color(0.95, 0.3, 0.85)
+		if brazier_right:
+			brazier_right.modulate = Color(0.35, 0.85, 1.0)
+	elif cur_lvl == 5:
 		if boss_sprite:
 			boss_sprite.texture = load("res://assets/sprites/custom/boss_guardian_sheet.png")
 		if boss_tag:
@@ -387,7 +434,9 @@ func reset_stage() -> void:
 
 	var chest_label = get_node_or_null("TreasureChest/ChestLabel") as Label
 	if chest_label:
-		if cur_lvl == 5:
+		if cur_lvl == 6:
+			chest_label.text = "🔒 Princess Ada's Glitch Prism"
+		elif cur_lvl == 5:
 			chest_label.text = "🔒 Crown of Pythonia Grand Chest"
 		elif cur_lvl == 4:
 			chest_label.text = "🔒 Pharaonic Sequence Sarcophagus"

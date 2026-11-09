@@ -300,6 +300,7 @@ func _on_confirm_reset() -> void:
 	fresh_profile["w4_npcs_helped"] = []
 	fresh_profile["w5_seals"] = []
 	fresh_profile["w5_npcs_helped"] = []
+	fresh_profile["worlds_visited"] = []
 	
 	SaveManager.user_profile = fresh_profile
 	SaveManager.save_local_profile()

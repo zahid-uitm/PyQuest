@@ -168,6 +168,10 @@ func play_sfx(path: String = SFX_CHIME, pitch_scale: float = 1.0) -> void:
 		target_player.stream = stream
 		target_player.play()
 
+## Convenience alias for play_sfx matching play_bgm_by_path naming convention
+func play_sfx_by_path(path: String, pitch_scale: float = 1.0) -> void:
+	play_sfx(path, pitch_scale)
+
 # Dedicated Helper Functions
 func play_spell_cast() -> void:
 	play_sfx(SFX_SPELL_CAST)

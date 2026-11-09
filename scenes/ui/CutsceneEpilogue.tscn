@@ -1,0 +1,467 @@
+[gd_scene format=3 uid="uid://baeqh4268n1dy"]
+
+[ext_resource type="Script" path="res://scripts/ui/CutsceneEpilogue.gd" id="1_epilogue_script"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_epilogue_segfault_fall.jpg" id="2_segfault_fall_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_epilogue_prison_break.jpg" id="3_prison_break_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_epilogue_alex_saves_ada.jpg" id="4_alex_saves_ada_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_epilogue_pythonia_restored.jpg" id="5_pythonia_restored_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_epilogue_restoration.jpg" id="6_codex_restoration_bg"]
+[ext_resource type="PackedScene" path="res://scenes/ui/BottomDialogBar.tscn" id="7_dialog_bar"]
+
+[sub_resource type="Curve" id="Curve_gold"]
+_data = [Vector2(0, 0.4), 0.0, 1.8, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.2, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_gold"]
+offsets = PackedFloat32Array(0, 0.25, 0.7, 1)
+colors = PackedColorArray(1, 1, 0.8, 1, 1, 0.85, 0.2, 1, 0.95, 0.5, 0.1, 0.8, 1, 0.3, 0.1, 0)
+
+[sub_resource type="Curve" id="Curve_confetti"]
+_data = [Vector2(0, 0.8), 0.0, 0.5, 0, 0, Vector2(0.5, 1.2), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_confetti"]
+offsets = PackedFloat32Array(0, 0.2, 0.5, 0.8, 1)
+colors = PackedColorArray(1, 0.85, 0.2, 1, 0.2, 0.8, 1, 1, 0.9, 0.4, 1, 1, 0.2, 1, 0.5, 1, 1, 0.9, 0.5, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_narrator"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+bg_color = Color(0.06, 0.05, 0.11, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96, 0.76, 0.22, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.85)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_normal"]
+bg_color = Color(0.08, 0.1, 0.16, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.5, 0.65, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_hover"]
+bg_color = Color(0.16, 0.2, 0.32, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.85, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_victory_card"]
+content_margin_left = 48.0
+content_margin_top = 36.0
+content_margin_right = 48.0
+content_margin_bottom = 36.0
+bg_color = Color(0.07, 0.08, 0.14, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.96, 0.78, 0.25, 0.95)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.85)
+shadow_size = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_gold"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.72, 0.52, 0.12, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.9, 0.4, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_cyan"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.12, 0.38, 0.55, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.85, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_green"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.12, 0.48, 0.32, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.95, 0.6, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="CutsceneEpilogue" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_epilogue_script")
+
+[node name="Stages" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageSegfaultFall" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_segfault_fall_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StagePrisonBreak" type="TextureRect" parent="Stages"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_prison_break_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageAlexSavesAda" type="TextureRect" parent="Stages"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_alex_saves_ada_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StagePythoniaRestored" type="TextureRect" parent="Stages"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_pythonia_restored_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageCodexRestoration" type="TextureRect" parent="Stages"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_codex_restoration_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="VFX" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="GoldParticles" type="CPUParticles2D" parent="VFX"]
+position = Vector2(960, 540)
+emitting = false
+amount = 60
+lifetime = 2.5
+emission_shape = 3
+emission_rect_extents = Vector2(960, 540)
+direction = Vector2(0, -1)
+spread = 60.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 20.0
+initial_velocity_max = 60.0
+scale_amount_min = 2.0
+scale_amount_max = 5.0
+scale_amount_curve = SubResource("Curve_gold")
+color_ramp = SubResource("Gradient_gold")
+
+[node name="FlashRect" type="ColorRect" parent="VFX"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="NarratorPanel" type="PanelContainer" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -480.0
+offset_top = 44.0
+offset_right = 480.0
+offset_bottom = 154.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_narrator")
+
+[node name="Margin" type="MarginContainer" parent="HUD/NarratorPanel"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/NarratorPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ActLabel" type="Label" parent="HUD/NarratorPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "FINALE • THE RESTORATION"
+horizontal_alignment = 1
+
+[node name="NarrationText" type="RichTextLabel" parent="HUD/NarratorPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/default_color = Color(1, 0.95, 0.9, 1)
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = "Lord SegFault is purged from memory..."
+fit_content = true
+
+[node name="SkipButton" type="Button" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -140.0
+offset_top = 28.0
+offset_right = -36.0
+offset_bottom = 68.0
+grow_horizontal = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_skip_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_skip_hover")
+text = "Skip ❯❯"
+
+[node name="CelebrationOverlay" type="Control" parent="HUD"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="HUD/CelebrationOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.09, 0.94)
+
+[node name="ConfettiParticles" type="CPUParticles2D" parent="HUD/CelebrationOverlay"]
+position = Vector2(960, 200)
+emitting = false
+amount = 80
+lifetime = 3.0
+emission_shape = 3
+emission_rect_extents = Vector2(960, 200)
+direction = Vector2(0, 1)
+spread = 70.0
+gravity = Vector2(0, 60)
+initial_velocity_min = 40.0
+initial_velocity_max = 120.0
+scale_amount_min = 3.0
+scale_amount_max = 7.0
+scale_amount_curve = SubResource("Curve_confetti")
+color_ramp = SubResource("Gradient_confetti")
+
+[node name="Center" type="CenterContainer" parent="HUD/CelebrationOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Card" type="PanelContainer" parent="HUD/CelebrationOverlay/Center"]
+custom_minimum_size = Vector2(860, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_victory_card")
+
+[node name="VBox" type="VBoxContainer" parent="HUD/CelebrationOverlay/Center/Card"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Trophy" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 52
+text = "👑"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.82, 0.22, 1)
+theme_override_font_sizes/font_size = 34
+text = "🎉 CONGRATULATIONS! 🎉"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.82, 0.98, 1)
+theme_override_font_sizes/font_size = 19
+text = "You have completed PyQuest and restored the realm of Pythonia!"
+horizontal_alignment = 1
+
+[node name="CodexBadge" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.45, 1)
+theme_override_font_sizes/font_size = 20
+text = "📜 CODEX OF PYTHON MASTERY ATTAINED 📜"
+horizontal_alignment = 1
+
+[node name="StatsBox" type="HBoxContainer" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="StarsLabel" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox/StatsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "⭐ 18 / 18 Total Stars"
+
+[node name="BadgesLabel" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox/StatsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "🏆 All Badges Unlocked"
+
+[node name="CertLabel" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox/StatsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.95, 0.65, 1)
+theme_override_font_sizes/font_size = 16
+text = "🎓 UiTM Tapah Certified"
+
+[node name="AdaQuote" type="RichTextLabel" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_colors/default_color = Color(0.9, 0.92, 0.98, 0.9)
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+text = "[center][i]\"The living syntax flows through all of Pythonia once more. You have saved our realm and mastered the true heart of code. Go forth with pride, Grandmaster Alex!\"[/i]\n[color=#FCD34D]— Princess Ada, Sovereign of Pythonia[/color][/center]"
+fit_content = true
+
+[node name="TheEnd" type="Label" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.72, 0.18, 1)
+theme_override_font_sizes/font_size = 28
+text = "— THE END —"
+horizontal_alignment = 1
+
+[node name="ButtonHBox" type="HBoxContainer" parent="HUD/CelebrationOverlay/Center/Card/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="MenuBtn" type="Button" parent="HUD/CelebrationOverlay/Center/Card/VBox/ButtonHBox"]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_gold")
+text = "📜 Main Menu"
+
+[node name="MapBtn" type="Button" parent="HUD/CelebrationOverlay/Center/Card/VBox/ButtonHBox"]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_cyan")
+text = "🗺️ Level Select"
+
+[node name="BadgesBtn" type="Button" parent="HUD/CelebrationOverlay/Center/Card/VBox/ButtonHBox"]
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_green")
+text = "🏆 View Badges"
+
+[node name="Letterbox" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="TopBar" type="ColorRect" parent="Letterbox"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 40.0
+grow_horizontal = 2
+color = Color(0, 0, 0, 1)
+
+[node name="BottomBar" type="ColorRect" parent="Letterbox"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0, 0, 0, 1)
+
+[node name="BottomDialogBar" parent="." instance=ExtResource("7_dialog_bar")]

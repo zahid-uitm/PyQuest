@@ -11,6 +11,10 @@ var dev_mode_enabled: bool = false
 var _dev_layer: CanvasLayer = null
 var _dev_bar_expanded: bool = true
 
+# Runtime navigation state for post-boss transitions
+var skip_world_intro: bool = false
+var pending_map_advance_to: int = 0
+
 # Returns the appropriate save file path based on whether the current session is a guest or logged in user
 func get_current_save_path() -> String:
 	if is_guest():
@@ -68,6 +72,22 @@ func _ready() -> void:
 
 func is_dev_mode() -> bool:
 	return dev_mode_enabled
+
+## Returns true only the first time Alex arrives in a given world (and false when returning from a Boss Fight).
+func should_play_world_intro(world_num: int) -> bool:
+	if skip_world_intro:
+		skip_world_intro = false
+		return false
+	var visited = user_profile.get("worlds_visited", [])
+	if typeof(visited) != TYPE_ARRAY:
+		visited = []
+	for item in visited:
+		if int(item) == world_num:
+			return false
+	visited.append(world_num)
+	user_profile["worlds_visited"] = visited
+	save_local_profile()
+	return true
 
 func set_dev_mode(enabled: bool) -> void:
 	if dev_mode_enabled == enabled:
@@ -129,8 +149,8 @@ func _build_dev_overlay() -> void:
 	hbox.add_child(badge_btn)
 	hbox.add_child(tools_hbox)
 
-	for w in range(1, 6):
-		var w_btn = _make_dev_btn("W%d" % w, Color("#38BDF8"), Color("#0F172A"))
+	for w in range(1, 7):
+		var w_btn = _make_dev_btn("W%d" % w, Color("#C084FC") if w == 6 else Color("#38BDF8"), Color("#2E1065") if w == 6 else Color("#0F172A"))
 		var world_idx = w
 		w_btn.pressed.connect(func(): _dev_jump_to_world(world_idx))
 		tools_hbox.add_child(w_btn)
@@ -185,6 +205,7 @@ func _dev_jump_to_world(world_num: int) -> void:
 		3: SceneManager.change_scene(SceneManager.WORLD_3)
 		4: SceneManager.change_scene(SceneManager.WORLD_4)
 		5: SceneManager.change_scene(SceneManager.WORLD_5)
+		6: SceneManager.change_scene(SceneManager.WORLD_6)
 
 func _dev_trigger_unseal_and_tp() -> void:
 	var cur = get_tree().current_scene
@@ -265,6 +286,9 @@ func save_local_profile(custom_path: String = "") -> void:
 
 # Alias for compatibility
 func save_local_data() -> void:
+	save_local_profile()
+
+func save_profile() -> void:
 	save_local_profile()
 
 # Loads user profile data from local storage

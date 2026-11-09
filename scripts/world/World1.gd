@@ -55,6 +55,7 @@ var shrine_question_answered: bool = false
 var selected_option_idx: int = -1
 var active_dialog_mode: String = "boss" # "boss" or npc_id
 var toast_tween: Tween
+var bottom_dialog_bar: CanvasLayer = null
 
 const NPCS_DATA: Dictionary = {
 	"npc_farmer_bob": {
@@ -67,7 +68,7 @@ const NPCS_DATA: Dictionary = {
 	"npc_scout_lyra": {
 		"name": "Scout Lyra • Royal String Pathfinder",
 		"icon": "🏹",
-		"portrait": "res://assets/sprites/portraits/portrait_alex.png",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_scout.png",
 		"xp": 40,
 		"dialog": "Well met by the river, Alex! I've been charting the Southeast Shrine of Words.\n\nWhenever you store text in Python—called a 'str' (string)—you MUST wrap it in single or double quotes:\n  realm = 'Pythonia'\n  print(realm)\n\nIf you forget the quotes, Python thinks the word is another variable name and throws a NameError! Here, take a Hint Token for your journey!"
 	},
@@ -317,6 +318,19 @@ func _ready() -> void:
 
 	# Play World 1 Valley Background Music
 	AudioManager.play_bgm_by_path("res://assets/audio/world1_music.mp3")
+
+	var bdb_scene = load("res://scenes/ui/BottomDialogBar.tscn")
+	if bdb_scene:
+		bottom_dialog_bar = bdb_scene.instantiate()
+		add_child(bottom_dialog_bar)
+		bottom_dialog_bar.dialog_finished.connect(func():
+			if player and (not quest_dialog or not quest_dialog.visible) and (not shrine_modal or not shrine_modal.visible):
+				player.can_move = true
+		)
+		if SaveManager.should_play_world_intro(1):
+			if player:
+				player.can_move = false
+			bottom_dialog_bar.play_world_intro(1)
 
 var boss_anim_timer: float = 0.0
 func _process(delta: float) -> void:
@@ -785,7 +799,7 @@ func _on_accept_quest() -> void:
 	# Enter Boss Battle Arena!
 	SaveManager.user_profile["current_level"] = 1
 	SaveManager.save_local_profile()
-	SceneManager.change_scene(SceneManager.LEVEL_GAMEPLAY)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_GAMEPLAY)
 
 func _on_close_quest_dialog() -> void:
 	if quest_dialog:
@@ -815,7 +829,7 @@ func _on_pause_respawn() -> void:
 		player.global_position = spawn_position
 
 func _on_back_to_select() -> void:
-	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_SELECT)
 
 func dev_unseal_and_teleport_boss() -> void:
 	SaveManager.user_profile["w1_shrines"] = ["shrine_numbers", "shrine_strings", "shrine_booleans"]

@@ -6,13 +6,14 @@
 [ext_resource type="Texture2D" uid="uid://cb1has584q6w2" path="res://stoneslab.png" id="4_stoneslab"]
 [ext_resource type="Texture2D" uid="uid://csooakka1irwg" path="res://pyquest_title2.png" id="4_xpiny"]
 [ext_resource type="PackedScene" uid="uid://s2dcku70dvam" path="res://scenes/ui/SettingsModal.tscn" id="5_settings"]
-[ext_resource type="PackedScene" path="res://scenes/ui/BadgesModal.tscn" id="6_badges"]
+[ext_resource type="PackedScene" uid="uid://cbtgc8pt30a3n" path="res://scenes/ui/BadgesModal.tscn" id="6_badges"]
 [ext_resource type="PackedScene" uid="uid://b23xlmwmypuuq" path="res://scenes/ui/LeaderboardModal.tscn" id="7_leaderboard"]
 [ext_resource type="Texture2D" uid="uid://bjiehxtq7yihd" path="res://assets/sprites/ui/stone_semicircle_drawer.png" id="8_drawer_bg"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/medallion_badge.png" id="9_med_badge"]
+[ext_resource type="Texture2D" uid="uid://cdhdiy4yhugkl" path="res://assets/sprites/ui/medallion_badge.png" id="9_med_badge"]
 [ext_resource type="Texture2D" uid="uid://bupk7s16d2o4m" path="res://assets/sprites/ui/medallion_leaderboard.png" id="10_med_leader"]
 [ext_resource type="Texture2D" uid="uid://cyofxjphuwucv" path="res://assets/sprites/ui/medallion_settings.png" id="11_med_settings"]
 [ext_resource type="Texture2D" uid="uid://b7ethtvythlae" path="res://assets/sprites/ui/stone_drawer_tab.png" id="12_drawer_tab"]
+[ext_resource type="PackedScene" uid="uid://b0ug5wvqc6iia" path="res://scenes/ui/CutscenesModal.tscn" id="13_cutscenes_modal"]
 
 [sub_resource type="Curve" id="Curve_menu_stars"]
 _data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.25, 0.7), 0.0, 0.0, 0, 0, Vector2(0.5, 0.35), 0.0, 0.0, 0, 0, Vector2(0.75, 1.1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
@@ -476,6 +477,17 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_level_pressed")
 theme_override_styles/hover = SubResource("StyleBoxFlat_slab_level_hover")
 text = "SELECT LEVEL"
 
+[node name="IntroCinematicButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=1876650795]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.8509804, 0.92941177, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_slab_level_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_slab_level_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slab_level_hover")
+text = "CUTSCENE GALLERY"
+
 [node name="ExitButton" type="Button" parent="StoneMonolith/MonolithVBox" unique_id=268582563]
 custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
@@ -498,6 +510,10 @@ layout_mode = 1
 [node name="LeaderboardModal" parent="." unique_id=984729184 instance=ExtResource("7_leaderboard")]
 layout_mode = 1
 
+[node name="CutscenesModal" parent="." unique_id=984729185 instance=ExtResource("13_cutscenes_modal")]
+visible = false
+layout_mode = 1
+
 [connection signal="pressed" from="StoneMonolith/StoneDrawer/BadgeIconBtn" to="." method="_on_badges_button_pressed"]
 [connection signal="pressed" from="StoneMonolith/StoneDrawer/LeaderboardIconBtn" to="." method="_on_leaderboard_button_pressed"]
 [connection signal="pressed" from="StoneMonolith/StoneDrawer/SettingsIconBtn" to="." method="_on_settings_button_pressed"]
@@ -505,4 +521,5 @@ layout_mode = 1
 [connection signal="pressed" from="StoneMonolith/StoneDrawer/DrawerHandleBtn" to="." method="_on_drawer_handle_pressed"]
 [connection signal="pressed" from="StoneMonolith/MonolithVBox/ContinueQuestButton" to="." method="_on_continue_quest_button_pressed"]
 [connection signal="pressed" from="StoneMonolith/MonolithVBox/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
+[connection signal="pressed" from="StoneMonolith/MonolithVBox/IntroCinematicButton" to="." method="_on_intro_cinematic_button_pressed"]
 [connection signal="pressed" from="StoneMonolith/MonolithVBox/ExitButton" to="." method="_on_exit_button_pressed"]

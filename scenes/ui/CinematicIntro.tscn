@@ -1,0 +1,471 @@
+[gd_scene format=3 uid="uid://c82oivcqtlgnk"]
+
+[ext_resource type="Script" path="res://scripts/ui/CinematicIntro.gd" id="1_cinematic_script"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_title_long_ago.jpg" id="2_long_ago_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_overview.jpg" id="3_overview_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_princess_ada.jpg" id="4_ada_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_castle.jpg" id="5_castle_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_corrupted.jpg" id="6_corrupted_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_uitm_tapah.jpg" id="7_uitm_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_bedroom.jpg" id="8_bedroom_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_vortex.jpg" id="9_vortex_bg"]
+[ext_resource type="Texture2D" path="res://assets/maps/world1_valley_bg.jpg" id="10_valley_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/characters/player.png" id="11_player_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/custom/pywizard_sheet.png" id="12_pywizard_sheet"]
+[ext_resource type="PackedScene" path="res://scenes/ui/BottomDialogBar.tscn" id="13_dialog_bar"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_intro_five_bosses.jpg" id="14_five_bosses_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_terminal"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.04, 0.08, 0.12, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.18, 0.85, 0.65, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.75)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_narrator"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+bg_color = Color(0.06, 0.05, 0.11, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96, 0.76, 0.22, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.8)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_normal"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.12, 0.18, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 0.68, 0.85, 0.7)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_hover"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(0.2, 0.28, 0.42, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.98, 0.78, 0.25, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="Curve" id="Curve_particles"]
+_data = [Vector2(0, 0.4), 0.0, 2.0, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_matrix"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.2, 1, 0.6, 0.9, 0.2, 0.85, 1, 0.8, 0.1, 0.4, 0.8, 0)
+
+[sub_resource type="Gradient" id="Gradient_portal"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.3, 0.8, 1, 0.9, 0.6, 0.2, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_dust"]
+offsets = PackedFloat32Array(0, 0.6, 1)
+colors = PackedColorArray(0.85, 0.8, 0.7, 0.8, 0.7, 0.65, 0.55, 0.5, 0.5, 0.5, 0.5, 0)
+
+[node name="CinematicIntro" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_cinematic_script")
+
+[node name="Stages" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageTitleLongAgo" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("2_long_ago_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageOverview" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("3_overview_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StagePrincessAda" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("4_ada_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageCastle" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("5_castle_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageCorrupted" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("6_corrupted_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageFiveBosses" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("14_five_bosses_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageTitleUiTM" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("7_uitm_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageBedroom" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("8_bedroom_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageVortex" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("9_vortex_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageValley" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("10_valley_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="VFX" type="Node2D" parent="."]
+
+[node name="MatrixParticles" type="CPUParticles2D" parent="VFX"]
+position = Vector2(960, -20)
+emitting = false
+amount = 64
+lifetime = 2.5
+emission_shape = 3
+emission_rect_extents = Vector2(960, 20)
+direction = Vector2(0, 1)
+spread = 15.0
+gravity = Vector2(0, 480)
+initial_velocity_min = 120.0
+initial_velocity_max = 280.0
+scale_amount_min = 4.0
+scale_amount_max = 8.0
+scale_amount_curve = SubResource("Curve_particles")
+color_ramp = SubResource("Gradient_matrix")
+
+[node name="PortalBurstParticles" type="CPUParticles2D" parent="VFX"]
+position = Vector2(960, 540)
+emitting = false
+amount = 48
+lifetime = 1.4
+one_shot = true
+explosiveness = 0.85
+emission_shape = 1
+emission_sphere_radius = 40.0
+direction = Vector2(0, 0)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 180.0
+initial_velocity_max = 380.0
+angular_velocity_min = -180.0
+angular_velocity_max = 180.0
+scale_amount_min = 5.0
+scale_amount_max = 10.0
+scale_amount_curve = SubResource("Curve_particles")
+color_ramp = SubResource("Gradient_portal")
+
+[node name="LandingDustParticles" type="CPUParticles2D" parent="VFX"]
+position = Vector2(960, 710)
+emitting = false
+amount = 32
+lifetime = 0.8
+one_shot = true
+explosiveness = 0.9
+direction = Vector2(0, -1)
+spread = 75.0
+gravity = Vector2(0, 120)
+initial_velocity_min = 80.0
+initial_velocity_max = 220.0
+scale_amount_min = 6.0
+scale_amount_max = 14.0
+scale_amount_curve = SubResource("Curve_particles")
+color_ramp = SubResource("Gradient_dust")
+
+[node name="FlashRect" type="ColorRect" parent="VFX"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Actors" type="Node2D" parent="."]
+
+[node name="AlexActor" type="Sprite2D" parent="Actors"]
+texture_filter = 1
+position = Vector2(960, 680)
+scale = Vector2(4.2, 4.2)
+texture = ExtResource("11_player_sheet")
+hframes = 6
+vframes = 10
+
+[node name="PyWizardActor" type="Sprite2D" parent="Actors"]
+texture_filter = 1
+position = Vector2(1160, 670)
+scale = Vector2(4.2, 4.2)
+texture = ExtResource("12_pywizard_sheet")
+hframes = 6
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TerminalWindow" type="PanelContainer" parent="HUD"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = -340.0
+offset_right = 680.0
+offset_bottom = -90.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_terminal")
+
+[node name="Margin" type="MarginContainer" parent="HUD/TerminalWindow"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/TerminalWindow/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TerminalHeader" type="HBoxContainer" parent="HUD/TerminalWindow/Margin/VBox"]
+layout_mode = 2
+
+[node name="Dot1" type="Label" parent="HUD/TerminalWindow/Margin/VBox/TerminalHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
+text = "●"
+
+[node name="Dot2" type="Label" parent="HUD/TerminalWindow/Margin/VBox/TerminalHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
+text = "●"
+
+[node name="Dot3" type="Label" parent="HUD/TerminalWindow/Margin/VBox/TerminalHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.9, 0.45, 1)
+text = "●"
+
+[node name="Title" type="Label" parent="HUD/TerminalWindow/Margin/VBox/TerminalHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.5, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 14
+text = "bash - python3 ./quantum_rift.py"
+horizontal_alignment = 2
+
+[node name="CodeText" type="RichTextLabel" parent="HUD/TerminalWindow/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.3, 0.95, 0.65, 1)
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+text = ">> Initializing runtime..."
+scroll_active = false
+
+[node name="NarratorPanel" type="PanelContainer" parent="HUD"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -480.0
+offset_top = 88.0
+offset_right = 480.0
+offset_bottom = 208.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_narrator")
+
+[node name="Margin" type="MarginContainer" parent="HUD/NarratorPanel"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/NarratorPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ActLabel" type="Label" parent="HUD/NarratorPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.76, 0.22, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 15
+text = "PROLOGUE • THE MIDNIGHT COMPILATION"
+horizontal_alignment = 1
+
+[node name="NarrationText" type="RichTextLabel" parent="HUD/NarratorPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/default_color = Color(0.92, 0.94, 0.98, 1)
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = "Alex sits before his monitor..."
+fit_content = true
+scroll_active = false
+
+[node name="SkipButton" type="Button" parent="HUD"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 86.0
+offset_right = -50.0
+offset_bottom = 132.0
+grow_horizontal = 0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_skip_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_skip_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_skip_hover")
+text = "⏭ Skip Intro (ESC)"
+
+[node name="Letterbox" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="ColorRect" parent="Letterbox"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 70.0
+grow_horizontal = 2
+color = Color(0.02, 0.02, 0.04, 1)
+
+[node name="BottomBar" type="ColorRect" parent="Letterbox"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -70.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.02, 0.02, 0.04, 1)
+
+[node name="BottomDialogBar" parent="." instance=ExtResource("13_dialog_bar")]

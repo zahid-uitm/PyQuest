@@ -62,6 +62,7 @@ var active_terminal_id: String = ""
 var active_return_pad_id: String = ""
 var warp_cooldown: float = 0.0
 var player_at_boss_gate: bool = false
+var bottom_dialog_bar: CanvasLayer = null
 
 const RETURN_PADS_INFO: Dictionary = {
 	"pad_center": {
@@ -409,6 +410,19 @@ func _ready() -> void:
 	_refresh_seal_states()
 
 	AudioManager.play_bgm_by_path("res://assets/audio/world3_music.mp3")
+
+	var bdb_scene = load("res://scenes/ui/BottomDialogBar.tscn")
+	if bdb_scene:
+		bottom_dialog_bar = bdb_scene.instantiate()
+		add_child(bottom_dialog_bar)
+		bottom_dialog_bar.dialog_finished.connect(func():
+			if player and (not quest_dialog or not quest_dialog.visible) and (not shrine_modal or not shrine_modal.visible):
+				player.can_move = true
+		)
+		if SaveManager.should_play_world_intro(3):
+			if player:
+				player.can_move = false
+			bottom_dialog_bar.play_world_intro(3)
 
 func _process(delta: float) -> void:
 	boss_anim_timer += delta
@@ -1112,7 +1126,7 @@ func _on_accept_quest() -> void:
 	SaveManager.user_profile["current_level"] = 3
 	SaveManager.save_local_profile()
 	quest_dialog.visible = false
-	SceneManager.change_scene(SceneManager.LEVEL_GAMEPLAY)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_GAMEPLAY)
 
 func _on_close_quest_dialog() -> void:
 	quest_dialog.visible = false
@@ -1142,7 +1156,7 @@ func _on_pause_respawn() -> void:
 		player.global_position = spawn_position
 
 func _on_back_to_select() -> void:
-	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_SELECT)
 
 func dev_unseal_and_teleport_boss() -> void:
 	SaveManager.user_profile["w3_seals"] = ["seal_west", "seal_east"]

@@ -72,8 +72,25 @@ const LEVELS_DATA = [
 		"color_light": Color("#FCA5A5"),
 		"zone_title": "Molten Obsidian Citadel",
 		"badge": "🌋 VOLCANIC SUMMIT"
+	},
+	{
+		"level": 6,
+		"name": "The Royal Citadel",
+		"chapter": "FINAL CHAPTER",
+		"topic": "Grandmaster Mastery • Lord SegFault",
+		"desc": "Cross the ancient keystone bridge to the Royal Citadel of Pythonia. Confront the mastermind of corruption, Lord SegFault, shatter Princess Ada's glitch prism, and restore Pythonia!",
+		"icon": "🏰",
+		"pos": Vector2(2885, 500),
+		"color": Color("#A855F7"),       # Arcane Obsidian Violet / Crimson
+		"color_dark": Color("#581C87"),
+		"color_light": Color("#E9D5FF"),
+		"zone_title": "Throne of Lord SegFault",
+		"badge": "👑 CITADEL SANCTUM"
 	}
 ]
+
+const PAGE_WIDTH: float = 1920.0
+const PAGE2_BRIDGE_ENTRY: Vector2 = Vector2(2304, 712)
 
 # Top Bar Nodes
 @onready var back_button: Button = $HeaderPanel/Header/BackButton
@@ -82,7 +99,9 @@ const LEVELS_DATA = [
 @onready var badges_btn: Button = get_node_or_null("%BadgesButton")
 @onready var badges_modal: Control = get_node_or_null("BadgesModal")
 
-# Map Canvas Nodes
+# Map Background & Canvas Nodes
+@onready var background_page1: TextureRect = $Background
+@onready var background_page2: TextureRect = get_node_or_null("BackgroundPage2")
 @onready var map_canvas: Control = $MapArea/MapCanvas
 @onready var biome_canvas: Control = $MapArea/MapCanvas/BiomeCanvas
 @onready var path_drawer: Control = $MapArea/MapCanvas/PathDrawer
@@ -101,8 +120,13 @@ const LEVELS_DATA = [
 @onready var modal_status: Label = $ModalOverlay/Center/Card/VBox/StatsBox/StatsHBox/StatusValue
 @onready var modal_close_btn: Button = $ModalOverlay/Center/Card/VBox/ButtonHBox/CloseButton
 @onready var modal_travel_btn: Button = $ModalOverlay/Center/Card/VBox/ButtonHBox/TravelButton
+var modal_intro_btn: Button = null
 
 var selected_level_num: int = 1
+var current_map_page: int = 0
+var page_slide_tween: Tween = null
+var prev_page_btn: Button = null
+var next_page_btn: Button = null
 var alex_token: Control = null
 var token_visuals: Control = null
 var alex_bob_tween: Tween = null
@@ -116,6 +140,36 @@ func _ready() -> void:
 	back_button.pressed.connect(_on_back_button_pressed)
 	modal_close_btn.pressed.connect(_on_close_modal)
 	modal_travel_btn.pressed.connect(_on_confirm_travel)
+
+	_setup_page_nav_buttons()
+
+	# Prologue Story Cinematic button for Chapter 1
+	modal_intro_btn = Button.new()
+	modal_intro_btn.text = "🎬 Watch Prologue"
+	modal_intro_btn.custom_minimum_size = Vector2(170, 48)
+	modal_intro_btn.focus_mode = Control.FOCUS_NONE
+	var style_intro = StyleBoxFlat.new()
+	style_intro.bg_color = Color("#1E293B")
+	style_intro.border_color = Color("#38BDF8")
+	style_intro.set_border_width_all(2)
+	style_intro.set_corner_radius_all(8)
+	modal_intro_btn.add_theme_stylebox_override("normal", style_intro)
+	var style_intro_hov = style_intro.duplicate() as StyleBoxFlat
+	style_intro_hov.bg_color = Color("#0369A1")
+	style_intro_hov.border_color = Color("#7DD3FC")
+	modal_intro_btn.add_theme_stylebox_override("hover", style_intro_hov)
+	modal_intro_btn.add_theme_color_override("font_color", Color("#BAE6FD"))
+	modal_intro_btn.pressed.connect(func():
+		if selected_level_num == 6:
+			SceneManager.change_scene(SceneManager.CUTSCENE_THRONE)
+		elif selected_level_num == 5:
+			SceneManager.change_scene(SceneManager.CUTSCENE_PLOT_TWIST)
+		else:
+			SceneManager.change_scene(SceneManager.CINEMATIC_INTRO)
+	)
+	var btn_box = $ModalOverlay/Center/Card/VBox/ButtonHBox
+	btn_box.add_child(modal_intro_btn)
+	btn_box.move_child(modal_intro_btn, 1)
 
 	if badges_btn:
 		badges_btn.pressed.connect(func():
@@ -134,7 +188,189 @@ func _ready() -> void:
 				_open_level_modal(selected_level_num)
 		)
 
+	var is_unsealing_castle: bool = bool(SaveManager.user_profile.get("just_unlocked_castle", false))
+	var cur_lvl: int = int(SaveManager.user_profile.get("current_level", 1))
+	var real_unl: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	var can_view_page2: bool = (real_unl >= 6 or SaveManager.is_dev_mode())
+
+	if is_unsealing_castle:
+		_slide_to_page(0, false)
+	elif cur_lvl == 6 and can_view_page2 and SaveManager.pending_map_advance_to == 0:
+		_slide_to_page(1, false)
+	else:
+		_slide_to_page(0, false)
+
 	build_map()
+
+	if SaveManager.pending_map_advance_to > 0:
+		var target_next: int = SaveManager.pending_map_advance_to
+		SaveManager.pending_map_advance_to = 0
+		SaveManager.user_profile["current_level"] = target_next
+		SaveManager.save_local_profile()
+		call_deferred("_auto_advance_to_next_world", target_next)
+	elif is_unsealing_castle:
+		SaveManager.user_profile["just_unlocked_castle"] = false
+		SaveManager.save_local_profile()
+		call_deferred("_play_castle_unseal_animation")
+
+func _setup_page_nav_buttons() -> void:
+	var nav_style := StyleBoxFlat.new()
+	nav_style.bg_color = Color(0.18, 0.10, 0.06, 0.95)
+	nav_style.border_color = Color("#FBBF24")
+	nav_style.set_border_width_all(2)
+	nav_style.border_width_bottom = 4
+	nav_style.set_corner_radius_all(12)
+	nav_style.content_margin_left = 18.0
+	nav_style.content_margin_right = 18.0
+	nav_style.content_margin_top = 12.0
+	nav_style.content_margin_bottom = 12.0
+	nav_style.shadow_color = Color(0, 0, 0, 0.75)
+	nav_style.shadow_size = 10
+	nav_style.shadow_offset = Vector2(0, 4)
+
+	var nav_hover := nav_style.duplicate() as StyleBoxFlat
+	nav_hover.bg_color = Color(0.32, 0.18, 0.10, 0.98)
+	nav_hover.border_color = Color("#FEF08A")
+
+	prev_page_btn = Button.new()
+	prev_page_btn.text = "⬅ Worlds 1–5"
+	prev_page_btn.focus_mode = Control.FOCUS_NONE
+	prev_page_btn.position = Vector2(28, 520)
+	prev_page_btn.custom_minimum_size = Vector2(180, 52)
+	prev_page_btn.add_theme_font_size_override("font_size", 16)
+	prev_page_btn.add_theme_color_override("font_color", Color("#FEF08A"))
+	prev_page_btn.add_theme_color_override("font_hover_color", Color("#FFFFFF"))
+	prev_page_btn.add_theme_stylebox_override("normal", nav_style)
+	prev_page_btn.add_theme_stylebox_override("hover", nav_hover)
+	prev_page_btn.add_theme_stylebox_override("pressed", nav_style)
+	prev_page_btn.pressed.connect(func():
+		_slide_to_page(0, true)
+	)
+	add_child(prev_page_btn)
+	move_child(prev_page_btn, get_child_count() - 2)
+
+	next_page_btn = Button.new()
+	next_page_btn.text = "🏰 Royal Citadel ➡"
+	next_page_btn.focus_mode = Control.FOCUS_NONE
+	next_page_btn.position = Vector2(1688, 520)
+	next_page_btn.custom_minimum_size = Vector2(204, 52)
+	next_page_btn.add_theme_font_size_override("font_size", 16)
+	next_page_btn.add_theme_color_override("font_color", Color("#E9D5FF"))
+	next_page_btn.add_theme_color_override("font_hover_color", Color("#FFFFFF"))
+	var next_style := nav_style.duplicate() as StyleBoxFlat
+	next_style.bg_color = Color(0.22, 0.10, 0.34, 0.95)
+	next_style.border_color = Color("#C084FC")
+	var next_hover := nav_hover.duplicate() as StyleBoxFlat
+	next_hover.bg_color = Color(0.35, 0.16, 0.52, 0.98)
+	next_hover.border_color = Color("#F3E8FF")
+	next_page_btn.add_theme_stylebox_override("normal", next_style)
+	next_page_btn.add_theme_stylebox_override("hover", next_hover)
+	next_page_btn.add_theme_stylebox_override("pressed", next_style)
+	next_page_btn.pressed.connect(func():
+		_slide_to_page(1, true)
+	)
+	add_child(next_page_btn)
+	move_child(next_page_btn, get_child_count() - 2)
+
+	_update_page_nav_buttons()
+
+func _update_page_nav_buttons() -> void:
+	var real_unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
+	var show_castle: bool = (real_unlocked >= 6 or SaveManager.is_dev_mode())
+	if prev_page_btn:
+		prev_page_btn.visible = (current_map_page == 1)
+	if next_page_btn:
+		next_page_btn.visible = (current_map_page == 0 and show_castle)
+
+func _slide_to_page(page_idx: int, animated: bool = true) -> void:
+	current_map_page = clampi(page_idx, 0, 1)
+	_update_page_nav_buttons()
+
+	var target_x: float = -float(current_map_page) * PAGE_WIDTH
+	var target_bg2_x: float = target_x + PAGE_WIDTH
+
+	if page_slide_tween and page_slide_tween.is_valid():
+		page_slide_tween.kill()
+
+	if not animated:
+		if background_page1:
+			background_page1.position.x = target_x
+		if background_page2:
+			background_page2.position.x = target_bg2_x
+		if map_canvas:
+			map_canvas.position.x = target_x
+		return
+
+	page_slide_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	if background_page1:
+		page_slide_tween.tween_property(background_page1, "position:x", target_x, 1.05)
+	if background_page2:
+		page_slide_tween.tween_property(background_page2, "position:x", target_bg2_x, 1.05)
+	if map_canvas:
+		page_slide_tween.tween_property(map_canvas, "position:x", target_x, 1.05)
+	await page_slide_tween.finished
+
+func _auto_advance_to_next_world(target_next: int) -> void:
+	await get_tree().create_timer(0.4).timeout
+	if is_inside_tree():
+		_hop_alex_to_level(target_next)
+
+func _play_castle_unseal_animation() -> void:
+	# 1. Start on Page 1 with Alex at World 5
+	_slide_to_page(0, false)
+	_spawn_alex_token(5)
+	await get_tree().create_timer(0.4).timeout
+	if not is_inside_tree(): return
+
+	# 2. Dramatic screen tremor & bridge unseal sounds
+	AudioManager.play_sfx(AudioManager.SFX_SHRINE_AWAKEN)
+	_shake_map(8.0, 0.95)
+	AudioManager.play_bridge_extend()
+	await get_tree().create_timer(0.95).timeout
+	if not is_inside_tree(): return
+
+	# 3. Rebuild map to reveal World 6 on Page 2 (initially scaled to zero for pop-in)
+	build_map()
+	_spawn_alex_token(5)
+
+	var w6_pos: Vector2 = LEVELS_DATA[5]["pos"] - Vector2(40, 40)
+	var w6_node: Control = null
+	for child in nodes_container.get_children():
+		if child is Control and child.position.distance_to(w6_pos) < 5.0:
+			w6_node = child
+			w6_node.scale = Vector2.ZERO
+			break
+
+	# 4. Smoothly pan/slide the screen to the next map page on the right!
+	await _slide_to_page(1, true)
+	if not is_inside_tree(): return
+
+	# 5. Animate dramatic pop-in of the Castle node in the center of Page 2
+	if w6_node and is_instance_valid(w6_node):
+		AudioManager.play_sfx(AudioManager.SFX_BADGE_UNLOCK)
+		var pop_tw = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		pop_tw.tween_property(w6_node, "scale", Vector2(1.3, 1.3), 0.45)
+		pop_tw.tween_property(w6_node, "scale", Vector2.ONE, 0.2)
+		await pop_tw.finished
+
+	await get_tree().create_timer(0.35).timeout
+	if is_inside_tree():
+		# 6. Place Alex at the stone bridge entrance on Page 2 and hop to the Castle!
+		if alex_token and is_instance_valid(alex_token):
+			alex_token.position = PAGE2_BRIDGE_ENTRY - Vector2(24, 78)
+			alex_current_pos = PAGE2_BRIDGE_ENTRY
+		_hop_alex_to_level(6)
+
+func _shake_map(intensity: float, duration: float) -> void:
+	if not map_canvas: return
+	var base_pos := Vector2(-float(current_map_page) * PAGE_WIDTH, 0.0)
+	var tw = create_tween()
+	var steps: int = int(duration / 0.05)
+	for i in range(steps):
+		var damp: float = 1.0 - (float(i) / float(steps))
+		var offset = Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity)) * damp
+		tw.tween_property(map_canvas, "position", base_pos + offset, 0.05)
+	tw.tween_property(map_canvas, "position", base_pos, 0.05)
 
 func _process(delta: float) -> void:
 	energy_pulse_t = fmod(energy_pulse_t + delta * 0.4, 1.0)
@@ -143,7 +379,7 @@ func _process(delta: float) -> void:
 
 func _get_stars_dict() -> Dictionary:
 	var raw_stars = SaveManager.user_profile.get("level_stars", {})
-	var converted: Dictionary = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+	var converted: Dictionary = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0}
 	if typeof(raw_stars) == TYPE_DICTIONARY:
 		for k in raw_stars.keys():
 			var v = raw_stars[k]
@@ -168,7 +404,7 @@ func build_map() -> void:
 			child.queue_free()
 
 	var real_unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
-	var unlocked_level: int = 5 if SaveManager.is_dev_mode() else real_unlocked
+	var unlocked_level: int = 6 if SaveManager.is_dev_mode() else real_unlocked
 	var current_level: int = int(SaveManager.user_profile.get("current_level", 1))
 	if current_level > unlocked_level:
 		current_level = unlocked_level
@@ -178,14 +414,19 @@ func build_map() -> void:
 	for k in stars_dict.keys():
 		total_stars += int(stars_dict[k])
 
-	if SaveManager.is_dev_mode():
-		progress_label.text = "World %d of %d (🛠️ Dev: All 5 Unlocked)" % [min(real_unlocked, LEVELS_DATA.size()), LEVELS_DATA.size()]
+	if unlocked_level >= 6 or SaveManager.is_dev_mode():
+		progress_label.text = "Chapter %d of 6 • The Final Citadel" % min(unlocked_level, 6)
+		stars_total_label.text = "⭐ %d / 18 Stars" % total_stars
 	else:
-		progress_label.text = "World %d of %d" % [min(unlocked_level, LEVELS_DATA.size()), LEVELS_DATA.size()]
-	stars_total_label.text = "⭐ %d / 15 Stars" % total_stars
+		progress_label.text = "World %d of 5" % min(unlocked_level, 5)
+		stars_total_label.text = "⭐ %d / 15 Stars" % total_stars
 
 	for info in LEVELS_DATA:
 		var lvl: int = info["level"]
+		# World 6 stays completely hidden until World 5 is conquered!
+		if lvl == 6 and unlocked_level < 6 and not SaveManager.is_dev_mode():
+			continue
+
 		var is_unlocked: bool = lvl <= unlocked_level
 		var is_current: bool = (lvl == current_level)
 		var star_count: int = int(stars_dict.get(str(lvl), 0))
@@ -195,6 +436,11 @@ func build_map() -> void:
 		nodes_container.add_child(node_btn)
 
 	_spawn_alex_token(current_level)
+
+	if current_map_page == 1 and unlocked_level < 6 and not SaveManager.is_dev_mode():
+		_slide_to_page(0, true)
+	else:
+		_update_page_nav_buttons()
 
 	path_drawer.queue_redraw()
 
@@ -285,6 +531,19 @@ func _hop_alex_to_level(target_level_num: int) -> void:
 		_open_level_modal(target_level_num)
 		return
 
+	var target_page: int = 1 if target_level_num == 6 else 0
+	if current_map_page != target_page:
+		await _slide_to_page(target_page, true)
+		if not is_inside_tree() or not alex_token:
+			return
+		if target_page == 1 and alex_token.position.x < PAGE_WIDTH:
+			alex_token.position = PAGE2_BRIDGE_ENTRY - Vector2(24, 78)
+			alex_current_pos = PAGE2_BRIDGE_ENTRY
+		elif target_page == 0 and alex_token.position.x >= PAGE_WIDTH:
+			var w5_pos: Vector2 = LEVELS_DATA[4]["pos"]
+			alex_token.position = w5_pos - Vector2(24, 78)
+			alex_current_pos = w5_pos
+
 	var target_info: Dictionary = LEVELS_DATA[target_level_num - 1]
 	var target_pos: Vector2 = target_info["pos"] - Vector2(24, 78)
 
@@ -336,7 +595,9 @@ func _hop_alex_to_level(target_level_num: int) -> void:
 # DRAWING VINTAGE FANTASY MAP EXPEDITION DASHED TRAIL
 # -------------------------------------------------------------
 func _on_draw_saga_road() -> void:
-	var unlocked_level: int = 5 if SaveManager.is_dev_mode() else int(SaveManager.user_profile.get("unlocked_level", 1))
+	var unlocked_level: int = 6 if SaveManager.is_dev_mode() else int(SaveManager.user_profile.get("unlocked_level", 1))
+	var show_castle: bool = (unlocked_level >= 6 or SaveManager.is_dev_mode())
+	var page1_segments: int = 4 # Worlds 1 -> 2 -> 3 -> 4 -> 5 on Page 1
 
 	var p0: Vector2
 	var p3: Vector2
@@ -345,7 +606,7 @@ func _on_draw_saga_road() -> void:
 	var p2: Vector2
 
 	var full_curve_points: Array[Vector2] = []
-	for i in range(LEVELS_DATA.size() - 1):
+	for i in range(page1_segments):
 		p0 = LEVELS_DATA[i]["pos"]
 		p3 = LEVELS_DATA[i + 1]["pos"]
 		mid_x = (p0.x + p3.x) * 0.5
@@ -360,8 +621,8 @@ func _on_draw_saga_road() -> void:
 	if full_curve_points.size() < 2:
 		return
 
-	# Draw each segment connecting landmarks
-	for i in range(LEVELS_DATA.size() - 1):
+	# Draw Page 1 segments connecting Worlds 1 to 5
+	for i in range(page1_segments):
 		p0 = LEVELS_DATA[i]["pos"]
 		p3 = LEVELS_DATA[i + 1]["pos"]
 		mid_x = (p0.x + p3.x) * 0.5
@@ -378,24 +639,56 @@ func _on_draw_saga_road() -> void:
 			shadow_seg.append(pt + Vector2(0, 3))
 		_draw_dashed_curve(path_drawer, shadow_seg, shadow_col, 6.0, 10.0, 8.0)
 
-		# 2. Inked expedition dashed trail (Treasure map style)
+		# 2. Inked expedition dashed trail
 		if is_seg_unlocked:
-			# Golden amber expedition trail for explored realms
 			_draw_dashed_curve(path_drawer, seg, Color("#B45309"), 5.0, 10.0, 8.0)
 			_draw_dashed_curve(path_drawer, seg, Color("#FDE047"), 3.0, 8.0, 10.0)
 		else:
-			# Muted sepia ink dashed line for uncharted paths
 			_draw_dashed_curve(path_drawer, seg, Color(0.35, 0.22, 0.12, 0.75), 4.0, 8.0, 10.0)
 
-	# 3. Animated glowing magical energy mote traveling along the unlocked road
+	# Draw Page 2 Keystone Causeway trail into the Royal Citadel (plus Page 1 eastern bridge departure)
+	if show_castle:
+		var w5_pos: Vector2 = LEVELS_DATA[4]["pos"]
+		var page1_east_edge := Vector2(1865, 515)
+		var east_seg := _sample_cubic_bezier(w5_pos, Vector2(1740, 445), Vector2(1810, 495), page1_east_edge, 16)
+		var shadow_east: Array[Vector2] = []
+		for pt in east_seg:
+			shadow_east.append(pt + Vector2(0, 3))
+		_draw_dashed_curve(path_drawer, shadow_east, Color(0.15, 0.08, 0.04, 0.45), 6.0, 10.0, 8.0)
+		_draw_dashed_curve(path_drawer, east_seg, Color("#7E22CE"), 7.0, 12.0, 6.0)
+		_draw_dashed_curve(path_drawer, east_seg, Color("#EC4899"), 5.0, 10.0, 8.0)
+		_draw_dashed_curve(path_drawer, east_seg, Color("#FDE047"), 3.0, 6.0, 10.0)
+
+		var castle_pos: Vector2 = LEVELS_DATA[5]["pos"]
+		var bridge_seg := _sample_cubic_bezier(
+			PAGE2_BRIDGE_ENTRY,
+			Vector2(2520, 600),
+			Vector2(2710, 560),
+			castle_pos,
+			28
+		)
+		var shadow_bridge: Array[Vector2] = []
+		for pt in bridge_seg:
+			shadow_bridge.append(pt + Vector2(0, 3))
+		_draw_dashed_curve(path_drawer, shadow_bridge, Color(0.15, 0.08, 0.04, 0.45), 6.0, 10.0, 8.0)
+		_draw_dashed_curve(path_drawer, bridge_seg, Color("#7E22CE"), 7.0, 12.0, 6.0)
+		_draw_dashed_curve(path_drawer, bridge_seg, Color("#EC4899"), 5.0, 10.0, 8.0)
+		_draw_dashed_curve(path_drawer, bridge_seg, Color("#FDE047"), 3.0, 6.0, 10.0)
+
+		var pulse_idx: int = int(energy_pulse_t * float(bridge_seg.size() - 1))
+		var bridge_pulse_pt: Vector2 = bridge_seg[clampi(pulse_idx, 0, bridge_seg.size() - 1)]
+		path_drawer.draw_circle(bridge_pulse_pt, 8.0, Color(0.9, 0.4, 1.0, 0.65))
+		path_drawer.draw_circle(bridge_pulse_pt, 4.0, Color(1.0, 0.95, 0.7, 0.95))
+
+	# 3. Animated glowing magical energy mote traveling along the Page 1 unlocked road
 	if unlocked_level > 1 and full_curve_points.size() > 10:
-		var max_seg_idx = min(unlocked_level - 1, LEVELS_DATA.size() - 1)
-		var unlocked_pts_count = int(float(full_curve_points.size()) * (float(max_seg_idx) / float(LEVELS_DATA.size() - 1)))
+		var max_seg_idx = min(unlocked_level - 1, page1_segments)
+		var unlocked_pts_count = int(float(full_curve_points.size()) * (float(max_seg_idx) / float(page1_segments)))
 		if unlocked_pts_count > 2:
 			var target_idx = int(energy_pulse_t * float(unlocked_pts_count - 1))
 			var pulse_pt = full_curve_points[clamp(target_idx, 0, unlocked_pts_count - 1)]
-			# Soft golden glowing spark
-			path_drawer.draw_circle(pulse_pt, 8.0, Color(1.0, 0.85, 0.25, 0.45))
+			var spark_col = Color(1.0, 0.85, 0.25, 0.45)
+			path_drawer.draw_circle(pulse_pt, 8.0, spark_col)
 			path_drawer.draw_circle(pulse_pt, 4.0, Color(1.0, 0.95, 0.7, 0.95))
 
 func _sample_cubic_bezier(p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2, steps: int) -> Array[Vector2]:
@@ -489,8 +782,12 @@ func _create_tactile_landmark_node(info: Dictionary, is_unlocked: bool, _is_curr
 		style_normal.shadow_color = Color(0, 0, 0, 0.75)
 		style_normal.shadow_size = 10
 		style_normal.shadow_offset = Vector2(0, 6)
-		btn.text = str(info["level"])
-		btn.add_theme_font_size_override("font_size", 34)
+		if info["level"] == 6:
+			btn.text = "🏰"
+			btn.add_theme_font_size_override("font_size", 38)
+		else:
+			btn.text = str(info["level"])
+			btn.add_theme_font_size_override("font_size", 34)
 		btn.add_theme_color_override("font_color", Color("#FFFFFF"))
 		btn.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.95))
 		btn.add_theme_constant_override("shadow_offset_y", 2)
@@ -566,7 +863,7 @@ func _open_level_modal(level_num: int) -> void:
 	selected_level_num = level_num
 	var info: Dictionary = LEVELS_DATA[level_num - 1]
 	var real_unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
-	var unlocked_level: int = 5 if SaveManager.is_dev_mode() else real_unlocked
+	var unlocked_level: int = 6 if SaveManager.is_dev_mode() else real_unlocked
 	var stars_dict: Dictionary = _get_stars_dict()
 	var is_unlocked: bool = level_num <= unlocked_level
 	var star_count: int = int(stars_dict.get(str(level_num), 0))
@@ -590,12 +887,28 @@ func _open_level_modal(level_num: int) -> void:
 			modal_status.text = "Unlocked • Ready for Quest"
 			modal_status.add_theme_color_override("font_color", Color("#10B981"))
 		modal_travel_btn.disabled = false
-		modal_travel_btn.text = "⚔️ Travel to %s" % info["name"]
+		if level_num == 6:
+			modal_travel_btn.text = "⚡ Infiltrate the Citadel ➔"
+		else:
+			modal_travel_btn.text = "⚔️ Travel to %s" % info["name"]
 	else:
 		modal_status.text = "Locked (Requires Chapter %d Completion)" % (level_num - 1)
 		modal_status.add_theme_color_override("font_color", Color("#EF4444"))
 		modal_travel_btn.disabled = true
 		modal_travel_btn.text = "🔒 Locked"
+
+	if modal_intro_btn:
+		if level_num == 1:
+			modal_intro_btn.visible = true
+			modal_intro_btn.text = "🎬 Watch Prologue"
+		elif level_num == 5 and (real_unlocked >= 6 or SaveManager.is_dev_mode()):
+			modal_intro_btn.visible = true
+			modal_intro_btn.text = "🎬 The Plot Twist"
+		elif level_num == 6 and (real_unlocked >= 6 or SaveManager.is_dev_mode()):
+			modal_intro_btn.visible = true
+			modal_intro_btn.text = "🎬 The Confrontation"
+		else:
+			modal_intro_btn.visible = false
 
 	modal_overlay.visible = true
 
@@ -613,17 +926,22 @@ func _on_confirm_travel() -> void:
 	modal_overlay.visible = false
 
 	if selected_level_num == 1:
-		SceneManager.change_scene(SceneManager.WORLD_1)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_1)
 	elif selected_level_num == 2:
-		SceneManager.change_scene(SceneManager.WORLD_2)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_2)
 	elif selected_level_num == 3:
-		SceneManager.change_scene(SceneManager.WORLD_3)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_3)
 	elif selected_level_num == 4:
-		SceneManager.change_scene(SceneManager.WORLD_4)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_4)
 	elif selected_level_num == 5:
-		SceneManager.change_scene(SceneManager.WORLD_5)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_5)
+	elif selected_level_num == 6:
+		if not bool(SaveManager.user_profile.get("cutscene_segfault_seen", false)):
+			SceneManager.change_scene_with_loading(SceneManager.CUTSCENE_THRONE)
+		else:
+			SceneManager.change_scene_with_loading(SceneManager.WORLD_6)
 	else:
-		SceneManager.change_scene(SceneManager.LEVEL_GAMEPLAY)
+		SceneManager.change_scene_with_loading(SceneManager.LEVEL_GAMEPLAY)
 
 func _on_back_button_pressed() -> void:
 	SceneManager.change_scene(SceneManager.MAIN_MENU)

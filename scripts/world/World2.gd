@@ -60,6 +60,7 @@ var trap_state: int = 0 # 0 = SAFE (False), 1 = CHARGING, 2 = ARMED (True)
 var trap_cooldown: float = 0.0
 var active_terminal_id: String = ""
 var player_at_boss_gate: bool = false
+var bottom_dialog_bar: CanvasLayer = null
 
 const NPCS_DATA: Dictionary = {
 	"npc_keeper_venn": {
@@ -79,7 +80,7 @@ const NPCS_DATA: Dictionary = {
 	"npc_sentinel_kael": {
 		"name": "Sentinel Kael • Guardian of While-Loops",
 		"icon": "🛡️",
-		"portrait": "res://assets/sprites/portraits/portrait_npc_engineer.png",
+		"portrait": "res://assets/sprites/portraits/portrait_npc_scout.png",
 		"xp": 50,
 		"dialog": "Stand firm, coder! Ahead lies the Northeast Shrine of Sentinel Loops, and across the North Bridge waits Chronos-If, The Infinite Loop Warden!\n\nA 'while' loop keeps repeating as long as its condition remains True:\n  while shield_hp > 0:\n      defend_chasm()\n\nAlways update your variable inside a 'while' loop—or use 'break'—otherwise you'll be trapped in an Infinite Loop forever! Take this Hint Token!"
 	}
@@ -388,6 +389,19 @@ func _ready() -> void:
 	_refresh_bridge_states()
 
 	AudioManager.play_bgm_by_path("res://assets/audio/world2_music.mp3")
+
+	var bdb_scene = load("res://scenes/ui/BottomDialogBar.tscn")
+	if bdb_scene:
+		bottom_dialog_bar = bdb_scene.instantiate()
+		add_child(bottom_dialog_bar)
+		bottom_dialog_bar.dialog_finished.connect(func():
+			if player and (not quest_dialog or not quest_dialog.visible) and (not shrine_modal or not shrine_modal.visible):
+				player.can_move = true
+		)
+		if SaveManager.should_play_world_intro(2):
+			if player:
+				player.can_move = false
+			bottom_dialog_bar.play_world_intro(2)
 
 func _process(delta: float) -> void:
 	boss_anim_timer += delta
@@ -1024,7 +1038,7 @@ func _on_accept_quest() -> void:
 	SaveManager.user_profile["current_level"] = 2
 	SaveManager.save_local_profile()
 	quest_dialog.visible = false
-	SceneManager.change_scene(SceneManager.LEVEL_GAMEPLAY)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_GAMEPLAY)
 
 func _on_close_quest_dialog() -> void:
 	quest_dialog.visible = false
@@ -1054,7 +1068,7 @@ func _on_pause_respawn() -> void:
 		player.global_position = spawn_position
 
 func _on_back_to_select() -> void:
-	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_SELECT)
 
 func dev_unseal_and_teleport_boss() -> void:
 	SaveManager.user_profile["w2_bridges"] = ["bridge_south", "bridge_north"]

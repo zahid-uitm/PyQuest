@@ -634,7 +634,7 @@ theme_override_constants/separation = 16
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "↺ Replay"
+text = "🌍 Back to Current World"
 
 [node name="LevelSelectBtn" type="Button" parent="VictoryOverlay/Center/VictoryCard/VictoryVBox/VictoryButtonsHBox"]
 custom_minimum_size = Vector2(0, 46)
@@ -642,7 +642,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.05, 0.08, 0.15, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
-text = "🌍 Return to World"
+text = "🗺️ Go to Next World ➔"
 
 [node name="SettingsModal" parent="." instance=ExtResource("3_settings")]
 visible = false

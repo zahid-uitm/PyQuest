@@ -76,12 +76,26 @@ var mcq_option_buttons: Array[Button] = []
 var is_evaluating: bool = false
 var last_answer_correct: bool = false
 var _hints_used_this_battle: int = 0
+var bottom_dialog_bar: CanvasLayer = null
+
+# World 6: 5 Generals' Siege Assist State
+var generals_assist_bar: PanelContainer = null
+var general_assist_buttons: Dictionary = {}
+var general_assists_used: Dictionary = {}
+var chronos_shield_active: bool = false
+var lambda_overcharge_active: bool = false
+var assist_status_label: Label = null
 
 func _ready() -> void:
 	feedback_overlay.visible = false
 	hint_modal_overlay.visible = false
 	pause_overlay.visible = false
 	victory_overlay.visible = false
+
+	var bdb_scene = load("res://scenes/ui/BottomDialogBar.tscn")
+	if bdb_scene:
+		bottom_dialog_bar = bdb_scene.instantiate()
+		add_child(bottom_dialog_bar)
 
 	pause_button.pressed.connect(_on_pause_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
@@ -109,10 +123,10 @@ func _ready() -> void:
 
 	if submit_button and not submit_button.pressed.is_connected(_on_submit_pressed):
 		submit_button.pressed.connect(_on_submit_pressed)
-	if replay_button and not replay_button.pressed.is_connected(_on_restart_pressed):
-		replay_button.pressed.connect(_on_restart_pressed)
-	if level_select_btn and not level_select_btn.pressed.is_connected(_on_quit_pressed):
-		level_select_btn.pressed.connect(_on_quit_pressed)
+	if replay_button and not replay_button.pressed.is_connected(_on_return_current_world_pressed):
+		replay_button.pressed.connect(_on_return_current_world_pressed)
+	if level_select_btn and not level_select_btn.pressed.is_connected(_on_go_next_world_pressed):
+		level_select_btn.pressed.connect(_on_go_next_world_pressed)
 
 	var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
 	AudioManager.play_boss_theme(cur_lvl)
@@ -152,7 +166,7 @@ func start_level() -> void:
 	first_try_correct = 0
 	current_question_attempts = 0
 	elapsed_time = 0.0
-	is_timer_active = true
+	is_timer_active = false
 	is_evaluating = false
 	
 	feedback_overlay.visible = false
@@ -166,8 +180,19 @@ func start_level() -> void:
 	var cur_lvl = int(level_data.get("level_id", SaveManager.user_profile.get("current_level", 1)))
 	AudioManager.play_boss_theme(cur_lvl)
 
+	general_assists_used.clear()
+	chronos_shield_active = false
+	lambda_overcharge_active = false
+	_setup_generals_assist_bar(cur_lvl)
+
 	update_hud()
 	display_question()
+
+	if bottom_dialog_bar and bottom_dialog_bar.has_method("play_boss_intro"):
+		bottom_dialog_bar.play_boss_intro(cur_lvl)
+		await bottom_dialog_bar.dialog_finished
+	if is_inside_tree():
+		is_timer_active = true
 
 func update_hud() -> void:
 	var total_q = level_data.get("questions", []).size()
@@ -187,7 +212,7 @@ func update_hud() -> void:
 	if visual_stage and "hero_hp" in visual_stage:
 		hero_hp_left = max(0, int(visual_stage.hero_hp))
 	var cur_lvl = int(level_data.get("level_id", SaveManager.user_profile.get("current_level", 1)))
-	var b_name = "Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte")))
+	var b_name = "Lord SegFault" if cur_lvl == 6 else ("Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte"))))
 	weapon_status_label.text = "🛡️ Alex HP: %d/100  |  🐉 Boss %s HP: %d/%d  |  🐍 Python 3.12 Grimoire" % [hero_hp_left, b_name, boss_hp_left, total_q * 100]
 	progress_text.text = "Boss Phase: %d/%d" % [current_question_index + 1, total_q]
 	level_progress_bar.max_value = total_q
@@ -438,6 +463,11 @@ func _on_submit_pressed() -> void:
 		var mult: float = min(2.0, 1.0 + (streak * 0.1))
 		var earned_pts: int = roundi(100.0 * mult)
 		var earned_xp: int = roundi(50.0 * mult)
+		if lambda_overcharge_active:
+			lambda_overcharge_active = false
+			earned_pts *= 2
+			earned_xp += 150
+			_refresh_generals_assist_bar()
 		score += earned_pts
 		total_xp += earned_xp
 		update_hud()
@@ -448,20 +478,25 @@ func _on_submit_pressed() -> void:
 
 		_show_feedback(true, q, earned_pts, earned_xp, mult)
 	else:
-		streak = 0
+		var was_shielded: bool = chronos_shield_active
+		if chronos_shield_active:
+			chronos_shield_active = false
+			_refresh_generals_assist_bar()
+		else:
+			streak = 0
 		update_hud()
 		AudioManager.play_error()
 		if visual_stage and visual_stage.has_method("play_incorrect_action"):
-			await visual_stage.play_incorrect_action()
+			await visual_stage.play_incorrect_action(was_shielded)
 
-		_show_feedback(false, q, 0, 0, 1.0)
+		_show_feedback(false, q, 0, 0, 1.0, was_shielded)
 
 	is_evaluating = false
 
-func _show_feedback(is_correct: bool, q: Dictionary, earned_pts: int, earned_xp: int, mult: float) -> void:
+func _show_feedback(is_correct: bool, q: Dictionary, earned_pts: int, earned_xp: int, mult: float, was_shielded: bool = false) -> void:
 	update_hud()
-	feedback_overlay.visible = true
 	if is_correct:
+		feedback_overlay.visible = true
 		status_title.text = "⚔️ DIRECT SPELL HIT! (-100 BOSS HP)"
 		status_title.add_theme_color_override("font_color", Color("#10B981"))
 		status_message.text = "+%d Score  •  +%d XP  •  Combo Streak: x%.1f 🔥" % [earned_pts, earned_xp, mult]
@@ -469,20 +504,32 @@ func _show_feedback(is_correct: bool, q: Dictionary, earned_pts: int, earned_xp:
 		next_button.text = "Next Boss Phase ➔"
 	else:
 		var cur_lvl = int(SaveManager.user_profile.get("current_level", 1))
-		var b_name = "Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte")))
+		var b_name = "Lord SegFault" if cur_lvl == 6 else ("Ignis-Py" if cur_lvl == 5 else ("Vektor-Zero" if cur_lvl == 4 else ("Lambda-Prime" if cur_lvl == 3 else ("Chronos-If" if cur_lvl == 2 else "NullByte"))))
 		var hero_dead = visual_stage and visual_stage.has_method("is_hero_dead") and visual_stage.is_hero_dead()
 		if hero_dead:
 			is_timer_active = false
+			if bottom_dialog_bar and bottom_dialog_bar.has_method("play_boss_outro"):
+				bottom_dialog_bar.play_boss_outro(cur_lvl, false)
+				await bottom_dialog_bar.dialog_finished
+			if not is_inside_tree():
+				return
+			feedback_overlay.visible = true
 			status_title.text = "💀 ALEX HAS FALLEN! (0 / 100 HP)"
 			status_title.add_theme_color_override("font_color", Color("#EF4444"))
 			status_message.text = "%s's Arcane Blade shattered your shield! Study the spell explanation below and challenge the Boss again." % b_name
 			explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
 			next_button.text = "↺ Retry Boss Battle"
 		else:
+			feedback_overlay.visible = true
 			var hp_left = int(visual_stage.hero_hp) if (visual_stage and "hero_hp" in visual_stage) else 65
-			status_title.text = "💥 BOSS COUNTERATTACK: SYNTAX ERROR!"
-			status_title.add_theme_color_override("font_color", Color("#EF4444"))
-			status_message.text = "%s deflected your spell and struck back! (-35 Shield HP • %d/100 HP left • Streak reset)" % [b_name, hp_left]
+			if was_shielded:
+				status_title.text = "🛡️ CHRONOS TEMPORAL SHIELD BLOCKED THE COUNTERATTACK!"
+				status_title.add_theme_color_override("font_color", Color("#38BDF8"))
+				status_message.text = "General Chronos-If froze %s's counterattack in time! (0 HP Damage • %d/100 HP left • Streak Preserved!)" % [b_name, hp_left]
+			else:
+				status_title.text = "💥 BOSS COUNTERATTACK: SYNTAX ERROR!"
+				status_title.add_theme_color_override("font_color", Color("#EF4444"))
+				status_message.text = "%s deflected your spell and struck back! (-35 Shield HP • %d/100 HP left • Streak reset)" % [b_name, hp_left]
 			explanation_label.text = q.get("explanation", "Review the required Python syntax rules.")
 			next_button.text = "Recast Spell ↺" if current_question_attempts < 3 else "Next Phase ➔"
 
@@ -572,8 +619,8 @@ func finish_level() -> void:
 	})
 
 	# Populate Victory Overlay
-	var b_upper = "IGNIS-PY, THE GUARDIAN OF PYTHONIA" if level_num == 5 else ("VEKTOR-ZERO" if level_num == 4 else ("LAMBDA-PRIME" if level_num == 3 else ("CHRONOS-IF" if level_num == 2 else "NULLBYTE")))
-	victory_title.text = "🏆 FINAL BOSS DEFEATED: %s!" % b_upper if level_num == 5 else "🏆 BOSS DEFEATED: %s SHATTERED!" % b_upper
+	var b_upper = "LORD SEGFAULT, THE NULL SOVEREIGN" if level_num == 6 else ("IGNIS-PY, THE GUARDIAN OF PYTHONIA" if level_num == 5 else ("VEKTOR-ZERO" if level_num == 4 else ("LAMBDA-PRIME" if level_num == 3 else ("CHRONOS-IF" if level_num == 2 else "NULLBYTE"))))
+	victory_title.text = "👑 PYTHONIA RESTORED: %s PURGED!" % b_upper if level_num == 6 else ("🏆 BOSS DEFEATED: %s!" % b_upper if level_num == 5 else "🏆 BOSS DEFEATED: %s SHATTERED!" % b_upper)
 	acc_value.text = "%.1f%%" % accuracy
 	var mult: float = min(2.0, 1.0 + (max_streak * 0.1))
 	streak_value.text = "%d (x%.1f Max)" % [max_streak, mult]
@@ -581,6 +628,22 @@ func finish_level() -> void:
 	score_value.text = "%d pts" % final_score
 	xp_value.text = "+%d XP" % total_xp
 	rank_label.text = title_rank
+
+	if replay_button:
+		replay_button.text = "🌍 Back to World %d" % level_num
+	if level_select_btn:
+		if level_num < 5:
+			level_select_btn.text = "🗺️ Go to World %d ➔" % (level_num + 1)
+		elif level_num == 5:
+			level_select_btn.text = "🎬 The Awakening • Plot Twist ➔"
+		else:
+			level_select_btn.text = "👑 Save Princess Ada • Return to Map"
+
+	if bottom_dialog_bar and bottom_dialog_bar.has_method("play_boss_outro"):
+		bottom_dialog_bar.play_boss_outro(level_num, true)
+		await bottom_dialog_bar.dialog_finished
+	if not is_inside_tree():
+		return
 
 	victory_overlay.visible = true
 
@@ -634,19 +697,246 @@ func _apply_settings() -> void:
 		code_label.add_theme_font_size_override("mono_font_size", px)
 
 func _on_quit_pressed() -> void:
+	SaveManager.skip_world_intro = true
 	var cur_lvl: int = int(SaveManager.user_profile.get("current_level", 1))
-	if cur_lvl == 5:
-		SceneManager.change_scene(SceneManager.WORLD_5)
+	if cur_lvl == 6:
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_6)
+	elif cur_lvl == 5:
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_5)
 	elif cur_lvl == 4:
-		SceneManager.change_scene(SceneManager.WORLD_4)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_4)
 	elif cur_lvl == 3:
-		SceneManager.change_scene(SceneManager.WORLD_3)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_3)
 	elif cur_lvl == 2:
-		SceneManager.change_scene(SceneManager.WORLD_2)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_2)
 	else:
-		SceneManager.change_scene(SceneManager.WORLD_1)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_1)
+
+# -------------------------------------------------------------------------
+# WORLD 6: THE 5 GENERALS' SIEGE ASSIST BAR
+# -------------------------------------------------------------------------
+func _setup_generals_assist_bar(cur_lvl: int) -> void:
+	if generals_assist_bar and is_instance_valid(generals_assist_bar):
+		generals_assist_bar.queue_free()
+		generals_assist_bar = null
+	general_assist_buttons.clear()
+	assist_status_label = null
+
+	if cur_lvl != 6:
+		return
+
+	var card_vbox = get_node_or_null("LayoutVBox/SplitArea/CodePanel/ScrollContainer/CardVBox") as VBoxContainer
+	if not card_vbox:
+		return
+
+	generals_assist_bar = PanelContainer.new()
+	var bar_style := StyleBoxFlat.new()
+	bar_style.bg_color = Color(0.11, 0.06, 0.22, 0.96)
+	bar_style.border_color = Color("#C084FC")
+	bar_style.set_border_width_all(2)
+	bar_style.set_corner_radius_all(10)
+	bar_style.content_margin_left = 12.0
+	bar_style.content_margin_right = 12.0
+	bar_style.content_margin_top = 8.0
+	bar_style.content_margin_bottom = 8.0
+	generals_assist_bar.add_theme_stylebox_override("panel", bar_style)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	generals_assist_bar.add_child(vbox)
+
+	var header_hbox := HBoxContainer.new()
+	header_hbox.add_theme_constant_override("separation", 10)
+	vbox.add_child(header_hbox)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "⚔️ 5 GENERALS' SIEGE ASSISTS (Click a General to Unleash Their Power!):"
+	title_lbl.add_theme_font_size_override("font_size", 12)
+	title_lbl.add_theme_color_override("font_color", Color("#FDE047"))
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_hbox.add_child(title_lbl)
+
+	assist_status_label = Label.new()
+	assist_status_label.text = "Ready"
+	assist_status_label.add_theme_font_size_override("font_size", 11)
+	assist_status_label.add_theme_color_override("font_color", Color("#E9D5FF"))
+	header_hbox.add_child(assist_status_label)
+
+	var btn_hbox := HBoxContainer.new()
+	btn_hbox.add_theme_constant_override("separation", 6)
+	vbox.add_child(btn_hbox)
+
+	var assists_cfg = [
+		{"id": "nullbyte", "label": "🟢 NullByte: 50/50 Purge", "color": Color("#10B981"), "bg": Color("#064E3B")},
+		{"id": "chronos", "label": "🔵 Chronos: Time Shield", "color": Color("#38BDF8"), "bg": Color("#0C4A6E")},
+		{"id": "lambda", "label": "🟣 Lambda: 2x Overcharge", "color": Color("#C084FC"), "bg": Color("#3B0764")},
+		{"id": "vektor", "label": "🟠 Vektor: Auto-Lock", "color": Color("#F59E0B"), "bg": Color("#451A03")},
+		{"id": "ignis", "label": "🔴 Ignis: Nova & Heal", "color": Color("#FB7185"), "bg": Color("#4C0519")}
+	]
+
+	for cfg in assists_cfg:
+		var btn := Button.new()
+		btn.text = cfg["label"]
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.custom_minimum_size = Vector2(0, 34)
+		btn.add_theme_font_size_override("font_size", 11)
+		btn.add_theme_color_override("font_color", Color("#FFFFFF"))
+
+		var st := StyleBoxFlat.new()
+		st.bg_color = cfg["bg"]
+		st.border_color = cfg["color"]
+		st.set_border_width_all(2)
+		st.set_corner_radius_all(6)
+		st.content_margin_left = 6.0
+		st.content_margin_right = 6.0
+		btn.add_theme_stylebox_override("normal", st)
+
+		var st_hov := st.duplicate() as StyleBoxFlat
+		st_hov.bg_color = (cfg["bg"] as Color).lightened(0.2)
+		btn.add_theme_stylebox_override("hover", st_hov)
+		btn.add_theme_stylebox_override("pressed", st)
+
+		var gen_id: String = cfg["id"]
+		btn.pressed.connect(func(): _use_general_assist(gen_id))
+		btn_hbox.add_child(btn)
+		general_assist_buttons[gen_id] = btn
+
+	card_vbox.add_child(generals_assist_bar)
+	var ans_idx: int = answer_area.get_index()
+	card_vbox.move_child(generals_assist_bar, ans_idx)
+	_refresh_generals_assist_bar()
+
+func _refresh_generals_assist_bar() -> void:
+	for gen_id in general_assist_buttons.keys():
+		var btn: Button = general_assist_buttons[gen_id]
+		if not is_instance_valid(btn):
+			continue
+		var used: bool = general_assists_used.get(gen_id, false)
+		btn.disabled = used
+		btn.modulate = Color(0.5, 0.5, 0.5, 0.75) if used else Color.WHITE
+
+	if assist_status_label:
+		var active_buffs: PackedStringArray = []
+		if chronos_shield_active:
+			active_buffs.append("🛡️ Time Shield Active")
+		if lambda_overcharge_active:
+			active_buffs.append("⚡ 2x Overcharge Active")
+		assist_status_label.text = "  •  ".join(active_buffs) if active_buffs.size() > 0 else "All 5 Generals Standing By"
+
+func _use_general_assist(gen_id: String) -> void:
+	if is_evaluating or general_assists_used.get(gen_id, false):
+		return
+	var questions: Array = level_data.get("questions", [])
+	if current_question_index >= questions.size():
+		return
+	var q: Dictionary = questions[current_question_index]
+	var q_type: String = q.get("type", "multiple_choice")
+
+	general_assists_used[gen_id] = true
+
+	if gen_id == "nullbyte":
+		# Eliminate up to 2 wrong choices or place first block in syntax_ordering
+		var purged_count: int = 0
+		if q_type == "multiple_choice" or q_type == "bug_hunt":
+			var correct_idx: int = int(q.get("correct_line", 0)) if q_type == "bug_hunt" else int(q.get("correct_index", 0))
+			for i in range(mcq_option_buttons.size()):
+				if i != correct_idx and not mcq_option_buttons[i].disabled and purged_count < 2:
+					mcq_option_buttons[i].disabled = true
+					mcq_option_buttons[i].text = "❌ [PURGED BY NULLBYTE] " + mcq_option_buttons[i].text
+					purged_count += 1
+		elif q_type == "code_completion":
+			var correct_str: String = str(q.get("correct_answer", ""))
+			for b in mcq_option_buttons:
+				if b.text != correct_str and not b.disabled and purged_count < 2:
+					b.disabled = true
+					b.text = "❌ " + b.text
+					purged_count += 1
+		elif q_type == "syntax_ordering":
+			var seq: Array = q.get("correct_sequence", [])
+			if seq.size() > 0 and selected_ordering.size() < seq.size():
+				var next_req: int = int(seq[selected_ordering.size()])
+				if next_req < mcq_option_buttons.size():
+					_on_order_block_clicked(next_req, mcq_option_buttons[next_req], q)
+		if visual_stage and visual_stage.has_method("play_general_assist_effect"):
+			visual_stage.play_general_assist_effect("🟢 NULLBYTE ASSIST: 50/50 Glitch Purge!", Color("#10B981"))
+
+	elif gen_id == "chronos":
+		chronos_shield_active = true
+		if visual_stage and visual_stage.has_method("play_general_assist_effect"):
+			visual_stage.play_general_assist_effect("🔵 CHRONOS ASSIST: Temporal Shield Activated!", Color("#38BDF8"))
+
+	elif gen_id == "lambda":
+		lambda_overcharge_active = true
+		if visual_stage and visual_stage.has_method("play_general_assist_effect"):
+			visual_stage.play_general_assist_effect("🟣 LAMBDA ASSIST: Next Spell 2x Score & +150 XP!", Color("#C084FC"))
+
+	elif gen_id == "vektor":
+		# Auto-lock the correct option / bug line / next 2 sequence blocks
+		if q_type == "multiple_choice":
+			var c_idx: int = int(q.get("correct_index", 0))
+			if c_idx < mcq_option_buttons.size():
+				_on_mcq_option_selected(c_idx, mcq_option_buttons[c_idx])
+		elif q_type == "code_completion":
+			var c_tok: String = str(q.get("correct_answer", ""))
+			for b in mcq_option_buttons:
+				if b.text == c_tok:
+					_on_completion_option_selected(c_tok, b, q)
+					break
+		elif q_type == "bug_hunt":
+			var c_line: int = int(q.get("correct_line", 0))
+			if c_line < mcq_option_buttons.size():
+				_on_bug_line_selected(c_line, mcq_option_buttons[c_line], q)
+		elif q_type == "syntax_ordering":
+			var seq: Array = q.get("correct_sequence", [])
+			for _step in range(2):
+				if selected_ordering.size() < seq.size():
+					var next_idx: int = int(seq[selected_ordering.size()])
+					if next_idx < mcq_option_buttons.size() and not mcq_option_buttons[next_idx].disabled:
+						_on_order_block_clicked(next_idx, mcq_option_buttons[next_idx], q)
+		if visual_stage and visual_stage.has_method("play_general_assist_effect"):
+			visual_stage.play_general_assist_effect("🟠 VEKTOR ASSIST: Matrix Solution Locked!", Color("#F59E0B"))
+
+	elif gen_id == "ignis":
+		SaveManager.user_profile["hint_tokens"] = int(SaveManager.user_profile.get("hint_tokens", 5)) + 1
+		SaveManager.save_local_profile()
+		if visual_stage and visual_stage.has_method("play_general_assist_effect"):
+			visual_stage.play_general_assist_effect("🔴 IGNIS-PY NOVA: -50 Boss HP & +35 Hero HP!", Color("#FB7185"), 35, 50)
+		update_hud()
+
+	_refresh_generals_assist_bar()
+
+func _on_return_current_world_pressed() -> void:
+	var level_num: int = int(level_data.get("level_id", SaveManager.user_profile.get("current_level", 1)))
+	SaveManager.user_profile["current_level"] = level_num
+	SaveManager.skip_world_intro = true
+	SaveManager.save_local_profile()
+	_on_quit_pressed()
+
+func _on_go_next_world_pressed() -> void:
+	var level_num: int = int(level_data.get("level_id", SaveManager.user_profile.get("current_level", 1)))
+	if level_num == 5:
+		# Beat World 5 -> Play Cutscene 2 (The Plot Twist)!
+		SceneManager.change_scene_with_loading("res://scenes/ui/CutscenePlotTwist.tscn")
+		return
+	elif level_num >= 6:
+		SaveManager.user_profile["segfault_beaten"] = true
+		SaveManager.user_profile["game_completed"] = true
+		SaveManager.user_profile["cutscene_epilogue_unlocked"] = true
+		SaveManager.user_profile["current_level"] = 6
+		SaveManager.save_local_profile()
+		SceneManager.change_scene_with_loading(SceneManager.CUTSCENE_EPILOGUE)
+		return
+	var next_lvl: int = min(6, level_num + 1)
+	SaveManager.user_profile["current_level"] = level_num
+	SaveManager.pending_map_advance_to = next_lvl
+	SaveManager.save_local_profile()
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_SELECT)
 
 func dev_auto_solve_phase() -> void:
+	if bottom_dialog_bar and bottom_dialog_bar.has_method("is_dialog_active") and bottom_dialog_bar.is_dialog_active():
+		bottom_dialog_bar._on_skip_pressed()
+		return
 	if is_evaluating or victory_overlay.visible:
 		return
 	if feedback_overlay.visible:

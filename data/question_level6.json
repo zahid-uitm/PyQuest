@@ -1,0 +1,111 @@
+{
+	"level_id": 6,
+	"level_title": "The Grandmaster Trial: Lord SegFault, The Null Sovereign",
+	"topic": "Ultimate Grandmaster Mastery (Complete Python Synthesis)",
+	"questions": [
+		{
+			"id": "w6_boss_q1",
+			"title": "Stage I • Phase 1: Shattering the Inverted Null Barrier (Data Types & Type Checking)",
+			"type": "multiple_choice",
+			"prompt": "[STAGE I: THE OBSIDIAN THRONE] Lord SegFault distorts reality by scrambling data types! Which Python built-in function reliably verifies if 'shield_energy' is an integer before casting your spell?",
+			"code_snippet": "# SegFault inverts variable types to cause crashes!\nshield_energy = 950\nif ____(shield_energy, int):\n    cast_purifying_light()\nelse:\n    trigger_memory_leak()",
+			"options": [
+				"isinstance",
+				"type_check",
+				"is_type",
+				"verify"
+			],
+			"correct_index": 0,
+			"action_trigger": "boss_hit_1",
+			"hint": "General NullByte's voice echoes: 'Use Python's built-in isinstance(var, type) to safely check variable types!'",
+			"explanation": "Barrier pierced! 'isinstance(shield_energy, int)' evaluates to True because 950 is an integer, safely triggering your spell without runtime errors!"
+		},
+		{
+			"id": "w6_boss_q2",
+			"title": "Stage I • Phase 2: Princess Ada's Decryption Key (Functions & Return Conduits)",
+			"type": "code_completion",
+			"prompt": "[STAGE I: THE STASIS PRISM] Princess Ada's cipher requires a pure function that multiplies the 5 General Keystones by 2. Fill in the missing return keyword to send the calculated key to the barrier lock!",
+			"code_snippet": "def decrypt_stasis_prism(keystones):\n    magic_power = keystones * 2\n    ____ magic_power\n\nkey = decrypt_stasis_prism(5)",
+			"options": [
+				"return",
+				"send",
+				"yield",
+				"output"
+			],
+			"correct_answer": "return",
+			"action_trigger": "boss_hit_2",
+			"hint": "General Lambda-Prime whispers: 'A function must use the return keyword to deliver its output back to the caller!'",
+			"explanation": "Cipher decoded! The 'return magic_power' statement passes 10 back to 'key', cracking the first layer of Princess Ada's stasis prism!"
+		},
+		{
+			"id": "w6_boss_q3",
+			"title": "Stage II • Phase 3: [BUG HUNT] Defusing SegFault's Infinite Loop Trap!",
+			"type": "bug_hunt",
+			"prompt": "[STAGE II: THE INFINITE CHASM] Lord SegFault attempts to trap your consciousness in an endless loop! Click the ONE line that fails to decrement the timer, causing the loop to run forever!",
+			"code_snippet": "# BUG HUNT: Spot the fatal flaw in this countdown loop!\ncountdown = 5\nwhile countdown > 0:\n    print('Purifying glitch...')\n    countdown + 1    # <-- Bug! Doesn't subtract or reassign!\nlaunch_counter_strike()",
+			"bug_lines": [
+				"countdown = 5",
+				"while countdown > 0:",
+				"    print('Purifying glitch...')",
+				"    countdown + 1    # <-- Does not decrease countdown!"
+			],
+			"correct_line": 3,
+			"fixed_line": "    countdown -= 1",
+			"action_trigger": "boss_hit_3",
+			"hint": "General Chronos-If commands: 'To avoid an infinite loop, the counter must decrease towards 0 with -= 1 each iteration!'",
+			"explanation": "Infinite loop broken! 'countdown + 1' never updated the countdown variable. Changing it to 'countdown -= 1' allows the loop to exit safely after 5 iterations!"
+		},
+		{
+			"id": "w6_boss_q4",
+			"title": "Stage II • Phase 4: Slicing the Glitch Shards (List Slicing & Ordering)",
+			"type": "multiple_choice",
+			"prompt": "[STAGE II: THE GLITCH STORM] SegFault hurls a corrupted matrix list: ['error', 'corrupt', 'alpha', 'beta']. Which slice extracts only the two purified spells ['alpha', 'beta']?",
+			"code_snippet": "spells = ['error', 'corrupt', 'alpha', 'beta']\npure_spells = spells[____]",
+			"options": [
+				"2:",
+				":2",
+				"1:3",
+				"-1"
+			],
+			"correct_index": 0,
+			"action_trigger": "boss_hit_4",
+			"hint": "General Vektor-Zero advises: 'Python list indexing starts at 0! Elements at index 2 and 3 are extracted with [2:]!'",
+			"explanation": "Precision extraction! 'spells[2:]' takes elements from index 2 to the end, yielding ['alpha', 'beta'] and blasting away the glitch residue!"
+		},
+		{
+			"id": "w6_boss_q5",
+			"title": "Stage III • Phase 5: Assembling the Grandmaster Compiler (Syntax Ordering)",
+			"type": "syntax_ordering",
+			"prompt": "[STAGE III: THE GENERALS' UNIFICATION] Lord SegFault unleashes his ultimate form! Arrange the code blocks in proper order to iterate through all 5 General Keystones, calculate the total power, and invoke the Royal Cleansing Spell!",
+			"code_blocks": [
+				"keystones = [100, 150, 200, 250, 300]",
+				"total_power = 0",
+				"for gem in keystones:",
+				"    total_power += gem",
+				"if total_power >= 1000:",
+				"    cast_royal_cleansing_spell(total_power)"
+			],
+			"correct_sequence": [0, 1, 2, 3, 4, 5],
+			"action_trigger": "boss_hit_5",
+			"hint": "Master PyWizard advises: 'Initialize the list and accumulator first, run the loop with indented addition, then check the total with if!'",
+			"explanation": "Fivefold resonance! The keystones accumulate to 1000 power, triggering the royal cleansing spell and exposing Lord SegFault's core!"
+		},
+		{
+			"id": "w6_boss_q6",
+			"title": "Stage III • Phase 6: The Final Purge (Grandmaster Execution)",
+			"type": "code_completion",
+			"prompt": "[FINAL PHASE: THE PURGING STRIKE] Lord SegFault is vulnerable! Execute the final purge by passing True to the restore_princess argument!",
+			"code_snippet": "# The ultimate command to save Princess Ada and restore Pythonia!\npurge_lord_segfault(target=\"SegFault\", restore_princess=____)",
+			"options": [
+				"True",
+				"true",
+				"1",
+				"\"yes\""
+			],
+			"correct_answer": "True",
+			"action_trigger": "boss_defeat",
+			"hint": "Adventurer Alex shouts: 'In Python, the boolean value must always be capitalized—choose True!'",
+			"explanation": "SAVIOR OF PYTHONIA! Lord SegFault is permanently purged from memory! Princess Ada's stasis prism shatters into golden light, and the realm of Pythonia is restored!"
+		}
+	]
+}

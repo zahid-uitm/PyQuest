@@ -1,0 +1,282 @@
+[gd_scene format=3 uid="uid://dmfxk81p7oq2y"]
+
+[ext_resource type="Script" path="res://scripts/ui/CutscenePlotTwist.gd" id="1_twist_script"]
+[ext_resource type="Texture2D" path="res://assets/maps/world5_lair_bg.jpg" id="2_volcano_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_twist_five_generals.jpg" id="3_overview_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_twist_flashback_battle.jpg" id="4_corrupted_bg"]
+[ext_resource type="Texture2D" path="res://assets/cinematics/cinematic_twist_keystone_bridge.jpg" id="5_castle_bg"]
+[ext_resource type="PackedScene" path="res://scenes/ui/BottomDialogBar.tscn" id="6_dialog_bar"]
+
+[sub_resource type="Curve" id="Curve_gold"]
+_data = [Vector2(0, 0.4), 0.0, 1.8, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.2, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_gold"]
+offsets = PackedFloat32Array(0, 0.25, 0.7, 1)
+colors = PackedColorArray(1, 1, 0.8, 1, 1, 0.85, 0.2, 1, 0.95, 0.5, 0.1, 0.8, 1, 0.3, 0.1, 0)
+
+[sub_resource type="Curve" id="Curve_keystone"]
+_data = [Vector2(0, 0.3), 0.0, 2.0, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_keystone"]
+offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1)
+colors = PackedColorArray(0.2, 0.9, 0.5, 1, 0.2, 0.7, 1, 1, 0.8, 0.3, 1, 1, 1, 0.7, 0.2, 1, 1, 0.2, 0.3, 1, 1, 1, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_narrator"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+bg_color = Color(0.06, 0.05, 0.11, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96, 0.76, 0.22, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.85)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_normal"]
+bg_color = Color(0.08, 0.1, 0.16, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.5, 0.65, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_hover"]
+bg_color = Color(0.16, 0.2, 0.32, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.6, 0.75, 0.95, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="CutscenePlotTwist" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_twist_script")
+
+[node name="Stages" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StageVolcano" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("2_volcano_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageGenerals" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("3_overview_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageKeystones" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("4_corrupted_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StageCitadel" type="TextureRect" parent="Stages"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(960, 540)
+texture = ExtResource("5_castle_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="VFX" type="Node2D" parent="."]
+
+[node name="GoldBurstParticles" type="CPUParticles2D" parent="VFX"]
+position = Vector2(960, 540)
+emitting = false
+amount = 64
+lifetime = 1.6
+one_shot = true
+explosiveness = 0.85
+emission_shape = 1
+emission_sphere_radius = 45.0
+spread = 180.0
+gravity = Vector2(0, 60)
+initial_velocity_min = 200.0
+initial_velocity_max = 420.0
+angular_velocity_min = -180.0
+angular_velocity_max = 180.0
+scale_amount_min = 6.0
+scale_amount_max = 12.0
+scale_amount_curve = SubResource("Curve_gold")
+color_ramp = SubResource("Gradient_gold")
+
+[node name="KeystoneParticles" type="CPUParticles2D" parent="VFX"]
+position = Vector2(960, 540)
+emitting = false
+amount = 48
+lifetime = 2.0
+emission_shape = 2
+emission_sphere_radius = 120.0
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 60.0
+initial_velocity_max = 140.0
+scale_amount_min = 5.0
+scale_amount_max = 10.0
+scale_amount_curve = SubResource("Curve_keystone")
+color_ramp = SubResource("Gradient_keystone")
+
+[node name="BridgeBeam" type="Line2D" parent="VFX"]
+visible = false
+width = 14.0
+default_color = Color(0.9, 0.8, 1, 0.95)
+gradient = SubResource("Gradient_keystone")
+
+[node name="FlashRect" type="ColorRect" parent="VFX"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NarratorPanel" type="PanelContainer" parent="HUD"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -480.0
+offset_top = 88.0
+offset_right = 480.0
+offset_bottom = 208.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_narrator")
+
+[node name="Margin" type="MarginContainer" parent="HUD/NarratorPanel"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/NarratorPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ActLabel" type="Label" parent="HUD/NarratorPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.76, 0.22, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 15
+text = "THE CLIMAX OF MOUNT SYNTAX"
+horizontal_alignment = 1
+
+[node name="NarrationText" type="RichTextLabel" parent="HUD/NarratorPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/default_color = Color(0.92, 0.94, 0.98, 1)
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = "Narration text here..."
+fit_content = true
+scroll_active = false
+
+[node name="SkipButton" type="Button" parent="HUD"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 86.0
+offset_right = -50.0
+offset_bottom = 132.0
+grow_horizontal = 0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.9, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_skip_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_skip_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_skip_hover")
+text = "⏭ Skip (ESC)"
+
+[node name="Letterbox" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="ColorRect" parent="Letterbox"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 70.0
+grow_horizontal = 2
+color = Color(0.02, 0.02, 0.04, 1)
+
+[node name="BottomBar" type="ColorRect" parent="Letterbox"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -70.0
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0.02, 0.02, 0.04, 1)
+
+[node name="BottomDialogBar" parent="." instance=ExtResource("6_dialog_bar")]

@@ -9,6 +9,7 @@ extends Control
 @onready var settings_modal: Control = get_node_or_null("SettingsModal")
 @onready var badges_modal: Control = get_node_or_null("BadgesModal")
 @onready var leaderboard_modal: Control = get_node_or_null("LeaderboardModal")
+@onready var cutscenes_modal: Control = get_node_or_null("CutscenesModal")
 @onready var exit_btn: Button = get_node_or_null("StoneMonolith/MonolithVBox/ExitButton")
 @onready var stone_drawer: Control = get_node_or_null("StoneMonolith/StoneDrawer")
 @onready var drawer_handle_btn: TextureButton = get_node_or_null("StoneMonolith/StoneDrawer/DrawerHandleBtn")
@@ -95,16 +96,28 @@ func update_dashboard() -> void:
 func _on_continue_quest_button_pressed() -> void:
 	var unlocked: int = int(SaveManager.user_profile.get("unlocked_level", 1))
 	SaveManager.user_profile["current_level"] = unlocked
-	if unlocked >= 5:
-		SceneManager.change_scene(SceneManager.WORLD_5)
+	var intro_watched: bool = bool(SaveManager.user_profile.get("intro_watched", false))
+	if unlocked == 1 and not intro_watched:
+		SceneManager.change_scene_with_loading(SceneManager.CINEMATIC_INTRO)
+		return
+	if unlocked >= 6:
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_6)
+	elif unlocked == 5:
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_5)
 	elif unlocked == 4:
-		SceneManager.change_scene(SceneManager.WORLD_4)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_4)
 	elif unlocked == 3:
-		SceneManager.change_scene(SceneManager.WORLD_3)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_3)
 	elif unlocked == 2:
-		SceneManager.change_scene(SceneManager.WORLD_2)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_2)
 	else:
-		SceneManager.change_scene(SceneManager.WORLD_1)
+		SceneManager.change_scene_with_loading(SceneManager.WORLD_1)
+
+func _on_intro_cinematic_button_pressed() -> void:
+	if cutscenes_modal and cutscenes_modal.has_method("open_modal"):
+		cutscenes_modal.open_modal()
+	else:
+		SceneManager.change_scene(SceneManager.CINEMATIC_INTRO)
 
 func _on_level_select_button_pressed() -> void:
 	SceneManager.change_scene(SceneManager.LEVEL_SELECT)

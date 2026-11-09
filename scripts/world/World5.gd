@@ -57,6 +57,7 @@ var trap_state: int = 0 # 0 = DORMANT VENT (Safe), 1 = TREMOR WARNING, 2 = MAGMA
 var trap_cooldown: float = 0.0
 var active_terminal_id: String = ""
 var player_at_boss_gate: bool = false
+var bottom_dialog_bar: CanvasLayer = null
 
 const SEAL_ORDER: Array[String] = ["seal_amber", "seal_purple", "seal_azure", "seal_emerald"]
 
@@ -276,6 +277,19 @@ func _ready() -> void:
 	_refresh_all_npc_states()
 
 	AudioManager.play_boss_theme(5)
+
+	var bdb_scene = load("res://scenes/ui/BottomDialogBar.tscn")
+	if bdb_scene:
+		bottom_dialog_bar = bdb_scene.instantiate()
+		add_child(bottom_dialog_bar)
+		bottom_dialog_bar.dialog_finished.connect(func():
+			if player and (not quest_dialog or not quest_dialog.visible) and (not shrine_modal or not shrine_modal.visible):
+				player.can_move = true
+		)
+		if SaveManager.should_play_world_intro(5):
+			if player:
+				player.can_move = false
+			bottom_dialog_bar.play_world_intro(5)
 
 func _process(delta: float) -> void:
 	boss_anim_timer += delta
@@ -812,7 +826,7 @@ func open_quest_dialog() -> void:
 		decline_btn = find_child("DeclineButton", true, false) as Button
 
 	if count >= 4:
-		_update_dialog_speaker("🐉", "Ignis-Py • The Ancient Guardian of Pythonia", "res://assets/sprites/portraits/portrait_pywizard.png")
+		_update_dialog_speaker("🐉", "Ignis-Py • The Ancient Guardian of Pythonia", "res://assets/sprites/portraits/portrait_ignis.png")
 		if quest_text:
 			quest_text.text = "THE FOUR ELEMENTAL SEALS ARE BROKEN! You stand at the Molten Throne of Pythonia, Adventurer Alex!\n\nAwaken IGNIS-PY, THE GUARDIAN OF PYTHONIA (600 HP — 3-Stage Final Boss Raid)! Combine Variables, Conditionals, Loops, Functions, Lists, and Live Bug-Hunting to claim the Grandmaster Crown!"
 		if accept_btn:
@@ -865,7 +879,7 @@ func _on_accept_quest() -> void:
 	SaveManager.user_profile["current_level"] = 5
 	SaveManager.save_local_profile()
 	quest_dialog.visible = false
-	SceneManager.change_scene(SceneManager.LEVEL_GAMEPLAY)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_GAMEPLAY)
 
 func _on_close_quest_dialog() -> void:
 	quest_dialog.visible = false
@@ -895,7 +909,7 @@ func _on_pause_respawn() -> void:
 		player.global_position = spawn_position
 
 func _on_back_to_select() -> void:
-	SceneManager.change_scene(SceneManager.LEVEL_SELECT)
+	SceneManager.change_scene_with_loading(SceneManager.LEVEL_SELECT)
 
 func dev_unseal_and_teleport_boss() -> void:
 	SaveManager.user_profile["w5_seals"] = ["seal_amber", "seal_purple", "seal_azure", "seal_emerald"]
